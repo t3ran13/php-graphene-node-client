@@ -1,5 +1,6 @@
 {
     "name": "t3ran13/php-graphene-node-client",
+    "description": "PHP client for connection to Graphene node (steem/golos)",
     "keywords": ["Web Socket client for graphene node", "Graphene", "Steemit", "Golos"],
     "homepage": "https://github.com/t3ran13/php-graphene-node-client",
     "license": "MIT",
@@ -10,6 +11,7 @@
         }
     ],
     "require": {
+        "php": "^5.3.3 || ^7.0",
         "textalk/websocket": "^1.2"
     },
     "autoload": {
