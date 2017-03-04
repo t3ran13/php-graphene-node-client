@@ -4,8 +4,6 @@
 namespace GrapheneNodeClient\Commands;
 
 
-use GrapheneNodeClient\Connectors\ConnectorInterface;
-
 class GetContentCommand extends CommandAbstract
 {
     /** @var string  */

@@ -4,8 +4,6 @@
 namespace GrapheneNodeClient\Commands;
 
 
-use GrapheneNodeClient\Connectors\ConnectorInterface;
-
 class GetDiscussionsByBlogCommand extends CommandAbstract
 {
     protected $method            = 'get_discussions_by_blog';
