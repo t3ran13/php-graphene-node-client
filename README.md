@@ -67,6 +67,42 @@ namespace: GrapheneNodeClient\Commands;
 - GetDiscussionsByBlogCommand
 - GetDiscussionsByCreatedCommand
 - GetTrendingCategoriesCommand
+  
+   
+
+## Implemented Connectors List
+
+namespace: GrapheneNodeClient\Connectors\WebSocket;
+
+- GolosWSConnector
+- SteemitWSConnector
+
+switch between connetors 
+```php
+<?php
+
+use GrapheneNodeClient\Commands\GetContentCommand;
+use GrapheneNodeClient\Connectors\InitConnector;
+
+$command = new GetContentCommand(InitConnector::getConnector(InitConnector::PLATFORM_STEEMIT));
+
+$content = $command->execute(
+    [
+        0 => "author",
+        1 => "permlink"
+    ]
+);
+// will return
+// [
+//      "id" => 1,
+//      "result" => [
+//            ...
+//      ]
+// ]
+
+
+```
+
    
 
 ## Creating Own Connector
