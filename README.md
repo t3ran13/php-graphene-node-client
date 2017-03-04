@@ -74,8 +74,8 @@ namespace: GrapheneNodeClient\Commands;
 
 namespace: GrapheneNodeClient\Connectors\WebSocket;
 
-- GolosWSConnector
-- SteemitWSConnector
+- GolosWSConnector (wss://ws.golos.io)
+- SteemitWSConnector (wss://ws.steemit.com)
 
 switch between connectors 
 ```php
