@@ -41,7 +41,7 @@ $trendingTags = $command->execute(
         2 //'limit'
     ],
     'result',
-    GolosWSConnector::ANSWER_FORMAT_ARRAY
+    GolosWSConnector::ANSWER_FORMAT_ARRAY // or GolosWSConnector::ANSWER_FORMAT_OBJECT
 );
 // will return
 // [
