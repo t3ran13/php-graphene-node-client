@@ -15,16 +15,4 @@ class GetDiscussionsByAuthorBeforeDateCommand extends CommandAbstract
         2, //'before_date',
         3 //'limit'
     ];
-
-    /**
-     * @param array $params
-     * @param string $answerFormat
-     * @return mixed
-     */
-    public function execute($params = [], $answerFormat = ConnectorInterface::ANSWER_FORMAT_ARRAY)
-    {
-        $answer =  parent::execute($params, $answerFormat);
-
-        return $answer['result'];
-    }
 }

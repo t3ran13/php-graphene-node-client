@@ -13,16 +13,4 @@ class GetTrendingCategoriesCommand extends CommandAbstract
         0, //'after'
         1, //'limit'
     ];
-
-    /**
-     * @param array $params
-     * @param string $answerFormat
-     * @return mixed
-     */
-    public function execute($params = [], $answerFormat = ConnectorInterface::ANSWER_FORMAT_ARRAY)
-    {
-        $answer =  parent::execute($params, $answerFormat);
-
-        return $answer['result'];
-    }
 }

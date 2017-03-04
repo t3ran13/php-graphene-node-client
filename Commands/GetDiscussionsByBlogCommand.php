@@ -17,16 +17,4 @@ class GetDiscussionsByBlogCommand extends CommandAbstract
 //          'start_permlink', //'start_permlink' for pagination,
         ]
     ];
-
-    /**
-     * @param array $params
-     * @param string $answerFormat
-     * @return mixed
-     */
-    public function execute($params = [], $answerFormat = ConnectorInterface::ANSWER_FORMAT_ARRAY)
-    {
-        $answer =  parent::execute($params, $answerFormat);
-
-        return $answer['result'];
-    }
 }
