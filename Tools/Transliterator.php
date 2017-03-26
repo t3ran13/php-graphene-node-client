@@ -20,6 +20,7 @@ class Transliterator
             'ё' => 'yo',
             'э' => 'ye',
             'ю' => 'yu',
+            'я' => 'ya',
             'х' => 'kh',
             'ж' => 'zh',
             'а' => 'a',
@@ -102,8 +103,8 @@ class Transliterator
             return $str;
         }
 
-        $s = '[^[\]]+(?=])';
-        $t = '<(.|\n)*?>';
+        $s = '/[^[\]]+(?=])/';
+        $t = '/<(.|\n)*?>/';
         preg_match_all($s, $str, $orig, PREG_PATTERN_ORDER);
         preg_match_all($t, $str, $tags, PREG_PATTERN_ORDER);
 
@@ -132,12 +133,12 @@ class Transliterator
         }
         $str = substr($str, 4);
 
-        $s = '[^[\]]+(?=])';
-        $t = '<(.|\n)*?>';
+        $s = '/[^[\]]+(?=])/';
+        $t = '/<(.|\n)*?>/';
         preg_match_all($s, $str, $orig, PREG_PATTERN_ORDER);
         preg_match_all($t, $str, $tags, PREG_PATTERN_ORDER);
 
-        $str = self::transliterate($str, $toLang);
+        $str = self::transliterate($str, $toLang, true);
 
         if (!empty($orig[0])) {
             self::restoreTechnicalData($str, $s, $orig);
