@@ -150,4 +150,24 @@ class MyCommand extends CommandAbstract
 }
 
 
+```  
+   
+
+## Tools
+## Transliterator
+
+
+```php
+<?php
+
+use GrapheneNodeClient\Tools\Transliterator;
+
+
+//Encode tags
+$tag = Transliterator::encode('пол', Transliterator::LANG_RU); // return 'pol';
+
+
+//Decode tags
+$tag = Transliterator::encode('ru--pol', Transliterator::LANG_RU); // return 'пол';
+
 ```
