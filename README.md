@@ -115,6 +115,10 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 class MyConnector implements ConnectorInterface 
 {
+    public function getPlatform() {
+     // TODO: Implement getPlatform() method.
+    }
+    
     public function doRequest(array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY) {
      // TODO: Implement doRequest() method.
     }
