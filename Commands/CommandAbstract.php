@@ -33,7 +33,10 @@ abstract class CommandAbstract implements CommandInterface
     {
         $this->setParams($params);
 
-        $this->checkRequiredParams($this->requiredParams, $this->params);
+        $requiredParams = isset($this->requiredParams[$this->connector->getPlatform()])
+            ? $this->requiredParams[$this->connector->getPlatform()]
+            : $this->requiredParams;
+        $this->checkRequiredParams($requiredParams, $this->params);
 
         $answer = $this->doRequest($answerFormat);
 

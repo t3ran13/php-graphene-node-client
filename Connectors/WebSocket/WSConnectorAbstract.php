@@ -8,6 +8,11 @@ use WebSocket\Client;
 abstract class WSConnectorAbstract implements ConnectorInterface
 {
     /**
+     * @var string
+     */
+    protected $platform;
+
+    /**
      * wss or ws server, for example 'wss://ws.golos.io'
      *
      * @var string
@@ -40,6 +45,11 @@ abstract class WSConnectorAbstract implements ConnectorInterface
         }
 
         return self::$currentId;
+    }
+
+    public function getPlatform()
+    {
+        return $this->platform;
     }
 
     public function setCurrentId($id)

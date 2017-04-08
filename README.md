@@ -132,21 +132,48 @@ class MyConnector implements ConnectorInterface
 namespace My\App\Commands;
 
 use GrapheneNodeClient\Commands\CommandAbstract;
+use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 class MyCommand extends CommandAbstract 
 {
     protected $method            = 'method_name';
     
+    //If different for platforms
     protected $requiredParams = [
-        // for list params
-        0 => [
-            'param_key1', //this key will be required
-            'param_key2', //this key will be required
+        ConnectorInterface::PLATFORM_GOLOS => [
+            // for list params
+            0 => [
+                'param_key1', //this key will be required
+                'param_key2', //this key will be required
+            ]
+            //or 
+            //'param_key1', //this key will be required
+            //'param_key2', //this key will be required
+        ],
+        ConnectorInterface::PLATFORM_STEEMIT => [
+            // for list params
+            0 => [
+                'some_other_key1', //this key will be required
+                'some_other_key2', //this key will be required
+            ]
+            //or 
+            //'some_other_key1', //this key will be required
+            //'some_other_key2', //this key will be required
         ]
-        //or 
-        //'param_key1', //this key will be required
-        //'param_key2', //this key will be required
     ];
+    
+    
+    //If the same for platforms
+    //protected $requiredParams = [
+    //    // for list params
+    //    0 => [
+    //        'param_key1', //this key will be required
+    //        'param_key2', //this key will be required
+    //    ]
+    //    //or 
+    //    //'param_key1', //this key will be required
+    //    //'param_key2', //this key will be required
+    //];
 }
 
 
