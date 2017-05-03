@@ -10,7 +10,7 @@ class GetDiscussionsByCreatedCommand extends CommandAbstract
     protected $requiredParams = [
         ConnectorInterface::PLATFORM_GOLOS => [
             0 => [
-                'select_authors', //'author',
+//                'select_authors', //'author',
                 'select_tags', //'author',
                 'limit', //'limit'
 //          'start_author', //'start_author' for pagination,
