@@ -4,6 +4,8 @@
 namespace GrapheneNodeClient\Commands;
 
 
+use GrapheneNodeClient\Connectors\ConnectorInterface;
+
 class GetDiscussionsByCreatedCommand extends CommandAbstract
 {
     protected $method = 'get_discussions_by_created';
@@ -26,3 +28,4 @@ class GetDiscussionsByCreatedCommand extends CommandAbstract
             ]
         ]
     ];
+}
