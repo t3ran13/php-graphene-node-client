@@ -10,4 +10,9 @@ interface CommandInterface
      * @return mixed
      */
     public function execute($params = []);
+
+    /**
+     * @return array
+     */
+    public function getDataMap();
 }
