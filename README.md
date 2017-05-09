@@ -21,9 +21,9 @@ use GrapheneNodeClient\Connectors\WebSocket\SteemitWSConnector;
 $commandQuery = new CommandQueryData();
 $data = [
     [
-        'limit' => $limit,
+        'limit'       => $limit,
         'select_tags' => ['golos'], // for GOLOS
-        'tag' => 'steemit', // for STEEMIT     
+        'tag'         => 'steemit', // for STEEMIT     
     ]
 ];
 $commandQuery->setParams($data);
