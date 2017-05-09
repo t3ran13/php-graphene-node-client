@@ -11,43 +11,59 @@ composer require t3ran13/php-graphene-node-client
 ```php
 <?php
 
-use GrapheneNodeClient\Commands\GetTrendingCategoriesCommand;
+use GrapheneNodeClient\Commands\CommandQueryData;
+use GrapheneNodeClient\Commands\DataBase\GetDiscussionsByCreatedCommand;
 use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
+use GrapheneNodeClient\Connectors\WebSocket\SteemitWSConnector;
 
-$command = new GetTrendingCategoriesCommand(new GolosWSConnector());
 
-$trendingTags = $command->execute(
+//Set params for query
+$commandQuery = new CommandQueryData();
+$data = [
     [
-        "", //'after'
-        2 //'limit'
+        'limit' => $limit,
+        'select_tags' => ['golos'], // for GOLOS
+        'tag' => 'steemit', // for STEEMIT     
     ]
+];
+$commandQuery->setParams($data);
+
+//OR 
+$commandQuery = new CommandQueryData();
+$commandQuery->setParamByKey('0:limit', $limit);
+$commandQuery->setParamByKey('0:select_tags', [$tag]);
+$commandQuery->setParamByKey('0:tag', $tag);
+
+$command = new GetDiscussionsByCreatedCommand(new GolosWSConnector());
+$golosPosts = $command->execute(
+    $commandQuery
 );
 // will return
 // [
-//      "id" => 2,
+//      "id" => 1,
 //      "result" => [
 //            [
-//                "name" => "ru--zhiznx",
-//                "total_payouts": "410233.942 GBG",
+//                "id": 466628,
+//                "author": "piranya",
+//                "permlink": "devyatyi-krug",
 //                ...
 //            ],
 //            ...
 //      ]
 // ]
   
-$trendingTags = $command->execute(
-    [
-        "", //'after'
-        2 //'limit'
-    ],
+$command = new GetDiscussionsByCreatedCommand(new SteemitWSConnector());
+$steemitPosts = $command->execute(
+    $commandQuery,
     'result',
-    GolosWSConnector::ANSWER_FORMAT_ARRAY // or GolosWSConnector::ANSWER_FORMAT_OBJECT
+    SteemitWSConnector::ANSWER_FORMAT_ARRAY // or SteemitWSConnector::ANSWER_FORMAT_OBJECT
 );
 // will return
 // [
 //      [
-//          "name" => "ru--zhiznx",
-//          "total_payouts": "410233.942 GBG",
+//          "id": 466628,
+//          "author": "piranya",
+//          "permlink": "devyatyi-krug",
 //          ...
 //      ],
 //      ...
@@ -60,7 +76,7 @@ $trendingTags = $command->execute(
 
 ## Implemented Commands List
 
-namespace: GrapheneNodeClient\Commands;
+namespace: GrapheneNodeClient\Commands\DataBase;
 
 - GetContentCommand
 - GetDiscussionsByAuthorBeforeDateCommand
@@ -81,16 +97,27 @@ switch between connectors
 ```php
 <?php
 
-use GrapheneNodeClient\Commands\GetContentCommand;
+use GrapheneNodeClient\Commands\CommandQueryData;
+use GrapheneNodeClient\Commands\DataBase\GetContentCommand;
 use GrapheneNodeClient\Connectors\InitConnector;
 
 $command = new GetContentCommand(InitConnector::getConnector(InitConnector::PLATFORM_STEEMIT));
 
-$content = $command->execute(
+$commandQuery = new CommandQueryData();
+$commandQuery->setParamByKey('0', 'author');
+$commandQuery->setParamByKey('1', 'permlink');
+
+//OR
+$commandQuery = new CommandQueryData();
+$commandQuery->setParams(
     [
         0 => "author",
         1 => "permlink"
     ]
+);
+
+$content = $command->execute(
+    $commandQuery
 );
 // will return
 // [
@@ -135,7 +162,7 @@ class MyConnector implements ConnectorInterface
 
 namespace My\App\Commands;
 
-use GrapheneNodeClient\Commands\CommandAbstract;
+use GrapheneNodeClient\Commands\DataBase\CommandAbstract;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 class MyCommand extends CommandAbstract 
@@ -143,40 +170,34 @@ class MyCommand extends CommandAbstract
     protected $method            = 'method_name';
     
     //If different for platforms
-    protected $requiredParams = [
-        ConnectorInterface::PLATFORM_GOLOS => [
-            // for list params
-            0 => [
-                'param_key1', //this key will be required
-                'param_key2', //this key will be required
-            ]
-            //or 
-            //'param_key1', //this key will be required
-            //'param_key2', //this key will be required
+    protected $queryDataMap = [
+        ConnectorInterface::PLATFORM_GOLOS   => [
+            //on the left is array keys and on the right is validators
+            //validators for ani list element have to be have '*'  
+            '*:limit'            => ['integer'], //the discussions return amount top limit
+            '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
+            '*:select_authors:*' => ['nullOrString'], //list of authors to select
+            '*:truncate_body'    => ['nullOrInteger'], //the amount of bytes of the post body to return, 0 for all
+            '*:start_author'     => ['nullOrString'], //the author of discussion to start searching from
+            '*:start_permlink'   => ['nullOrString'], //the permlink of discussion to start searching from
+            '*:parent_author'    => ['nullOrString'], //the author of parent discussion
+            '*:parent_permlink'  => ['nullOrString'] //the permlink of parent discussion
         ],
         ConnectorInterface::PLATFORM_STEEMIT => [
-            // for list params
-            0 => [
-                'some_other_key1', //this key will be required
-                'some_other_key2', //this key will be required
-            ]
-            //or 
-            //'some_other_key1', //this key will be required
-            //'some_other_key2', //this key will be required
+            //for list params
+            '*:tag'            => ['nullOrString'], //'author',
+            '*:limit'          => ['integer'], //'limit'
+            '*:start_author'   => ['nullOrString'], //'start_author' for pagination,
+            '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
         ]
     ];
     
     
     //If the same for platforms
-    //protected $requiredParams = [
-    //    // for list params
-    //    0 => [
-    //        'param_key1', //this key will be required
-    //        'param_key2', //this key will be required
-    //    ]
-    //    //or 
-    //    //'param_key1', //this key will be required
-    //    //'param_key2', //this key will be required
+    //protected $queryDataMap = [
+    // route example: 'key:123:array' => $_SESSION['key'][123]['array']
+    //    'some_array_key:some_other_key' => ['integer'],   // available validators are 'required', 'array', 'string',
+                                                            // 'integer', 'nullOrArray', 'nullOrString', 'nullOrInteger'.
     //];
 }
 
