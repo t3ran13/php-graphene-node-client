@@ -36,7 +36,7 @@ class CommandQueryData implements CommandQueryDataInterface
      */
     public function setParamByKey($setKey, $setVal)
     {
-        $this->setArrayElementByKey($this->params, $setKey, $setVal);
+        $this->params = $this->setArrayElementByKey($this->params, $setKey, $setVal);
     }
 
     /**
