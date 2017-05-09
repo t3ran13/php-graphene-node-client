@@ -47,7 +47,7 @@ class CommandQueryData implements CommandQueryDataInterface
     {
         $queryData = [];
         foreach ($map as $route => $rules) {
-            $this->prepareQueryDataForRoute($queryData, $route, $rules);
+            $queryData = $this->prepareQueryDataForRoute($queryData, $route, $rules);
         }
 
         return $queryData;
@@ -58,9 +58,12 @@ class CommandQueryData implements CommandQueryDataInterface
      * @param array $data
      * @param string $route
      * @param array $rules
+     *
+     * @return mixed
+     *
      * @throws CommandQueryDataException
      */
-    protected function prepareQueryDataForRoute(&$data, $route, $rules = [])
+    protected function prepareQueryDataForRoute($data, $route, $rules = [])
     {
         $errors = [];
         $routeParts = explode(':', $route);
@@ -73,13 +76,15 @@ class CommandQueryData implements CommandQueryDataInterface
                 }
             }
             if ($value !== null) {
-                $this->setArrayElementByKey($data, $route, $value);
+                $data = $this->setArrayElementByKey($data, $route, $value);
             }
         }
 
         if (!empty($errors)) {
             throw new CommandQueryDataException(implode(PHP_EOL, $errors));
         }
+
+        return $data;
     }
 
 
@@ -117,7 +122,7 @@ class CommandQueryData implements CommandQueryDataInterface
     {
         $values = [];
         if (empty($routeParts)) {
-            $values[] = $params;
+            $values = $params;
         } else {
             $currentKeyPart = array_shift($routeParts);
             if (
@@ -127,13 +132,23 @@ class CommandQueryData implements CommandQueryDataInterface
                 $currentKeyPart = (integer)$currentKeyPart;
             }
             if (isset($params[$currentKeyPart])) {
-                foreach ($this->getParamsListByKey($params[$currentKeyPart], $routeParts) as $valueKey => $value) {
-                    $values[$currentKeyPart . ':' . $valueKey] = $value;
+                $tmp = $this->getParamsListByKey($params[$currentKeyPart], $routeParts);
+                if (is_array($tmp)) {
+                    foreach ($tmp as $valueKey => $value) {
+                        $values[$currentKeyPart . ':' . $valueKey] = $value;
+                    }
+                } else {
+                    $values[$currentKeyPart] = $tmp;
                 }
             } elseif (is_array($params) && $currentKeyPart === '*') {
                 foreach ($params as $paramKey => $param) {
-                    foreach ($this->getParamsListByKey($param, $routeParts) as $valueKey => $value) {
-                        $values[$paramKey . ':' . $valueKey] = $value;
+                    $tmp = $this->getParamsListByKey($param, $routeParts);
+                    if (is_array($tmp)) {
+                        foreach ($this->getParamsListByKey($param, $routeParts) as $valueKey => $value) {
+                            $values[$paramKey . ':' . $valueKey] = $value;
+                        }
+                    } else {
+                        $values[$paramKey] = $tmp;
                     }
                 }
             } else {
@@ -156,9 +171,9 @@ class CommandQueryData implements CommandQueryDataInterface
      *
      * @return array
      */
-    protected function setArrayElementByKey(&$array, $setKey, $setVal)
+    protected function setArrayElementByKey($array, $setKey, $setVal)
     {
-        $link = $array;
+        $link = &$array;
         $keyParts = explode(':', $setKey);
         foreach ($keyParts as $key) {
             if (
