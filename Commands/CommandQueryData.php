@@ -40,15 +40,14 @@ class CommandQueryData implements CommandQueryDataInterface
     }
 
     /**
-     * @param CommandInterface $command
+     * @param array $map
      * @return array
      */
-    public function getCommandData(CommandInterface $command)
+    public function prepareData($map)
     {
         $queryData = [];
-        $map = $command->getDataMap();
         foreach ($map as $route => $rules) {
-            $this->setQueryDataForRoute($queryData, $route, $rules);
+            $this->prepareQueryDataForRoute($queryData, $route, $rules);
         }
 
         return $queryData;
@@ -61,11 +60,11 @@ class CommandQueryData implements CommandQueryDataInterface
      * @param array $rules
      * @throws CommandQueryDataException
      */
-    protected function setQueryDataForRoute(&$data, $route, $rules = [])
+    protected function prepareQueryDataForRoute(&$data, $route, $rules = [])
     {
         $errors = [];
         $routeParts = explode(':', $route);
-        $values = self::getParamsListByKey($this->params, $routeParts);
+        $values = $this->getParamsListByKey($this->params, $routeParts);
 
         foreach ($values as $route => $value) {
             foreach ($rules as $rule) {
@@ -84,6 +83,11 @@ class CommandQueryData implements CommandQueryDataInterface
     }
 
 
+    /**
+     * @param mixed $value
+     * @param string $rule
+     * @return bool
+     */
     protected function validate($value, $rule)
     {
         if ($rule === 'required') {
@@ -104,7 +108,12 @@ class CommandQueryData implements CommandQueryDataInterface
     }
 
 
-    protected static function getParamsListByKey($params, $routeParts = [])
+    /**
+     * @param array $params
+     * @param array $routeParts
+     * @return array
+     */
+    protected function getParamsListByKey($params, $routeParts = [])
     {
         $values = [];
         if (empty($routeParts)) {
@@ -118,12 +127,12 @@ class CommandQueryData implements CommandQueryDataInterface
                 $currentKeyPart = (integer)$currentKeyPart;
             }
             if (isset($params[$currentKeyPart])) {
-                foreach (self::getParamsListByKey($params[$currentKeyPart], $routeParts) as $valueKey => $value) {
+                foreach ($this->getParamsListByKey($params[$currentKeyPart], $routeParts) as $valueKey => $value) {
                     $values[$currentKeyPart . ':' . $valueKey] = $value;
                 }
             } elseif (is_array($params) && $currentKeyPart === '*') {
                 foreach ($params as $paramKey => $param) {
-                    foreach (self::getParamsListByKey($param, $routeParts) as $valueKey => $value) {
+                    foreach ($this->getParamsListByKey($param, $routeParts) as $valueKey => $value) {
                         $values[$paramKey . ':' . $valueKey] = $value;
                     }
                 }
