@@ -10,7 +10,7 @@ class GetContentCommand extends CommandAbstract
     protected $method = 'get_content';
 
     /** @var array */
-    protected $requiredParams = [
+    protected $queryDataMap = [
         '0' => ['string'], //author
         '1' => ['string'], //permlink
     ];

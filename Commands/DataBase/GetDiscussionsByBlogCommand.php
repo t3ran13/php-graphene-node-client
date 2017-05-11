@@ -9,7 +9,7 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
 class GetDiscussionsByBlogCommand extends CommandAbstract
 {
     protected $method            = 'get_discussions_by_blog';
-    protected $requiredParams = [
+    protected $queryDataMap = [
         ConnectorInterface::PLATFORM_GOLOS   => [
             '*:limit'            => ['integer'], //the discussions return amount top limit
             '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
