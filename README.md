@@ -81,7 +81,9 @@ namespace: GrapheneNodeClient\Commands\DataBase;
 - GetContentCommand
 - GetDiscussionsByAuthorBeforeDateCommand
 - GetDiscussionsByBlogCommand
+- GetDiscussionsByFeedCommand
 - GetDiscussionsByCreatedCommand
+- GetDiscussionsByTrendingCommand
 - GetTrendingCategoriesCommand
   
    
