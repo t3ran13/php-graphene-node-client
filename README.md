@@ -78,6 +78,7 @@ $steemitPosts = $command->execute(
 
 namespace: GrapheneNodeClient\Commands\DataBase;
 
+# database_api
 - GetContentCommand
 - GetDiscussionsByAuthorBeforeDateCommand
 - GetDiscussionsByBlogCommand
@@ -86,6 +87,8 @@ namespace: GrapheneNodeClient\Commands\DataBase;
 - GetDiscussionsByTrendingCommand
 - GetTrendingCategoriesCommand
   
+# login_api
+- GetApiByNameCommand
    
 
 ## Implemented Connectors List
