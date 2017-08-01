@@ -144,13 +144,24 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 class MyConnector implements ConnectorInterface 
 {
+    /**
+    * platform name for witch connector is. steemit or golos.
+    */
     public function getPlatform() {
      // TODO: Implement getPlatform() method.
     }
     
-    public function doRequest(array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY) {
+    /**
+    * @param string $apiName calling api name - follow_api, database_api and ect.
+    * @param array  $data    options and data for request
+    * @param string $answerFormat
+    *
+    * @return array|object return answer data
+    */
+    public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY) {
      // TODO: Implement doRequest() method.
     }
+
 }
 
 
@@ -170,6 +181,7 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
 class MyCommand extends CommandAbstract 
 {
     protected $method            = 'method_name';
+    //protected $apiName         = 'login_api'; in CommandAbstract have to be set correct $apiName
     
     //If different for platforms
     protected $queryDataMap = [

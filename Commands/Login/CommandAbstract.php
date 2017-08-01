@@ -1,7 +1,7 @@
 <?php
 
 
-namespace GrapheneNodeClient\Commands\DataBase;
+namespace GrapheneNodeClient\Commands\Login;
 
 
 use GrapheneNodeClient\Commands\CommandQueryData;
@@ -17,7 +17,7 @@ abstract class CommandAbstract implements CommandInterface
     /** @var ConnectorInterface */
     protected $connector;
     /** @var string */
-    protected $apiName = 'database_api';
+    protected $apiName = 'login_api';
 
 
     public function __construct(ConnectorInterface $connector)

@@ -65,12 +65,23 @@ abstract class WSConnectorAbstract implements ConnectorInterface
         return $next;
     }
 
-    public function doRequest(array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY)
+    /**
+     * @param string $apiName
+     * @param array  $data
+     * @param string $answerFormat
+     *
+     * @return array|object
+     */
+    public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY)
     {
         $data = [
             'id'     => $this->getNextId(),
-            'method' => $data['method'],
-            'params' => $data['params']
+            'method' => 'call',
+            'params' => [
+                $apiName,
+                $data['method'],
+                $data['params']
+            ]
         ];
         $connection = $this->getConnection();
         $connection->send(json_encode($data));
