@@ -65,3 +65,5 @@ $command->execute(
 );
 
 ```
+
+test from cmd `docker-compose exec --user www-data php-fpm bash -c "php Debug/Test.php"`
