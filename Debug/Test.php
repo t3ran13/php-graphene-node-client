@@ -1,22 +1,3 @@
-# Command debug for php-graphene-node-client
-
-
-
-## Install debugger
-- copy files to project with GrapheneNodeClient
-- install docker
-- install docker-compose
-- cmd `cd prodect_dir`
-- cmd `docker-compose up -d` (to stop use `docker-compose stop`)
-
-##  Remove debugger from project
-- cmd `cd prodect_dir`
-- cmd `docker-compose down`
-- delete all debugger files from project
-
-## Basic Usage
-Make tasted command call in Debug\Test.php
-```php
 <?php
 
 
@@ -47,21 +28,3 @@ $command->execute(
     $commandQueryData
 );
 
-```
-Or use Debug\TestCommand.php as Template for your tested commands
-```php
-<?php
-
-// code as above
-use GrapheneNodeClient\Debug\TestCommand;
-
-$command = new TestCommand(new GolosWSConnector());
-$commandQueryData = new CommandQueryData();
-$commandQueryData->setParams(
-    ['follow_api']
-);
-$command->execute(
-    $commandQueryData
-);
-
-```

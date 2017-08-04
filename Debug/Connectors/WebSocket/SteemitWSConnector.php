@@ -1,6 +1,6 @@
 <?php
 
-namespace GrapheneNodeClient\Connectors\WebSocket;
+namespace GrapheneNodeClient\Debug\Connectors\WebSocket;
 
 
 class SteemitWSConnector extends WSConnectorAbstract
@@ -15,5 +15,5 @@ class SteemitWSConnector extends WSConnectorAbstract
      *
      * @var string
      */
-    protected $nodeURL = 'wss://ws.steemit.com';
+    protected $nodeURL = 'wss://steemd.steemit.com';
 }

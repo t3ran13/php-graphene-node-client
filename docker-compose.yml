@@ -1,0 +1,10 @@
+version: "3"
+services:
+  php-fpm:
+    build:
+      context: ./docker/local
+      dockerfile: dockerfile-php7-fpm
+    ports:
+      - "9000:9000"
+    volumes:
+      - '.:/var/www/php-node-client'

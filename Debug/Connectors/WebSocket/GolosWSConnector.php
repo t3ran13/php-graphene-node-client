@@ -1,6 +1,6 @@
 <?php
 
-namespace GrapheneNodeClient\Connectors\WebSocket;
+namespace GrapheneNodeClient\Debug\Connectors\WebSocket;
 
 
 class GolosWSConnector extends WSConnectorAbstract
