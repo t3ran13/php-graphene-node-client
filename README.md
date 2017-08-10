@@ -79,16 +79,23 @@ $steemitPosts = $command->execute(
 namespace: GrapheneNodeClient\Commands\DataBase;
 
 # database_api
+- GetAccountCommand
+- GetBlockCommand
 - GetContentCommand
 - GetDiscussionsByAuthorBeforeDateCommand
 - GetDiscussionsByBlogCommand
 - GetDiscussionsByCreatedCommand
 - GetDiscussionsByFeedCommand
 - GetDiscussionsByTrendingCommand
+- GetDynamicGlobalPropertiesCommand
 - GetTrendingCategoriesCommand
   
 # login_api
 - GetApiByNameCommand
+   
+  
+# follow_api
+- GetFollowersCommand
    
 
 ## Implemented Connectors List
@@ -238,5 +245,18 @@ $tag = Transliterator::encode('пол', Transliterator::LANG_RU); // return 'pol
 
 //Decode tags
 $tag = Transliterator::encode('ru--pol', Transliterator::LANG_RU); // return 'пол';
+
+```
+
+
+## Reputation viewer
+
+
+```php
+<?php
+
+use GrapheneNodeClient\Tools\Reputation;
+
+$rep = Reputation::calculate($account['reputation']);
 
 ```
