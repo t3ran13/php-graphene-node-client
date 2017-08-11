@@ -78,7 +78,7 @@ $steemitPosts = $command->execute(
 
 namespace: GrapheneNodeClient\Commands\DataBase;
 
-# database_api
+### database_api
 - GetAccountCommand
 - GetBlockCommand
 - GetContentCommand
@@ -90,12 +90,19 @@ namespace: GrapheneNodeClient\Commands\DataBase;
 - GetDynamicGlobalPropertiesCommand
 - GetTrendingCategoriesCommand
   
-# login_api
+### login_api
 - GetApiByNameCommand
+- GetVersionCommand
+- LoginCommand
    
   
-# follow_api
+### follow_api
 - GetFollowersCommand
+   
+  
+### follow_api
+- BroadcastTransactionCommand
+- BroadcastTransactionSynchronousCommand
    
 
 ## Implemented Connectors List

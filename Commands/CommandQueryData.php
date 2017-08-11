@@ -56,23 +56,23 @@ class CommandQueryData implements CommandQueryDataInterface
 
     /**
      * @param array $data
-     * @param string $route
+     * @param string $fullRoute
      * @param array $rules
      *
      * @return mixed
      *
      * @throws CommandQueryDataException
      */
-    protected function prepareQueryDataForRoute($data, $route, $rules = [])
+    protected function prepareQueryDataForRoute($data, $fullRoute, $rules = [])
     {
         $errors = [];
-        $routeParts = explode(':', $route);
+        $routeParts = explode(':', $fullRoute);
         $values = $this->getParamsListByKey($this->params, $routeParts);
 
         foreach ($values as $route => $value) {
             foreach ($rules as $rule) {
                 if (!$this->validate($value, $rule)) {
-                    $errors[] = 'Validation rule \'{$route}\' was failed for \'{$route}\';';
+                    $errors[] = 'Validation rule \'' . $rule . '\' was failed for route \'' . $route . '\' with value ' . $value . ';';
                 }
             }
             if ($value !== null) {
@@ -102,13 +102,13 @@ class CommandQueryData implements CommandQueryDataInterface
         } elseif ($rule === 'string') {
             return $value !== null && is_string($value);
         } elseif ($rule === 'integer') {
-            return $value !== null && is_integer($value);
+            return $value !== null && is_int($value);
         } elseif ($rule === 'nullOrArray') {
             return $value === null || is_array($value);
         } elseif ($rule === 'nullOrString') {
             return $value === null || is_string($value);
         } elseif ($rule === 'nullOrInteger') {
-            return $value === null || is_integer($value);
+            return $value === null || is_int($value);
         }
     }
 
@@ -133,7 +133,7 @@ class CommandQueryData implements CommandQueryDataInterface
             }
             if (isset($params[$currentKeyPart])) {
                 $tmp = $this->getParamsListByKey($params[$currentKeyPart], $routeParts);
-                if (is_array($tmp)) {
+                if (is_array($tmp) && !empty($routeParts)) {
                     foreach ($tmp as $valueKey => $value) {
                         $values[$currentKeyPart . ':' . $valueKey] = $value;
                     }
