@@ -76,7 +76,11 @@ $steemitPosts = $command->execute(
 
 ## Implemented Commands List
 
-namespace: GrapheneNodeClient\Commands\DataBase;
+namespace: 
+- GrapheneNodeClient\Commands\Broadcast;
+- GrapheneNodeClient\Commands\DataBase;
+- GrapheneNodeClient\Commands\Follow;
+- GrapheneNodeClient\Commands\Login;
 
 ### database_api
 - GetAccountCommand
