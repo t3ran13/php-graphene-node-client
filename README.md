@@ -100,7 +100,7 @@ namespace: GrapheneNodeClient\Commands\DataBase;
 - GetFollowersCommand
    
   
-### follow_api
+### broadcast_api
 - BroadcastTransactionCommand
 - BroadcastTransactionSynchronousCommand
    
