@@ -83,15 +83,17 @@ namespace:
 - GrapheneNodeClient\Commands\Login;
 
 ### database_api
-- GetAccountCommand
+- GetDynamicGlobalPropertiesCommand
 - GetBlockCommand
+- GetWitnessesByVoteCommand
+- GetActiveWitnessesCommand
+- GetAccountCommand
 - GetContentCommand
 - GetDiscussionsByAuthorBeforeDateCommand
 - GetDiscussionsByBlogCommand
 - GetDiscussionsByCreatedCommand
 - GetDiscussionsByFeedCommand
 - GetDiscussionsByTrendingCommand
-- GetDynamicGlobalPropertiesCommand
 - GetTrendingCategoriesCommand
   
 ### login_api
