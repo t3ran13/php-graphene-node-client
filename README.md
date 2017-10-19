@@ -1,5 +1,5 @@
 # php-graphene-node-client
-PHP client for connection to Graphene node
+PHP client for connection to STEEM/GOLOS node
 
 
 ## Install Via Composer
