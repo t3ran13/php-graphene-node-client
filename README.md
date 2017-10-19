@@ -85,9 +85,13 @@ namespace:
 ### database_api
 - GetDynamicGlobalPropertiesCommand
 - GetBlockCommand
+- GetBlockHeaderCommand
 - GetWitnessesByVoteCommand
 - GetActiveWitnessesCommand
 - GetAccountCommand
+- GetAccountCountCommand
+- GetAccountHistoryCommand
+- GetAccountVotesCommand
 - GetContentCommand
 - GetDiscussionsByAuthorBeforeDateCommand
 - GetDiscussionsByBlogCommand
