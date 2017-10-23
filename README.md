@@ -193,6 +193,43 @@ class MyConnector implements ConnectorInterface
 
 
 ```
+Or use GrapheneNodeClient\Connectors\WebSocket\WSConnectorAbstract for extending
+
+```php
+<?php
+
+namespace My\App\Commands;
+
+use GrapheneNodeClient\Commands\DataBase\CommandAbstract;
+use GrapheneNodeClient\Connectors\ConnectorInterface;
+
+class GolosWSConnector extends WSConnectorAbstract
+{
+    /**
+     * @var string
+     */
+    protected $platform = self::PLATFORM_GOLOS;
+
+    /**
+     * max number of tries to get answer from the node
+     *
+     * @var int
+     */
+    protected $maxNumberOfTriesToCallApi = 3;
+
+    /**
+     * wss or ws servers, can be list. First node is default, other are reserve.
+     * After $maxNumberOfTriesToCallApi tries connects to default it is connected to reserve node.
+     *
+     * @var string|array
+     */
+    protected $nodeURL = ['wss://ws.golos.io', 'wss://api.golos.cf'];
+}
+
+
+```  
+
+   
   
    
 
@@ -244,43 +281,6 @@ class MyCommand extends CommandAbstract
 
 
 ```  
-Or use GrapheneNodeClient\Connectors\WebSocket\WSConnectorAbstract for extending
-
-```php
-<?php
-
-namespace My\App\Commands;
-
-use GrapheneNodeClient\Commands\DataBase\CommandAbstract;
-use GrapheneNodeClient\Connectors\ConnectorInterface;
-
-class GolosWSConnector extends WSConnectorAbstract
-{
-    /**
-     * @var string
-     */
-    protected $platform = self::PLATFORM_GOLOS;
-
-    /**
-     * max number of tries to get answer from the node
-     *
-     * @var int
-     */
-    protected $maxNumberOfTriesToCallApi = 3;
-
-    /**
-     * wss or ws servers, can be list. First node is default, other are reserve.
-     * After $maxNumberOfTriesToCallApi tries connects to default it is connected to reserve node.
-     *
-     * @var string|array
-     */
-    protected $nodeURL = ['wss://ws.golos.io', 'wss://api.golos.cf'];
-}
-
-
-```  
-
-   
 
 # Tools
 ## Transliterator
