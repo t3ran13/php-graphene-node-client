@@ -16,9 +16,24 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     /**
      * wss or ws server, for example 'wss://ws.golos.io'
      *
-     * @var string
+     * @var string|array
      */
     protected $nodeURL;
+
+    /**
+     * current node url, for example 'wss://ws.golos.io'
+     *
+     * @var string
+     */
+    private $reserveNodeUrlList;
+
+
+    /**
+     * current node url, for example 'wss://ws.golos.io'
+     *
+     * @var string
+     */
+    private $currentNodeURL;
 
     /**
      * waiting answer from Node during $wsTimeoutSeconds seconds
@@ -40,10 +55,49 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     public function getConnection()
     {
         if (self::$connection === null) {
-            self::$connection = new Client($this->nodeURL, ['timeout' => $this->wsTimeoutSeconds]);
+            $this->newConnection($this->getCurrentUrl());
         }
 
         return self::$connection;
+    }
+
+    public function newConnection($nodeUrl)
+    {
+        self::$connection = new Client($nodeUrl, ['timeout' => $this->wsTimeoutSeconds]);
+
+        return self::$connection;
+    }
+
+    public function getCurrentUrl()
+    {
+        if ($this->currentNodeURL === null) {
+            if (is_array($this->nodeURL)) {
+                $this->reserveNodeUrlList = $this->nodeURL;
+                $url = array_shift($this->reserveNodeUrlList);
+            } else {
+                $url = $this->nodeURL;
+            }
+
+            $this->currentNodeURL = $url;
+        }
+
+        return $this->currentNodeURL;
+    }
+
+    public function isExistReserveNodeUrl()
+    {
+        return !empty($this->reserveNodeUrlList);
+    }
+
+    protected function setReserveNodeUrlToCurrentUrl()
+    {
+        $this->currentNodeURL = array_shift($this->reserveNodeUrlList);
+    }
+
+    public function connectToReserveNode()
+    {
+        $this->setReserveNodeUrlToCurrentUrl();
+        return $this->newConnection($this->getCurrentUrl());
     }
 
     public function getCurrentId()
@@ -77,7 +131,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      * @param string $apiName
      * @param array  $data
      * @param string $answerFormat
-     * @param int $try_number Try number of getting answer from api
+     * @param int    $try_number Try number of getting answer from api
      *
      * @return array|object
      * @throws ConnectionException
@@ -101,10 +155,16 @@ abstract class WSConnectorAbstract implements ConnectorInterface
             $data = $connection->receive();
             $answer = json_decode($data, self::ANSWER_FORMAT_ARRAY === $answerFormat);
         } catch (ConnectionException $e) {
-            //if got WS Exception, try to get answer again
+
             if ($try_number < $this->maxNumberOfTriesToCallApi) {
+                //if got WS Exception, try to get answer again
                 $answer = $this->doRequest($apiName, $data, $answerFormat, $try_number + 1);
+            } elseif ($this->isExistReserveNodeUrl()) {
+                //if got WS Exception after few ties, connect to reserve node
+                $this->connectToReserveNode();
+                $answer = $this->doRequest($apiName, $data, $answerFormat);
             } else {
+                //if nothing helps
                 throw $e;
             }
         }
