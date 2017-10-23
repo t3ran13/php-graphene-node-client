@@ -14,7 +14,8 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     protected $platform;
 
     /**
-     * wss or ws server, for example 'wss://ws.golos.io'
+     * wss or ws servers, can be list. First node is default, other are reserve.
+     * After $maxNumberOfTriesToCallApi tries connects to default it is connected to reserve node.
      *
      * @var string|array
      */
@@ -43,7 +44,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     protected $wsTimeoutSeconds = 5;
 
     /**
-     * max number of tries to get answer from API
+     * max number of tries to get answer from the node
      *
      * @var int
      */
