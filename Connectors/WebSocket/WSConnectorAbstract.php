@@ -4,6 +4,7 @@ namespace GrapheneNodeClient\Connectors\WebSocket;
 
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 use WebSocket\Client;
+use WebSocket\ConnectionException;
 
 abstract class WSConnectorAbstract implements ConnectorInterface
 {
@@ -25,6 +26,13 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      * @var int
      */
     protected $wsTimeoutSeconds = 5;
+
+    /**
+     * max number of tries to get answer from API
+     *
+     * @var int
+     */
+    protected $maxNumberOfTriesToCallApi = 3;
 
     protected static $connection;
     protected static $currentId;
@@ -69,10 +77,13 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      * @param string $apiName
      * @param array  $data
      * @param string $answerFormat
+     * @param int $try_number Try number of getting answer from api
      *
      * @return array|object
+     * @throws ConnectionException
+     * @throws \WebSocket\BadOpcodeException
      */
-    public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY)
+    public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY, $try_number = 1)
     {
         $data = [
             'id'     => $this->getNextId(),
@@ -83,11 +94,20 @@ abstract class WSConnectorAbstract implements ConnectorInterface
                 $data['params']
             ]
         ];
-        $connection = $this->getConnection();
-        $connection->send(json_encode($data));
+        try {
+            $connection = $this->getConnection();
+            $connection->send(json_encode($data));
 
-        $data = $connection->receive();
-        $answer = json_decode($data, self::ANSWER_FORMAT_ARRAY === $answerFormat);
+            $data = $connection->receive();
+            $answer = json_decode($data, self::ANSWER_FORMAT_ARRAY === $answerFormat);
+        } catch (ConnectionException $e) {
+            //if got WS Exception, try to get answer again
+            if ($try_number < $this->maxNumberOfTriesToCallApi) {
+                $answer = $this->doRequest($apiName, $data, $answerFormat, $try_number + 1);
+            } else {
+                throw $e;
+            }
+        }
 
         return $answer;
     }
