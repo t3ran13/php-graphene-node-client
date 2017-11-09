@@ -53,6 +53,9 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     protected static $connection;
     protected static $currentId;
 
+    /**
+     * @return Client|null
+     */
     public function getConnection()
     {
         if (self::$connection === null) {
@@ -62,6 +65,11 @@ abstract class WSConnectorAbstract implements ConnectorInterface
         return self::$connection;
     }
 
+    /**
+     * @param string $nodeUrl
+     *
+     * @return Client
+     */
     public function newConnection($nodeUrl)
     {
         self::$connection = new Client($nodeUrl, ['timeout' => $this->wsTimeoutSeconds]);
@@ -140,8 +148,9 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      */
     public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY, $try_number = 1)
     {
+        $requestId = $this->getNextId();
         $data = [
-            'id'     => $this->getNextId(),
+            'id'     => $requestId,
             'method' => 'call',
             'params' => [
                 $apiName,
@@ -155,6 +164,18 @@ abstract class WSConnectorAbstract implements ConnectorInterface
 
             $data = $connection->receive();
             $answer = json_decode($data, self::ANSWER_FORMAT_ARRAY === $answerFormat);
+
+            //check that answer has the same id or id from previous tries, else it is answer from other request
+            if (self::ANSWER_FORMAT_ARRAY === $answerFormat) {
+                $answerId = $answer['id'];
+            } elseif (self::ANSWER_FORMAT_OBJECT === $answerFormat) {
+                $answerId = $answer->id;
+            }
+            if ($requestId - $answerId > ($try_number - 1)) {
+                throw new ConnectionException('get answer from old request');
+            }
+
+
         } catch (ConnectionException $e) {
 
             if ($try_number < $this->maxNumberOfTriesToCallApi) {
