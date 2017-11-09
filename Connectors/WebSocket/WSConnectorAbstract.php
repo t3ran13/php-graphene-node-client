@@ -162,8 +162,8 @@ abstract class WSConnectorAbstract implements ConnectorInterface
             $connection = $this->getConnection();
             $connection->send(json_encode($data));
 
-            $data = $connection->receive();
-            $answer = json_decode($data, self::ANSWER_FORMAT_ARRAY === $answerFormat);
+            $answerRaw = $connection->receive();
+            $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY === $answerFormat);
 
             //check that answer has the same id or id from previous tries, else it is answer from other request
             if (self::ANSWER_FORMAT_ARRAY === $answerFormat) {
