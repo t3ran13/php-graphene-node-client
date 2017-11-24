@@ -12,7 +12,8 @@
     ],
     "require": {
         "php": "^5.3.3 || ^7.0",
-        "textalk/websocket": "^1.2"
+        "textalk/websocket": "^1.2",
+        "TrafficCophp/ByteBuffer": "v0.3"
     },
     "autoload": {
         "psr-4": { "GrapheneNodeClient\\": "" }
