@@ -100,7 +100,14 @@ class Auth
         return $out;
     }
 
-    public static function PrivateKeyFromWif($privWif) {
+
+    /**
+     * @param string $privateWif Private (posting key?) wif
+     *
+     * @return string outputs Private key raw binary data
+     * @throws \Exception
+     */
+    public static function PrivateKeyFromWif($privateWif) {
 //        var private_wif = new Buffer(base58.decode(_private_wif));
 //        var version = private_wif.readUInt8(0);
 //        assert.equal(0x80, version, `Expected version ${0x80}, instead got ${version}`);
@@ -115,12 +122,11 @@ class Auth
 //
 //        private_key = private_key.slice(1);
 //return PrivateKey.fromBuffer(private_key);
-//echo '<pre>' . print_r($privWif, true) . '<pre>'; die; //FIXME delete it
 
         //checking wif version
         $base58 = new Base58();
         $wifBuffer = new Buffer();
-        $wifBuffer->write($base58->decode($privWif));
+        $wifBuffer->write($base58->decode($privateWif));
         $version = $wifBuffer->readInt8(0);
         if ($wifBuffer->readInt8(0) !== 128) {
             //        assert.equal(0x80, version, `Expected version ${0x80}, instead got ${version}`);
@@ -139,9 +145,14 @@ class Auth
 
         //getting private_key
         $private_key = substr($private_key, 1);
-        echo '<pre>' . print_r(strlen($private_key), true) . '<pre>'; die; //FIXME delete it
-        echo "\n" . print_r($wifBuffer->getBuffer('H', 0, $wifBuffer->getCurrentOffset()), true) . '<pre>'; die; //FIXME delete it
+//        if (32 !== buf.length) {
+//            console.log(`WARN: Expecting 32 bytes, instead got ${buf.length}, stack trace:`, new Error().stack);
+//        }
+        $length = strlen($private_key);
+        if ($length !== 32) {
+            throw new \Exception('Expecting 32 bytes for private_key, instead got ' . $length);
+        }
 
-        return $answer;
+        return $private_key;
     }
 }
