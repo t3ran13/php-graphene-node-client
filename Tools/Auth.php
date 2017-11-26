@@ -73,31 +73,63 @@ class Auth
 //        echo "\n" . print_r($sigBuffer->getBuffer('H', 0, $sigBuffer->getCurrentOffset()), true) . '<pre>'; die; //FIXME delete it
 
         foreach ($privKyes as $keyName => $key) {
-            $privateKey = self::PrivateKeyFromWif($key);
-
             $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
+//            $msg32 = hash('sha256', $sigBuffer->read(0, $sigBuffer->getCurrentOffset()), true); //может так??
             $msg32 = hash('sha256', $sigBuffer->getBuffer('H', 0, $sigBuffer->getCurrentOffset()), true);
-            $privateKey = pack("H*", $privateKey);
+            $privateKey = self::PrivateKeyFromWif($key);
+
             /** @var resource $signature */
             $signature = '';
+            $i = 0;
+            while (true) {
+                echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
+                if ($i++ > 3000) {
+                    break;
+//                    throw new \Exception("Can't got canonical signature");
+                }
 
-            if (secp256k1_ecdsa_sign($context, $signature, $msg32, $privateKey) != 1) {
-                throw new \Exception("Failed to create signature");
+//                if (secp256k1_ecdsa_sign($context, $signature, $msg32, $privateKey) !== 1) {
+                if (secp256k1_ecdsa_sign_recoverable($context, $signature, $msg32, $privateKey) !== 1) {
+                    throw new \Exception("Failed to create signature");
+                }
+
+//                $serializedSig = '';
+//                secp256k1_ecdsa_signature_serialize_der($context, $serializedSig, $signature);
+                //answer looks canonical by default
+
+                $serializedSig = '';
+                $recid = -1;
+                secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $signature, $serializedSig, $recid);
+//                echo '<pre>' . print_r(bin2hex($serializedSig), true) . '<pre>'; die; //FIXME delete it
+
+//                if (self::isSignatureCanonical($serializedSig)) {
+                if (self::isSignatureCanonical($serializedSig)) {
+//                    break;
+                }
             }
 
-            $serialized = '';
-            secp256k1_ecdsa_signature_serialize_der($context, $serialized, $signature);
-            echo sprintf("Produced signature: %s \n", bin2hex($serialized));
-            echo '<pre>' . print_r(123, true) . '<pre>'; //FIXME delete it
+//            int recoveryId = -1;
+//            var sigptr = new byte[64];
+//            var msg32 = GetMessageHash(data);
+//            var t = sign_compact(Ctx, msg32, seckey, sigptr, ref recoveryId);
+//            //4 - compressed | 27 - compact
+//            var sRez = Hex.Join(new[] { (byte)(recoveryId + 4 + 27) }, sigptr);
+//return sRez;
+            $buf = new Buffer();
+//            $buf->writeInt8(4);
+//            $buf->writeInt8(27);
+            $buf->writeInt8($recid + 4 + 27);
+            $serializedSig = $buf->read(0, 1) . $serializedSig;
+//            $serializedSig .= $buf->read(0, 2);
+//            echo sprintf("Produced signature: %s \n", bin2hex($serializedSig));
+//            echo '<pre>' . print_r($serializedSig, true) . '<pre>'; //FIXME delete it
+
+
+            $trxParams[0]['signatures'][] = bin2hex($serializedSig);
         }
 
-        die;
-
-
-
-
-        return $out;
+        return $trxParams;
     }
 
 
@@ -154,5 +186,48 @@ class Auth
         }
 
         return $private_key;
+    }
+
+
+//    public static function isSignatureCanonical($serializedSig)
+//    {
+//        $rl = 32;
+//        $r = substr($serializedSig, 0, 32);
+//        if (ord($serializedSig[0]) > 0x80) {
+//            $rl++;
+//            $r = "\x00" . $r;
+//        }
+//        $sl = 32;
+//        $s = substr($serializedSig, 32, 32);
+//        if (ord($serializedSig[32]) > 0x80) {
+//            $sl++;
+//            $s = "\x00" . $s;
+//        }
+//        $t = 4 + $rl + $sl;
+//        $der = "\x30" . chr($t) . "\x02" . chr($rl) . $r . "\x02" . chr($sl) . $s;
+//
+////        lenR = der[3];
+////        lenS = der[5 + lenR];
+////        if (lenR === 32 && lenS === 32) {
+//        $lenR = (int)base_convert(unpack('H*', $der[3], 0)[1], 16, 10);
+//        $lenS = (int)base_convert(unpack('H*', $der[5 + $lenR], 0)[1], 16, 10);
+////        echo "\n" . var_dump($lenR, $lenS) . '<pre>'; //FIXME delete it
+//
+//        return $lenR === 32 && $lenS === 32;
+//    }
+
+
+    public static function isSignatureCanonical($serializedSig)
+    {
+//        return !(sig[0] & 0x80)
+//            && !(sig[0] == 0 && !(sig[1] & 0x80))
+//            && !(sig[32] & 0x80)
+//            && !(sig[32] == 0 && !(sig[33] & 0x80));
+
+//        echo '<pre>' . var_dump(unpack('H*', $serializedSig[0], 0)[1] & 0x80, true) . '<pre>'; die; //FIXME delete it
+//        return !(unpack('H*', $serializedSig[0], 0)[1] & 0x80)
+//            && !(unpack('H*', $serializedSig[0], 0)[1] === 0 && !(unpack('H*', $serializedSig[1], 0)[1] & 0x80))
+//            && !($unpack('H*', $serializedSig[32], 0)[1] & 0x80)
+//            && !($unpack('H*', $serializedSig[32], 0)[1] === 0 && !($unpack('H*', $serializedSig[1], 0)[1] & 0x80));
     }
 }
