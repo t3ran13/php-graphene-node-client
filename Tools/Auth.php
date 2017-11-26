@@ -84,10 +84,10 @@ class Auth
             $i = 0;
             while (true) {
                 echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
-                if ($i++ > 3000) {
-                    break;
+//                if ($i++ > 3000) {
+//                    break;
 //                    throw new \Exception("Can't got canonical signature");
-                }
+//                }
 
 //                if (secp256k1_ecdsa_sign($context, $signature, $msg32, $privateKey) !== 1) {
                 if (secp256k1_ecdsa_sign_recoverable($context, $signature, $msg32, $privateKey) !== 1) {
@@ -105,7 +105,7 @@ class Auth
 
 //                if (self::isSignatureCanonical($serializedSig)) {
                 if (self::isSignatureCanonical($serializedSig)) {
-//                    break;
+                    break;
                 }
             }
 
@@ -189,45 +189,45 @@ class Auth
     }
 
 
-//    public static function isSignatureCanonical($serializedSig)
-//    {
-//        $rl = 32;
-//        $r = substr($serializedSig, 0, 32);
-//        if (ord($serializedSig[0]) > 0x80) {
-//            $rl++;
-//            $r = "\x00" . $r;
-//        }
-//        $sl = 32;
-//        $s = substr($serializedSig, 32, 32);
-//        if (ord($serializedSig[32]) > 0x80) {
-//            $sl++;
-//            $s = "\x00" . $s;
-//        }
-//        $t = 4 + $rl + $sl;
-//        $der = "\x30" . chr($t) . "\x02" . chr($rl) . $r . "\x02" . chr($sl) . $s;
-//
-////        lenR = der[3];
-////        lenS = der[5 + lenR];
-////        if (lenR === 32 && lenS === 32) {
-//        $lenR = (int)base_convert(unpack('H*', $der[3], 0)[1], 16, 10);
-//        $lenS = (int)base_convert(unpack('H*', $der[5 + $lenR], 0)[1], 16, 10);
-////        echo "\n" . var_dump($lenR, $lenS) . '<pre>'; //FIXME delete it
-//
-//        return $lenR === 32 && $lenS === 32;
-//    }
-
-
     public static function isSignatureCanonical($serializedSig)
     {
-//        return !(sig[0] & 0x80)
-//            && !(sig[0] == 0 && !(sig[1] & 0x80))
-//            && !(sig[32] & 0x80)
-//            && !(sig[32] == 0 && !(sig[33] & 0x80));
+        $rl = 32;
+        $r = substr($serializedSig, 0, 32);
+        if (ord($serializedSig[0]) > 0x80) {
+            $rl++;
+            $r = "\x00" . $r;
+        }
+        $sl = 32;
+        $s = substr($serializedSig, 32, 32);
+        if (ord($serializedSig[32]) > 0x80) {
+            $sl++;
+            $s = "\x00" . $s;
+        }
+        $t = 4 + $rl + $sl;
+        $der = "\x30" . chr($t) . "\x02" . chr($rl) . $r . "\x02" . chr($sl) . $s;
 
-//        echo '<pre>' . var_dump(unpack('H*', $serializedSig[0], 0)[1] & 0x80, true) . '<pre>'; die; //FIXME delete it
-//        return !(unpack('H*', $serializedSig[0], 0)[1] & 0x80)
-//            && !(unpack('H*', $serializedSig[0], 0)[1] === 0 && !(unpack('H*', $serializedSig[1], 0)[1] & 0x80))
-//            && !($unpack('H*', $serializedSig[32], 0)[1] & 0x80)
-//            && !($unpack('H*', $serializedSig[32], 0)[1] === 0 && !($unpack('H*', $serializedSig[1], 0)[1] & 0x80));
+//        lenR = der[3];
+//        lenS = der[5 + lenR];
+//        if (lenR === 32 && lenS === 32) {
+        $lenR = (int)base_convert(unpack('H*', $der[3], 0)[1], 16, 10);
+        $lenS = (int)base_convert(unpack('H*', $der[5 + $lenR], 0)[1], 16, 10);
+        echo "\n" . var_dump($lenR, $lenS) . '<pre>'; //FIXME delete it
+
+        return $lenR === 32 && $lenS === 32;
     }
+
+
+//    public static function isSignatureCanonical($serializedSig)
+//    {
+////        return !(sig[0] & 0x80)
+////            && !(sig[0] == 0 && !(sig[1] & 0x80))
+////            && !(sig[32] & 0x80)
+////            && !(sig[32] == 0 && !(sig[33] & 0x80));
+//
+////        echo '<pre>' . var_dump(unpack('H*', $serializedSig[0], 0)[1] & 0x80, true) . '<pre>'; die; //FIXME delete it
+////        return !(unpack('H*', $serializedSig[0], 0)[1] & 0x80)
+////            && !(unpack('H*', $serializedSig[0], 0)[1] === 0 && !(unpack('H*', $serializedSig[1], 0)[1] & 0x80))
+////            && !($unpack('H*', $serializedSig[32], 0)[1] & 0x80)
+////            && !($unpack('H*', $serializedSig[32], 0)[1] === 0 && !($unpack('H*', $serializedSig[1], 0)[1] & 0x80));
+//    }
 }
