@@ -72,38 +72,27 @@ class Auth
 //        echo '<pre>' . print_r($sigBuffer, true) . '<pre>'; die; //FIXME delete it
 //        echo "\n" . print_r($sigBuffer->getBuffer('H', 0, $sigBuffer->getCurrentOffset()), true) . '<pre>'; die; //FIXME delete it
 
-        foreach ($privKyes as $keyName => $key) {
+        foreach ($privKyes as $keyName => $privateWif) {
             $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
 //            $msg32 = hash('sha256', $sigBuffer->read(0, $sigBuffer->getCurrentOffset()), true); //может так??
             $msg32 = hash('sha256', $sigBuffer->getBuffer('H', 0, $sigBuffer->getCurrentOffset()), true);
-            $privateKey = self::PrivateKeyFromWif($key);
+            $privateKey = self::PrivateKeyFromWif($privateWif);
 
             /** @var resource $signature */
             $signature = '';
             $i = 0;
             while (true) {
                 echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
-//                if ($i++ > 3000) {
-//                    break;
-//                    throw new \Exception("Can't got canonical signature");
-//                }
 
-//                if (secp256k1_ecdsa_sign($context, $signature, $msg32, $privateKey) !== 1) {
                 if (secp256k1_ecdsa_sign_recoverable($context, $signature, $msg32, $privateKey) !== 1) {
                     throw new \Exception("Failed to create signature");
                 }
 
-//                $serializedSig = '';
-//                secp256k1_ecdsa_signature_serialize_der($context, $serializedSig, $signature);
-                //answer looks canonical by default
-
                 $serializedSig = '';
                 $recid = -1;
                 secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $signature, $serializedSig, $recid);
-//                echo '<pre>' . print_r(bin2hex($serializedSig), true) . '<pre>'; die; //FIXME delete it
 
-//                if (self::isSignatureCanonical($serializedSig)) {
                 if (self::isSignatureCanonical($serializedSig)) {
                     break;
                 }
@@ -117,14 +106,8 @@ class Auth
 //            var sRez = Hex.Join(new[] { (byte)(recoveryId + 4 + 27) }, sigptr);
 //return sRez;
             $buf = new Buffer();
-//            $buf->writeInt8(4);
-//            $buf->writeInt8(27);
             $buf->writeInt8($recid + 4 + 27);
             $serializedSig = $buf->read(0, 1) . $serializedSig;
-//            $serializedSig .= $buf->read(0, 2);
-//            echo sprintf("Produced signature: %s \n", bin2hex($serializedSig));
-//            echo '<pre>' . print_r($serializedSig, true) . '<pre>'; //FIXME delete it
-
 
             $trxParams[0]['signatures'][] = bin2hex($serializedSig);
         }
