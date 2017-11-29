@@ -6,6 +6,12 @@ use TrafficCophp\ByteBuffer\Buffer;
 
 class OperationSerializer
 {
+    /**
+     * @param array     $trxParams
+     * @param null|Buffer $byteBuffer
+     *
+     * @return null|string|Buffer
+     */
     public static function serializeTransaction($trxParams, $byteBuffer = null) {
         $buffer = $byteBuffer === null ? (new Buffer()) : $byteBuffer;
 
@@ -13,7 +19,18 @@ class OperationSerializer
         $buffer->writeInt32LE($trxParams[0]['ref_block_prefix'], 2);
         $expirationSec = is_int($trxParams[0]['expiration']) ? $trxParams[0]['expiration'] : strtotime($trxParams[0]['expiration']);
         $buffer->writeInt32LE($expirationSec, 6);
-        $buffer->writeInt8(count($trxParams[0]['operations']), 10);
+        $buffer->writeInt8(count($trxParams[0]['operations']));
+
+        //serialize only operations data
+        foreach ($trxParams[0]['operations'] as $operation) {
+            $opData = $operation[1];
+            self::serializeOperation($operation[0], $opData, $buffer);
+        }
+
+        $buffer->writeInt8(count($trxParams[0]['extensions']));
+        foreach ($trxParams[0]['extensions'] as $extansion) {
+            //will be needed for benefeciars
+        }
 
         return $byteBuffer === null ? $buffer->getBuffer('H', 0, $buffer->getCurrentOffset()) : $byteBuffer;
     }

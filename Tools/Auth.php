@@ -46,51 +46,37 @@ class Auth
 //return signed_transaction.toObject(Object.assign(trx, { signatures: signatures }))
 
 
-        $signatures = [];
-        $trxParams = $trx->getParams();
-        if (isset($trxParams[0]['signatures'])) {
-            $signatures = $trxParams[0]['signatures'];
-        }
-
-        echo '<pre>' . print_r($trxParams, true) . '<pre>';  //FIXME delete it
-
         //serialize only transaction data
+        $trxParams = $trx->getParams();
+        echo '<pre>' . print_r($trxParams, true) . '<pre>';  //FIXME delete it
         $serBuffer = OperationSerializer::serializeTransaction($trxParams, new Buffer());
 
-        //serialize only operations data
-        foreach ($trxParams[0]['operations'] as $operation) {
-            $opData = $operation[1];
-            OperationSerializer::serializeOperation($operation[0], $opData, $serBuffer);
-        }
-//        echo "\n" . print_r($serBuffer->getBuffer('H', 0, $serBuffer->getCurrentOffset()), true) . '<pre>'; die; //FIXME delete it
 
-
-//        $cid = hex2bin(self::getChainId($chainName));
-        $cidBuffer = new Buffer();
-        $cidBuffer->writeVHexStringBE(self::getChainId($chainName));
-        $sigBuffer = $cidBuffer->concat($cidBuffer, $serBuffer);
-//        echo '<pre>' . print_r($sigBuffer, true) . '<pre>'; die; //FIXME delete it
-//        echo "\n" . print_r($sigBuffer->getBuffer('H', 0, $sigBuffer->getCurrentOffset()), true) . '<pre>'; die; //FIXME delete it
+//        echo '<pre>' . var_dump(
+//                $serBuffer->length(),
+//            bin2hex($serBuffer->read(0, $serBuffer->length()))
+//            ) . '<pre>'; die; //FIXME delete it
+        $serializedTx = self::getChainId($chainName) . bin2hex($serBuffer->read(0, $serBuffer->length()));
 
         foreach ($privKyes as $keyName => $privateWif) {
             $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
 //            $msg32 = hash('sha256', $sigBuffer->read(0, $sigBuffer->getCurrentOffset()), true); //может так??
-            $msg32 = hash('sha256', $sigBuffer->getBuffer('H', 0, $sigBuffer->getCurrentOffset()), true);
+            $msg32 = hash('sha256', $serializedTx, true);
             $privateKey = self::PrivateKeyFromWif($privateWif);
 
             /** @var resource $signature */
             $signature = '';
             $i = 0;
             while (true) {
-                echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
+                echo "\n i=" . print_r($i++, true) . '<pre>'; //FIXME delete it
 
                 if (secp256k1_ecdsa_sign_recoverable($context, $signature, $msg32, $privateKey) !== 1) {
                     throw new \Exception("Failed to create signature");
                 }
 
                 $serializedSig = '';
-                $recid = -1;
+                $recid = 0;
                 secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $signature, $serializedSig, $recid);
 
                 if (self::isSignatureCanonical($serializedSig)) {
@@ -143,7 +129,7 @@ class Auth
         $wifBuffer = new Buffer();
         $wifBuffer->write($base58->decode($privateWif));
         $version = $wifBuffer->readInt8(0);
-        if ($wifBuffer->readInt8(0) !== 128) {
+        if ($version !== 128) {
             //        assert.equal(0x80, version, `Expected version ${0x80}, instead got ${version}`);
             throw new \Exception('Expected version 128, instead got ' . $version);
         }
@@ -159,6 +145,7 @@ class Auth
         }
 
         //getting private_key
+//        $private_key = substr(strrev($wifBuffer->read(0, $wifBuffer->length())), 1, -4);
         $private_key = substr($private_key, 1);
 //        if (32 !== buf.length) {
 //            console.log(`WARN: Expecting 32 bytes, instead got ${buf.length}, stack trace:`, new Error().stack);
