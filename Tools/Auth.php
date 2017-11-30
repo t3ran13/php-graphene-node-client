@@ -61,13 +61,8 @@ class Auth
         foreach ($privKyes as $keyName => $privateWif) {
             $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
-//            $msg32 = hash('sha256', $sigBuffer->read(0, $sigBuffer->getCurrentOffset()), true); //может так??
             $msg32 = hash('sha256', $serializedTx, true);
-            //wiff 5KSxPLJs1FkoWbUptnwZ6816xBQe2byYQR5jEV2tSGWDWpH2r6F
-            //private key d6f527c2790a52c8b388fcb277382013916df0ab2f9819eb7678984dfe82f5b5
             $privateKey = self::PrivateKeyFromWif($privateWif);
-            echo '<pre>' . var_dump(bin2hex($privateKey), 'd6f527c2790a52c8b388fcb277382013916df0ab2f9819eb7678984dfe82f5b5') . '<pre>'; die; //FIXME delete it
-//            echo '<pre>' . var_dump(strlen($msg32), strlen($privateKey)) . '<pre>'; die; //FIXME delete it
 
             /** @var resource $signature */
             $signature = '';
