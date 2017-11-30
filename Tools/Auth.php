@@ -63,12 +63,19 @@ class Auth
 
 //            $msg32 = hash('sha256', $sigBuffer->read(0, $sigBuffer->getCurrentOffset()), true); //может так??
             $msg32 = hash('sha256', $serializedTx, true);
+            //wiff 5KSxPLJs1FkoWbUptnwZ6816xBQe2byYQR5jEV2tSGWDWpH2r6F
+            //private key d6f527c2790a52c8b388fcb277382013916df0ab2f9819eb7678984dfe82f5b5
             $privateKey = self::PrivateKeyFromWif($privateWif);
+            echo '<pre>' . var_dump(bin2hex($privateKey), 'd6f527c2790a52c8b388fcb277382013916df0ab2f9819eb7678984dfe82f5b5') . '<pre>'; die; //FIXME delete it
+//            echo '<pre>' . var_dump(strlen($msg32), strlen($privateKey)) . '<pre>'; die; //FIXME delete it
 
             /** @var resource $signature */
             $signature = '';
             $i = 0;
             while (true) {
+                if ($i === 100) {
+                    throw new \Exception("Can't to find canonical signature, {$i} ties");
+                }
                 echo "\n i=" . print_r($i++, true) . '<pre>'; //FIXME delete it
 
                 if (secp256k1_ecdsa_sign_recoverable($context, $signature, $msg32, $privateKey) !== 1) {
@@ -79,7 +86,7 @@ class Auth
                 $recid = 0;
                 secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $signature, $serializedSig, $recid);
 
-                if (self::isSignatureCanonical($serializedSig)) {
+                if (self::isSignatureCanonical($serializedSig, 0)) {
                     break;
                 }
             }
@@ -91,9 +98,17 @@ class Auth
 //            //4 - compressed | 27 - compact
 //            var sRez = Hex.Join(new[] { (byte)(recoveryId + 4 + 27) }, sigptr);
 //return sRez;
-            $buf = new Buffer();
-            $buf->writeInt8($recid + 4 + 27);
-            $serializedSig = $buf->read(0, 1) . $serializedSig;
+
+            //for $recid = -1;
+            $serializedSig = hex2bin(base_convert($recid + 4 + 27, 10, 16)) . $serializedSig;
+            //OR for $recid = 0;
+//            $serializedSig = hex2bin(base_convert($recid + 4 + 27, 10, 16)) . substr($serializedSig, 1);
+//            echo '<pre>' . print_r(strlen($serializedSig), true) . '<pre>'; die; //FIXME delete it
+
+            $length = strlen($serializedSig);
+            if ($length !== 65) {
+                throw new \Exception('Expecting 65 bytes for Tx signature, instead got ' . $length);
+            }
 
             $trxParams[0]['signatures'][] = bin2hex($serializedSig);
         }
@@ -159,45 +174,57 @@ class Auth
     }
 
 
-    public static function isSignatureCanonical($serializedSig)
-    {
-        $rl = 32;
-        $r = substr($serializedSig, 0, 32);
-        if (ord($serializedSig[0]) > 0x80) {
-            $rl++;
-            $r = "\x00" . $r;
-        }
-        $sl = 32;
-        $s = substr($serializedSig, 32, 32);
-        if (ord($serializedSig[32]) > 0x80) {
-            $sl++;
-            $s = "\x00" . $s;
-        }
-        $t = 4 + $rl + $sl;
-        $der = "\x30" . chr($t) . "\x02" . chr($rl) . $r . "\x02" . chr($sl) . $s;
-
-//        lenR = der[3];
-//        lenS = der[5 + lenR];
-//        if (lenR === 32 && lenS === 32) {
-        $lenR = (int)base_convert(unpack('H*', $der[3], 0)[1], 16, 10);
-        $lenS = (int)base_convert(unpack('H*', $der[5 + $lenR], 0)[1], 16, 10);
-        echo "\n" . var_dump($lenR, $lenS) . '<pre>'; //FIXME delete it
-
-        return $lenR === 32 && $lenS === 32;
-    }
-
-
 //    public static function isSignatureCanonical($serializedSig)
 //    {
-////        return !(sig[0] & 0x80)
-////            && !(sig[0] == 0 && !(sig[1] & 0x80))
-////            && !(sig[32] & 0x80)
-////            && !(sig[32] == 0 && !(sig[33] & 0x80));
+//        $rl = 32;
+//        $r = substr($serializedSig, 0, 32);
+//        if (ord($serializedSig[0]) > 0x80) {
+//            $rl++;
+//            $r = "\x00" . $r;
+//        }
+//        $sl = 32;
+//        $s = substr($serializedSig, 32, 32);
+//        if (ord($serializedSig[32]) > 0x80) {
+//            $sl++;
+//            $s = "\x00" . $s;
+//        }
+//        $t = 4 + $rl + $sl;
+//        $der = "\x30" . chr($t) . "\x02" . chr($rl) . $r . "\x02" . chr($sl) . $s;
 //
-////        echo '<pre>' . var_dump(unpack('H*', $serializedSig[0], 0)[1] & 0x80, true) . '<pre>'; die; //FIXME delete it
-////        return !(unpack('H*', $serializedSig[0], 0)[1] & 0x80)
-////            && !(unpack('H*', $serializedSig[0], 0)[1] === 0 && !(unpack('H*', $serializedSig[1], 0)[1] & 0x80))
-////            && !($unpack('H*', $serializedSig[32], 0)[1] & 0x80)
-////            && !($unpack('H*', $serializedSig[32], 0)[1] === 0 && !($unpack('H*', $serializedSig[1], 0)[1] & 0x80));
+////        lenR = der[3];
+////        lenS = der[5 + lenR];
+////        if (lenR === 32 && lenS === 32) {
+//        $lenR = (int)base_convert(unpack('H*', $der[3], 0)[1], 16, 10);
+//        $lenS = (int)base_convert(unpack('H*', $der[5 + $lenR], 0)[1], 16, 10);
+//        echo "\n" . var_dump($lenR, $lenS) . '<pre>'; //FIXME delete it
+//
+//        return $lenR === 32 && $lenS === 32;
 //    }
+
+
+    /**
+     * @param string $serializedSig binary string serialized signature
+     * @param string $skip skip the first byte with sing technical data (4 - compressed | 27 - compact)
+     *
+     * @return bool
+     */
+    public static function isSignatureCanonical($serializedSig, $skip)
+    {
+        //             test after secp256k1_ecdsa_recoverable_signature_serialize_compact
+        //        public static bool IsCanonical(byte[] sig, int skip)
+        //        {
+        //        return !((sig[skip + 0] & 0x80) > 0)
+        //        && !(sig[skip + 0] == 0 && !((sig[skip + 1] & 0x80) > 0))
+        //        && !((sig[skip + 32] & 0x80) > 0)
+        //        && !(sig[skip + 32] == 0 && !((sig[skip + 33] & 0x80) > 0));
+        //        }
+
+        $buffer = new Buffer();
+        $buffer->write($serializedSig);
+
+        return !(($buffer->readInt8($skip + 0, 1) & 0x80) > 0)
+            && !($buffer->readInt8($skip + 0, 1) === 0 && !(($buffer->readInt8($skip + 1, 1) & 0x80) > 0))
+            && !(($buffer->readInt8($skip + 32, 1) & 0x80) > 0)
+            && !($buffer->readInt8($skip + 32, 1) === 0 && !(($buffer->readInt8($skip + 33, 1) & 0x80) > 0));
+    }
 }
