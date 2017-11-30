@@ -74,13 +74,17 @@ class Auth
                 echo "\n i=" . print_r($i++, true) . '<pre>'; //FIXME delete it
 
                 if (secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) !== 1) {
-                    throw new \Exception("Failed to create signature");
+                    throw new \Exception("Failed to create recoverable signature");
                 }
 
                 $signature = '';
-                secp256k1_ecdsa_recoverable_signature_convert($context, $signature, $signatureRec);
+                if (secp256k1_ecdsa_recoverable_signature_convert($context, $signature, $signatureRec) !== 1) {
+                    throw new \Exception("Failed to create signature");
+                }
                 $der = '';
-                secp256k1_ecdsa_signature_serialize_der($context, $der, $signature);
+                if (secp256k1_ecdsa_signature_serialize_der($context, $der, $signature) !== 1) {
+                    throw new \Exception("Failed to create DER");
+                }
                 if (self::isSignatureCanonical($der)) {
                     break;
                 }
