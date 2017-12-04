@@ -57,12 +57,30 @@ class Auth
 //            bin2hex($serBuffer->read(0, $serBuffer->length()))
 //            ) . '<pre>'; die; //FIXME delete it
         $serializedTx = self::getChainId($chainName) . bin2hex($serBuffer->read(0, $serBuffer->length()));
+//                echo "\n" . var_dump(
+//                        '$serializedTx'
+//            ); //FIXME delete it
+//                echo "\n" . var_dump(
+//                        $serializedTx,
+//            '782a3039b478c839e4cb0c941ff4eaeb7df40bdd68bd441afd444b9da763de12129d5f7b4474d8b0255a01000867756573743132330966697265706f77657254676f6c6f7369742d76656e692d766964692d766963692d676f6c6f73666573742d323031362d746f6765746865722d77652d6d6164652d69742d68617070656e2d7468616e6b2d796f752d676f6c6f7369616e73102700',
+//            $serializedTx === '782a3039b478c839e4cb0c941ff4eaeb7df40bdd68bd441afd444b9da763de12129d5f7b4474d8b0255a01000867756573743132330966697265706f77657254676f6c6f7369742d76656e692d766964692d766963692d676f6c6f73666573742d323031362d746f6765746865722d77652d6d6164652d69742d68617070656e2d7468616e6b2d796f752d676f6c6f7369616e73102700'
+//            ); //FIXME delete it
 
         foreach ($privKyes as $keyName => $privateWif) {
             $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
             $msg32 = hash('sha256', $serializedTx, true);
+//            $privateKey = hash('sha256', bin2hex(self::PrivateKeyFromWif($privateWif)), true);
             $privateKey = self::PrivateKeyFromWif($privateWif);
+
+//            echo "\n" . var_dump(
+//                    '$privateKey'
+//                ); //FIXME delete it
+//            echo "\n" . var_dump(
+//                    bin2hex($privateKey),
+//                    '5027264a7f77bfdde0b6385af59d5e46bac8451c367d40b12bfaa5e69a687d26',
+//                    bin2hex($privateKey) === '5027264a7f77bfdde0b6385af59d5e46bac8451c367d40b12bfaa5e69a687d26'
+//                ); //FIXME delete it
 
             /** @var resource $signature */
             $signatureRec = '';
@@ -70,6 +88,7 @@ class Auth
             while (true) {
                 if ($i === 100) {
                     throw new \Exception("Can't to find canonical signature, {$i} ties");
+//                    echo '<pre>' . print_r("Can't to find canonical signature, {$i} ties", true) . '<pre>';  //FIXME delete it
                 }
                 echo "\n i=" . print_r($i++, true) . '<pre>'; //FIXME delete it
 
@@ -93,6 +112,7 @@ class Auth
             $serializedSig = '';
             $recid = 0;
             secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $signatureRec, $serializedSig, $recid);
+//echo '<pre>' . print_r($recid, true) . '<pre>'; die; //FIXME delete it
 
 //            int recoveryId = -1;
 //            var sigptr = new byte[64];
