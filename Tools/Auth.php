@@ -14,7 +14,7 @@ class Auth
     /**
      * @param string $privateWif Private (posting key?) wif
      *
-     * @return string outputs Private key as hex
+     * @return string outputs Private key as string of binary
      * @throws \Exception
      */
     public static function PrivateKeyFromWif($privateWif) {
@@ -66,31 +66,4 @@ class Auth
 
         return $private_key;
     }
-
-
-//    /**
-//     * @param string $serializedSig binary string serialized signature
-//     * @param string $skip skip the first byte with sing technical data (4 - compressed | 27 - compact)
-//     *
-//     * @return bool
-//     */
-//    public static function isSignatureCanonical($serializedSig, $skip)
-//    {
-//        //             test after secp256k1_ecdsa_recoverable_signature_serialize_compact
-//        //        public static bool IsCanonical(byte[] sig, int skip)
-//        //        {
-//        //        return !((sig[skip + 0] & 0x80) > 0)
-//        //        && !(sig[skip + 0] == 0 && !((sig[skip + 1] & 0x80) > 0))
-//        //        && !((sig[skip + 32] & 0x80) > 0)
-//        //        && !(sig[skip + 32] == 0 && !((sig[skip + 33] & 0x80) > 0));
-//        //        }
-//
-//        $buffer = new Buffer();
-//        $buffer->write($serializedSig);
-//
-//        return !(($buffer->readInt8($skip + 0, 1) & 0x80) > 0)
-//            && !($buffer->readInt8($skip + 0, 1) === 0 && !(($buffer->readInt8($skip + 1, 1) & 0x80) > 0))
-//            && !(($buffer->readInt8($skip + 32, 1) & 0x80) > 0)
-//            && !($buffer->readInt8($skip + 32, 1) === 0 && !(($buffer->readInt8($skip + 33, 1) & 0x80) > 0));
-//    }
 }

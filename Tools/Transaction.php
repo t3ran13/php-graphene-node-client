@@ -200,7 +200,8 @@ class Transaction
         $signatureRec = '';
         $i = 0;
         while (true) {
-            if ($i === 100) {
+            if ($i === 1) {
+                //sing always the same
                 throw new \Exception("Can't to find canonical signature, {$i} ties");
             }
             echo "\n i=" . print_r($i++, true) . '<pre>'; //FIXME delete it
@@ -251,8 +252,37 @@ class Transaction
 //        if (lenR === 32 && lenS === 32) {
         $lenR = $buffer->readInt8(3);
         $lenS = $buffer->readInt8(5 + $lenR);
-        echo "\n" . var_dump($lenR, $lenS) . '<pre>'; //FIXME delete it
+//        echo "\n" . var_dump($lenR, $lenS) . '<pre>'; //FIXME delete it
 
         return $lenR === 32 && $lenS === 32;
     }
+
+
+
+
+//    /**
+//     * @param string $serializedSig binary string serialized signature
+//     * @param string $skip skip the first byte with sing technical data (4 - compressed | 27 - compact)
+//     *
+//     * @return bool
+//     */
+//    public static function isSignatureCanonical($serializedSig, $skip)
+//    {
+//        //             test after secp256k1_ecdsa_recoverable_signature_serialize_compact
+//        //        public static bool IsCanonical(byte[] sig, int skip)
+//        //        {
+//        //        return !((sig[skip + 0] & 0x80) > 0)
+//        //        && !(sig[skip + 0] == 0 && !((sig[skip + 1] & 0x80) > 0))
+//        //        && !((sig[skip + 32] & 0x80) > 0)
+//        //        && !(sig[skip + 32] == 0 && !((sig[skip + 33] & 0x80) > 0));
+//        //        }
+//
+//        $buffer = new Buffer();
+//        $buffer->write($serializedSig);
+//
+//        return !(($buffer->readInt8($skip + 0, 1) & 0x80) > 0)
+//            && !($buffer->readInt8($skip + 0, 1) === 0 && !(($buffer->readInt8($skip + 1, 1) & 0x80) > 0))
+//            && !(($buffer->readInt8($skip + 32, 1) & 0x80) > 0)
+//            && !($buffer->readInt8($skip + 32, 1) === 0 && !(($buffer->readInt8($skip + 33, 1) & 0x80) > 0));
+//    }
 }
