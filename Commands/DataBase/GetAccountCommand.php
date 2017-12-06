@@ -11,6 +11,6 @@ class GetAccountCommand extends CommandAbstract
 
     /** @var array */
     protected $queryDataMap = [
-        '0' => ['string'], //authors
+        '0' => ['array'], //authors
     ];
 }
