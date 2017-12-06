@@ -7,7 +7,7 @@ PHP client for connection to STEEM/GOLOS node
 ```
 composer require t3ran13/php-graphene-node-client
 ```
-#### for broadcast to blockchain additionally
+#### with broadcast (sending transactions to blockchain)
 \(details and dockerfile [here](https://golos.io/ru--otkrytyij-kod/@php-node-client/podklyuchenie-secp256k1-php-k-php-dockerfile)\)
 
 install components
@@ -127,7 +127,39 @@ namespace:
 ### broadcast_api
 - BroadcastTransactionCommand
 - BroadcastTransactionSynchronousCommand
-   
+
+### broadcast_api operations templates
+- vote 
+```php
+<?php
+
+use GrapheneNodeClient\Tools\ChainOperations\OpVote;
+use GrapheneNodeClient\Tools\Transaction;
+
+$answer = OpVote::doSynchronous(
+    Transaction::CHAIN_STEEM, //Transaction::CHAIN_GOLOS
+    'guest123',
+    '5JRaypasxMx1L97ZUX7YuC5Psb5EAbF821kkAGtBj7xCJFQcbLg',
+    'firepower',
+    'steemit-veni-vidi-vici-steemfest-2016-together-we-made-it-happen-thank-you-steemians',
+    10000
+);
+
+// example of answer
+//Array
+//(
+//    [id] => 5
+//    [result] => Array
+//        (
+//            [id] => a2c52988ea870e446480782ff046994de2666e0d
+//            [block_num] => 17852337
+//            [trx_num] => 1
+//            [expired] =>
+//        )
+//
+//)
+
+```
 
 ## Implemented Connectors List
 
@@ -325,5 +357,43 @@ $tag = Transliterator::encode('ru--pol', Transliterator::LANG_RU); // return 'п
 use GrapheneNodeClient\Tools\Reputation;
 
 $rep = Reputation::calculate($account['reputation']);
+
+```
+
+
+## Transaction for blockchain broadcast
+
+
+```php
+<?php
+
+use GrapheneNodeClient\Tools\Transaction;
+
+/** @var CommandQueryData $tx */
+$tx = Transaction::init($chainName);
+$tx->setParamByKey(
+    '0:operations:0',
+    [
+        'vote',
+        [
+            'voter'    => $voter,
+            'author'   => $author,
+            'permlink' => $permlink,
+            'weight'   => $weight
+        ]
+    ]
+);
+
+if (Transaction::CHAIN_GOLOS === $chainName) {
+    $connector = new GolosWSConnector();
+} elseif (Transaction::CHAIN_STEEM === $chainName) {
+    $connector = new SteemitWSConnector();
+}
+$command = new BroadcastTransactionSynchronousCommand($connector);
+Transaction::sign($chainName, $tx, ['posting' => $publicWif]);
+
+$answer = $command->execute(
+    $tx
+);
 
 ```
