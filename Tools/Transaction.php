@@ -67,11 +67,17 @@ class Transaction
                 $commandQueryData,
                 'result'
             );
+//            $properties = [
+//                'head_block_number'           => 17851646,
+//                'last_irreversible_block_num' => 17851627,
+//                'time'                        => '2017-12-06T15:29:00',
+//            ];
 
             if (self::CHAIN_GOLOS === $chainName) {
                 $blockId = $properties['head_block_number'] - 2;
             } elseif (self::CHAIN_STEEM === $chainName) {
-                $blockId = $properties['last_irreversible_block_num'];
+//                $blockId = $properties['last_irreversible_block_num'];
+                $blockId = $properties['head_block_number'] - 2;
             }
             $command = new GetBlockCommand($connector);
             $commandQueryData = new CommandQueryData();
@@ -85,7 +91,8 @@ class Transaction
                 if (self::CHAIN_GOLOS === $chainName) {
                     $refBlockNum = ($properties['head_block_number'] - 3) & 0xFFFF;
                 } elseif (self::CHAIN_STEEM === $chainName) {
-                    $refBlockNum = ($properties['last_irreversible_block_num'] - 1) & 0xFFFF;
+//                    $refBlockNum = ($properties['last_irreversible_block_num'] - 1) & 0xFFFF;
+                    $refBlockNum = ($properties['head_block_number'] - 3) & 0xFFFF;
                 }
 
                 $tx = new CommandQueryData();
@@ -108,6 +115,12 @@ class Transaction
         if (!($tx instanceof CommandQueryDataInterface)) {
             throw new \Exception('cant init Tx');
         }
+//        $properties2 = [
+//            'ref_block_num'    => '25851',
+//            'ref_block_prefix' => '677597376',
+//            'expiration'       => '2017-12-06T15:30:00.000',
+//        ];
+//        echo '<pre>' . var_dump($tx->getParams(), $properties2) . '<pre>'; //FIXME delete it
 
         return $tx;
     }
@@ -125,6 +138,15 @@ class Transaction
         $trxParams = $trxData->getParams();
         $serBuffer = OperationSerializer::serializeTransaction($trxParams, new ByteBuffer());
         $serializedTx = self::getChainId($chainName) . bin2hex($serBuffer->read(0, $serBuffer->length()));
+
+//                echo "\n" . var_dump(
+//                '$serializedTx'
+//            ); //FIXME delete it
+//        echo "\n" . var_dump(
+//                $serializedTx,
+//                '0000000000000000000000000000000000000000000000000000000000000000fb64c0506328f80c285a01000867756573743132330966697265706f77657254737465656d69742d76656e692d766964692d766963692d737465656d666573742d323031362d746f6765746865722d77652d6d6164652d69742d68617070656e2d7468616e6b2d796f752d737465656d69616e73102700',
+//                $serializedTx === '0000000000000000000000000000000000000000000000000000000000000000fb64c0506328f80c285a01000867756573743132330966697265706f77657254737465656d69742d76656e692d766964692d766963692d737465656d666573742d323031362d746f6765746865722d77652d6d6164652d69742d68617070656e2d7468616e6b2d796f752d737465656d69616e73102700'
+//            ); //FIXME delete it
 
         return $serializedTx;
     }
@@ -174,7 +196,8 @@ class Transaction
                 //sing always the same
                 throw new \Exception("Can't to find canonical signature, {$i} ties");
             }
-            echo "\n i=" . print_r($i++, true) . '<pre>'; //FIXME delete it
+            $i++;
+//            echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
 
             if (secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) !== 1) {
                 throw new \Exception("Failed to create recoverable signature");
