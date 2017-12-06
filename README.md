@@ -361,7 +361,7 @@ $rep = Reputation::calculate($account['reputation']);
 ```
 
 
-## Transaction for blockchain broadcast
+## Transaction for blockchain (broadcast)
 
 
 ```php
