@@ -68,11 +68,6 @@ class Transaction
                 'result'
             );
 
-//            $properties = [
-//                'head_block_number' => '11836693',
-//                'time'              => '2017-12-04T20:31:24',
-//            ];
-
             if (self::CHAIN_GOLOS === $chainName) {
                 $blockId = $properties['head_block_number'] - 2;
             } elseif (self::CHAIN_STEEM === $chainName) {
@@ -113,12 +108,6 @@ class Transaction
         if (!($tx instanceof CommandQueryDataInterface)) {
             throw new \Exception('cant init Tx');
         }
-//        $properties2 = [
-//            'ref_block_num'    => '40210',
-//            'ref_block_prefix' => '1950645087',
-//            'expiration'       => '2017-12-04T20:32:24.000',
-//        ];
-//        echo '<pre>' . var_dump($tx->getParams(), $properties2) . '<pre>'; //FIXME delete it
 
         return $tx;
     }
@@ -136,15 +125,6 @@ class Transaction
         $trxParams = $trxData->getParams();
         $serBuffer = OperationSerializer::serializeTransaction($trxParams, new Buffer());
         $serializedTx = self::getChainId($chainName) . bin2hex($serBuffer->read(0, $serBuffer->length()));
-
-//        echo "\n" . var_dump(
-//                '$serializedTx'
-//            ); //FIXME delete it
-//        echo "\n" . var_dump(
-//                $serializedTx,
-//                '782a3039b478c839e4cb0c941ff4eaeb7df40bdd68bd441afd444b9da763de12129d5f7b4474d8b0255a01000867756573743132330966697265706f77657254676f6c6f7369742d76656e692d766964692d766963692d676f6c6f73666573742d323031362d746f6765746865722d77652d6d6164652d69742d68617070656e2d7468616e6b2d796f752d676f6c6f7369616e73102700',
-//                $serializedTx === '782a3039b478c839e4cb0c941ff4eaeb7df40bdd68bd441afd444b9da763de12129d5f7b4474d8b0255a01000867756573743132330966697265706f77657254676f6c6f7369742d76656e692d766964692d766963692d676f6c6f73666573742d323031362d746f6765746865722d77652d6d6164652d69742d68617070656e2d7468616e6b2d796f752d676f6c6f7369616e73102700'
-//            ); //FIXME delete it
 
         return $serializedTx;
     }
@@ -183,24 +163,14 @@ class Transaction
     {
         $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
-        $msg32 = hash('sha256', $msg, true);
-//            $privateKey = hash('sha256', bin2hex(self::PrivateKeyFromWif($privateWif)), true);
+        $msg32 = hash('sha256', hex2bin($msg), true);
         $privateKey = Auth::PrivateKeyFromWif($privateWif);
-
-//        echo "\n" . var_dump(
-//                '$privateKey'
-//            ); //FIXME delete it
-//        echo "\n" . var_dump(
-//                bin2hex($privateKey),
-//                '5027264a7f77bfdde0b6385af59d5e46bac8451c367d40b12bfaa5e69a687d26',
-//                bin2hex($privateKey) === '5027264a7f77bfdde0b6385af59d5e46bac8451c367d40b12bfaa5e69a687d26'
-//            ); //FIXME delete it
 
         /** @var resource $signature */
         $signatureRec = '';
         $i = 0;
         while (true) {
-            if ($i === 1) {
+            if ($i === 10) {
                 //sing always the same
                 throw new \Exception("Can't to find canonical signature, {$i} ties");
             }
