@@ -13,7 +13,7 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
 use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
 use GrapheneNodeClient\Connectors\WebSocket\SteemitWSConnector;
 use GrapheneNodeClient\Tools\ChainOperations\OperationSerializer;
-use TrafficCophp\ByteBuffer\Buffer;
+use t3ran13\ByteBuffer\ByteBuffer;
 
 class Transaction
 {
@@ -89,7 +89,7 @@ class Transaction
                 }
 
                 $tx = new CommandQueryData();
-                $buf = new Buffer();
+                $buf = new ByteBuffer();
                 $buf->write(hex2bin($block['previous']));
 
                 $tx->setParams(
@@ -123,7 +123,7 @@ class Transaction
 
         //serialize transaction
         $trxParams = $trxData->getParams();
-        $serBuffer = OperationSerializer::serializeTransaction($trxParams, new Buffer());
+        $serBuffer = OperationSerializer::serializeTransaction($trxParams, new ByteBuffer());
         $serializedTx = self::getChainId($chainName) . bin2hex($serBuffer->read(0, $serBuffer->length()));
 
         return $serializedTx;
@@ -216,7 +216,7 @@ class Transaction
      */
     public static function isSignatureCanonical($der)
     {
-        $buffer = new Buffer();
+        $buffer = new ByteBuffer();
         $buffer->write($der);
 //        lenR = der[3];
 //        lenS = der[5 + lenR];
@@ -248,7 +248,7 @@ class Transaction
 //        //        && !(sig[skip + 32] == 0 && !((sig[skip + 33] & 0x80) > 0));
 //        //        }
 //
-//        $buffer = new Buffer();
+//        $buffer = new ByteBuffer();
 //        $buffer->write($serializedSig);
 //
 //        return !(($buffer->readInt8($skip + 0, 1) & 0x80) > 0)

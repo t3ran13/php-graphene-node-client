@@ -7,7 +7,7 @@ use GrapheneNodeClient\Commands\CommandQueryDataInterface;
 use GrapheneNodeClient\Tools\ChainOperations\ChainOperations;
 use GrapheneNodeClient\Tools\ChainOperations\OperationSerializer;
 use StephenHill\Base58;
-use TrafficCophp\ByteBuffer\Buffer;
+use t3ran13\ByteBuffer\ByteBuffer;
 
 class Auth
 {
@@ -18,7 +18,7 @@ class Auth
      * @throws \Exception
      */
     public static function PrivateKeyFromWif($privateWif) {
-//        var private_wif = new Buffer(base58.decode(_private_wif));
+//        var private_wif = new ByteBuffer(base58.decode(_private_wif));
 //        var version = private_wif.readUInt8(0);
 //        assert.equal(0x80, version, `Expected version ${0x80}, instead got ${version}`);
 //        // checksum includes the version
@@ -35,7 +35,7 @@ class Auth
 
         //checking wif version
         $base58 = new Base58();
-        $wifBuffer = new Buffer();
+        $wifBuffer = new ByteBuffer();
         $wifBuffer->write($base58->decode($privateWif));
         $version = $wifBuffer->readInt8(0);
         if ($version !== 128) {

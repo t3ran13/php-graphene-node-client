@@ -2,7 +2,7 @@
 
 namespace GrapheneNodeClient\Tools\ChainOperations;
 
-use TrafficCophp\ByteBuffer\Buffer;
+use t3ran13\ByteBuffer\ByteBuffer;
 
 class OperationSerializer
 {
@@ -13,7 +13,7 @@ class OperationSerializer
      * @return null|string|Buffer
      */
     public static function serializeTransaction($trxParams, $byteBuffer = null) {
-        $buffer = $byteBuffer === null ? (new Buffer()) : $byteBuffer;
+        $buffer = $byteBuffer === null ? (new ByteBuffer()) : $byteBuffer;
 
         $buffer->writeInt16LE($trxParams[0]['ref_block_num'], 0);
         $buffer->writeInt32LE($trxParams[0]['ref_block_prefix'], 2);
@@ -44,7 +44,7 @@ class OperationSerializer
 
 
     public static function serializeOperationVote($data, $byteBuffer = null) {
-        $buffer = $byteBuffer === null ? (new Buffer()) : $byteBuffer;
+        $buffer = $byteBuffer === null ? (new ByteBuffer()) : $byteBuffer;
 
         //operation id
         $opId = ChainOperations::getOperationId(ChainOperations::OPERATION_VOTE);
