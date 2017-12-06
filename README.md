@@ -397,5 +397,5 @@ $answer = $command->execute(
 );
 
 ```
-## WARNING
+** WARNING**
 Transactions are signing with spec256k1-php with function secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) and if it is not canonical from first time, you have to make transaction for other block. For searching canonical sign function have to implement two more parameters, but spec256k1-php library does not have it.
