@@ -170,7 +170,7 @@ class Transaction
         $signatureRec = '';
         $i = 0;
         while (true) {
-            if ($i === 10) {
+            if ($i === 1) {
                 //sing always the same
                 throw new \Exception("Can't to find canonical signature, {$i} ties");
             }
@@ -188,6 +188,7 @@ class Transaction
             if (secp256k1_ecdsa_signature_serialize_der($context, $der, $signature) !== 1) {
                 throw new \Exception("Failed to create DER");
             }
+//            echo "\n" . print_r(bin2hex($der), true) . '<pre>'; //FIXME delete it
             if (self::isSignatureCanonical($der)) {
                 break;
             }

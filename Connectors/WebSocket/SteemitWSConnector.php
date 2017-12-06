@@ -15,5 +15,5 @@ class SteemitWSConnector extends WSConnectorAbstract
      *
      * @var string
      */
-    protected $nodeURL = 'wss://ws.steemit.com';
+    protected $nodeURL = 'wss://steemd.steemit.com';
 }
