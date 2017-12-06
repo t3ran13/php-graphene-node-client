@@ -3,9 +3,23 @@ PHP client for connection to STEEM/GOLOS node
 
 
 ## Install Via Composer
+#### For readonly, without broadcast
 ```
 composer require t3ran13/php-graphene-node-client
 ```
+#### for broadcast to blockchain additionally
+\(details and dockerfile [here](https://golos.io/ru--otkrytyij-kod/@php-node-client/podklyuchenie-secp256k1-php-k-php-dockerfile)\)
+
+install components
+- automake
+- libtool
+- libgmp-dev
+
+install extensions
+- secp256k1 \(how to install (secp256k1-php)[https://github.com/Bit-Wasp/secp256k1-php]\)
+- gmp
+
+
 
 ## Basic Usage
 ```php
