@@ -16,7 +16,7 @@ install components
 - libgmp-dev
 
 install extensions
-- secp256k1 \(how to install (secp256k1-php)[https://github.com/Bit-Wasp/secp256k1-php]\)
+- secp256k1 \(how to install [secp256k1-php](https://github.com/Bit-Wasp/secp256k1-php)\)
 - gmp
 
 
