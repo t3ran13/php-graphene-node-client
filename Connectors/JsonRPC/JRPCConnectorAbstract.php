@@ -139,13 +139,11 @@ abstract class JRPCConnectorAbstract implements ConnectorInterface
 
     /**
      * @param string $apiName
-     * @param array  $data
+     * @param array $data
      * @param string $answerFormat
-     * @param int    $try_number Try number of getting answer from api
-     *
+     * @param int $try_number Try number of getting answer from api
      * @return array|object
-     * @throws ConnectionException
-     * @throws \WebSocket\BadOpcodeException
+     * @throws ConnectionFailureException
      */
     public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY, $try_number = 1)
     {
@@ -162,7 +160,6 @@ abstract class JRPCConnectorAbstract implements ConnectorInterface
             $answer['result'] = $connection->execute($data['method'],$data['params']);
 
         } catch (ConnectionFailureException $e) {
-            dump($e);
 
             if ($try_number < $this->maxNumberOfTriesToCallApi) {
                 //if got WS Exception, try to get answer again
@@ -175,8 +172,6 @@ abstract class JRPCConnectorAbstract implements ConnectorInterface
                 //if nothing helps
                 throw $e;
             }
-        } catch (\Exception $e){
-            dump($e);
         }
 
         return $answer;
