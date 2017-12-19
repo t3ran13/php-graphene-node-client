@@ -22,7 +22,7 @@ class OpTransfer
      * @return mixed
      * @throws \Exception
      */
-    public static function do($chainName, $from, $privateActiveWif, $to, $amountWithAsset, $memo)
+    public static function do($chainName, $privateActiveWif, $from, $to, $amountWithAsset, $memo)
     {
         /** @var CommandQueryData $tx */
         $tx = Transaction::init($chainName);
@@ -65,7 +65,7 @@ class OpTransfer
      * @return mixed
      * @throws \Exception
      */
-    public static function doSynchronous($chainName, $from, $privateActiveWif, $to, $amountWithAsset, $memo)
+    public static function doSynchronous($chainName, $privateActiveWif, $from, $to, $amountWithAsset, $memo)
     {
         /** @var CommandQueryData $tx */
         $tx = Transaction::init($chainName);
