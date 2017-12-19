@@ -1,9 +1,10 @@
 <?php
 
-namespace GrapheneNodeClient\Connectors\JsonRPC;
+namespace GrapheneNodeClient\Connectors\Http;
 
 
-class SteemitJRPCConnector extends JRPCConnectorAbstract
+
+class SteemitHttpConnector extends HttpConnectorAbstract
 {
     /**
      * @var string

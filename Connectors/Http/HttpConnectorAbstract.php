@@ -1,13 +1,13 @@
 <?php
 
-namespace GrapheneNodeClient\Connectors\JsonRPC;
+namespace GrapheneNodeClient\Connectors\Http;
 
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 use JsonRPC\Client;
 use JsonRPC\Exception\ConnectionFailureException;
 
 
-abstract class JRPCConnectorAbstract implements ConnectorInterface
+abstract class HttpConnectorAbstract implements ConnectorInterface
 {
     /**
      * @var string
