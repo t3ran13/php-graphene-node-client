@@ -6,13 +6,43 @@ use t3ran13\ByteBuffer\ByteBuffer;
 
 class OperationSerializer
 {
+    const TYPE_STRING = 'string';
+    const TYPE_INT16  = 'int16';
+    const TYPE_ASSET  = 'asset';
+
+    const OPERATIONS_FIELDS_TYPES = [
+        ChainOperations::OPERATION_VOTE     => [
+            'voter'    => self::TYPE_STRING,
+            'author'   => self::TYPE_STRING,
+            'permlink' => self::TYPE_STRING,
+            'permlink' => self::TYPE_STRING,
+            'weight'   => self::TYPE_INT16
+        ],
+        ChainOperations::OPERATION_COMMENT  => [
+            'parent_author'   => self::TYPE_STRING,
+            'parent_permlink' => self::TYPE_STRING,
+            'author'          => self::TYPE_STRING,
+            'permlink'        => self::TYPE_STRING,
+            'title'           => self::TYPE_STRING,
+            'body'            => self::TYPE_STRING,
+            'json_metadata'   => self::TYPE_STRING
+        ],
+        ChainOperations::OPERATION_TRANSFER => [
+            'from'   => self::TYPE_STRING,
+            'to'     => self::TYPE_STRING,
+            'amount' => self::TYPE_ASSET,
+            'memo'   => self::TYPE_STRING
+        ]
+    ];
+
     /**
-     * @param array     $trxParams
+     * @param array       $trxParams
      * @param null|Buffer $byteBuffer
      *
      * @return null|string|Buffer
      */
-    public static function serializeTransaction($trxParams, $byteBuffer = null) {
+    public static function serializeTransaction($trxParams, $byteBuffer = null)
+    {
         $buffer = $byteBuffer === null ? (new ByteBuffer()) : $byteBuffer;
 
         $buffer->writeInt16LE($trxParams[0]['ref_block_num'], 0);
@@ -21,11 +51,13 @@ class OperationSerializer
         $buffer->writeInt32LE($expirationSec, 6);
         $buffer->writeInt8(count($trxParams[0]['operations']));
 
+
         //serialize only operations data
         foreach ($trxParams[0]['operations'] as $operation) {
             $opData = $operation[1];
             self::serializeOperation($operation[0], $opData, $buffer);
         }
+
 
         $buffer->writeInt8(count($trxParams[0]['extensions']));
         foreach ($trxParams[0]['extensions'] as $extansion) {
@@ -36,45 +68,59 @@ class OperationSerializer
     }
 
 
-    public static function serializeOperation($operationName, $data, $byteBuffer = null) {
-        if ($operationName === ChainOperations::OPERATION_VOTE) {
-            return self::serializeOperationVote($data, $byteBuffer);
+    /**
+     * @param string     $operationName
+     * @param array      $data
+     * @param ByteBuffer $byteBuffer
+     *
+     * @return ByteBuffer
+     */
+    public static function serializeOperation($operationName, $data, $byteBuffer)
+    {
+        //operation id
+        $opId = ChainOperations::getOperationId($operationName);
+        $byteBuffer->writeInt8($opId);
+
+        foreach (self::OPERATIONS_FIELDS_TYPES[$operationName] as $field => $type) {
+            self::serializeType($type, $data[$field], $byteBuffer);
         }
+
+        return $byteBuffer;
     }
 
 
-    public static function serializeOperationVote($data, $byteBuffer = null) {
-        $buffer = $byteBuffer === null ? (new ByteBuffer()) : $byteBuffer;
+    /**
+     * @param string     $type
+     * @param mixed      $value
+     * @param ByteBuffer $byteBuffer
+     *
+     * @return mixed
+     */
+    public static function serializeType($type, $value, $byteBuffer)
+    {
+        if ($type === self::TYPE_STRING) {
+            $byteBuffer->writeInt8(strlen($value));
+            $byteBuffer->writeVStringLE($value);
+        } elseif ($type === self::TYPE_INT16) {
+            $byteBuffer->writeInt16LE($value);
+        } elseif ($type === self::TYPE_ASSET) {
+            list($amount, $symbol) = explode(' ', $value);
 
-        //operation id
-        $opId = ChainOperations::getOperationId(ChainOperations::OPERATION_VOTE);
-        $buffer->writeInt8($opId);
+            //TODO FIXME have to be writeInt64
+            $byteBuffer->writeInt32LE(str_replace('.', '', $amount));
+            $byteBuffer->writeInt32LE(0);
 
-        //voter
-        $offset = $buffer->getCurrentOffset();
-        $buffer->writeInt16LE(strlen($data['voter']));
-        $offset += 1;
-        $buffer->setCurrentOffset($offset);
-        $buffer->writeVStringLE($data['voter'], $offset);
+            $dot = strpos($amount, '.');
+            $precision = $dot === false ? 0 : strlen($amount) - $dot - 1;
+            $byteBuffer->writeInt8($precision);
 
-        //author
-        $offset = $buffer->getCurrentOffset();
-        $buffer->writeInt16LE(strlen($data['author']));
-        $offset += 1;
-        $buffer->setCurrentOffset($offset);
-        $buffer->writeVStringLE($data['author'], $offset);
+            $byteBuffer->writeVStringLE(strtoupper($symbol));
+            for ($i = 0; $i < 7 - strlen($symbol); $i++) {
+                $byteBuffer->writeInt8(0);
+            }
+        }
 
-        //permlink
-        $offset = $buffer->getCurrentOffset();
-        $buffer->writeInt16LE(strlen($data['permlink']));
-        $offset += 1;
-        $buffer->setCurrentOffset($offset);
-        $buffer->writeVStringLE($data['permlink'], $offset);
-
-        //weight
-        $buffer->writeInt16LE($data['weight']);
-
-        return $byteBuffer === null ? $buffer->getBuffer('H', 0, $buffer->getCurrentOffset()) : $byteBuffer;
+        return $byteBuffer;
     }
 
 

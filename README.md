@@ -129,7 +129,10 @@ namespace:
 - BroadcastTransactionSynchronousCommand
 
 ### broadcast_api operations templates
-- vote 
+- vote
+- transfer
+- comment 
+
 ```php
 <?php
 
