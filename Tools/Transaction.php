@@ -10,8 +10,6 @@ use GrapheneNodeClient\Commands\DataBase\GetBlockCommand;
 use GrapheneNodeClient\Commands\DataBase\GetDynamicGlobalPropertiesCommand;
 use GrapheneNodeClient\Commands\Login\LoginCommand;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
-use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
-use GrapheneNodeClient\Connectors\WebSocket\SteemitWSConnector;
 use GrapheneNodeClient\Tools\ChainOperations\OperationSerializer;
 use t3ran13\ByteBuffer\ByteBuffer;
 
@@ -35,20 +33,15 @@ class Transaction
     }
 
     /**
-     * @param string $chainName
+     * @param ConnectorInterface $connector
      *
      * @return CommandQueryData
      * @throws \Exception
      */
-    public static function init($chainName)
+    public static function init(ConnectorInterface $connector)
     {
-        $connector = null;
         $tx = null;
-        if (self::CHAIN_GOLOS === $chainName) {
-            $connector = new GolosWSConnector();
-        } elseif (self::CHAIN_STEEM === $chainName) {
-            $connector = new SteemitWSConnector();
-        }
+        $chainName = $connector->getPlatform();
 
         $command = new LoginCommand($connector);
         $commandQueryData = new CommandQueryData();
@@ -162,12 +155,39 @@ class Transaction
      */
     public static function sign($chainName, CommandQueryDataInterface $trxData, $privateWIFs)
     {
-        $msg = self::getTxMsg($chainName, $trxData);
+        //becouse spec256k1-php canonical sign trouble will use php hack.
+        //If sign is not canonical, we have to chang msg (we will add 1 sec to tx expiration time) and try to sign again
+        $nTries = 0;
+        while (true) {
+            $nTries++;
+            $msg = self::getTxMsg($chainName, $trxData);
+            echo '<pre>' . print_r($trxData->getParams(), true) . '<pre>'; //FIXME delete it
 
-        foreach ($privateWIFs as $keyName => $privateWif) {
-            $index = count($trxData->getParams()[0]['signatures']);
-            /** @var CommandQueryData $trxData */
-            $trxData->setParamByKey('0:signatures:' . $index, self::signOperation($msg, $privateWif));
+            try {
+                foreach ($privateWIFs as $keyName => $privateWif) {
+                    $index = count($trxData->getParams()[0]['signatures']);
+
+                    /** @var CommandQueryData $trxData */
+                    $trxData->setParamByKey('0:signatures:' . $index, self::signOperation($msg, $privateWif));
+                }
+                break;
+            } catch (TransactionSignException $e) {
+                if ($nTries > 200) {
+                    //stop tries to find canonical sign
+                    throw $e;
+                    break;
+                } else {
+                    /** @var CommandQueryData $trxData */
+                    $params = $trxData->getParams();
+                    foreach ($params as $key => $tx) {
+                        $tx['expiration'] = (new \DateTime($tx['expiration']))
+                            ->add(new \DateInterval('PT0M1S'))
+                            ->format('Y-m-d\TH:i:s\.000');
+                        $params[$key] = $tx;
+                    }
+                    $trxData->setParams($params);
+                }
+            }
         }
 
         return $trxData;
@@ -194,22 +214,22 @@ class Transaction
         while (true) {
             if ($i === 1) {
                 //sing always the same
-                throw new \Exception("Can't to find canonical signature, {$i} ties");
+                throw new TransactionSignException("Can't to find canonical signature, {$i} ties");
             }
             $i++;
 //            echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
 
             if (secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) !== 1) {
-                throw new \Exception("Failed to create recoverable signature");
+                throw new TransactionSignException("Failed to create recoverable signature");
             }
 
             $signature = '';
             if (secp256k1_ecdsa_recoverable_signature_convert($context, $signature, $signatureRec) !== 1) {
-                throw new \Exception("Failed to create signature");
+                throw new TransactionSignException("Failed to create signature");
             }
             $der = '';
             if (secp256k1_ecdsa_signature_serialize_der($context, $der, $signature) !== 1) {
-                throw new \Exception("Failed to create DER");
+                throw new TransactionSignException("Failed to create DER");
             }
 //            echo "\n" . print_r(bin2hex($der), true) . '<pre>'; //FIXME delete it
             if (self::isSignatureCanonical($der)) {
