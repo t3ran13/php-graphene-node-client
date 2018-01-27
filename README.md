@@ -137,6 +137,8 @@ namespace:
 <?php
 
 use GrapheneNodeClient\Tools\ChainOperations\OpVote;
+use GrapheneNodeClient\Connectors\Http\SteemitHttpConnector;
+use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
 
 $connector = new SteemitHttpConnector();
 //$connector = new GolosWSConnector();
@@ -373,6 +375,8 @@ $rep = Reputation::calculate($account['reputation']);
 <?php
 
 use GrapheneNodeClient\Tools\Transaction;
+use GrapheneNodeClient\Connectors\Http\SteemitHttpConnector;
+use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
 
 $connector = new SteemitHttpConnector();
 //$connector = new GolosWSConnector();
@@ -400,7 +404,10 @@ $answer = $command->execute(
 );
 
 ```
+
+
 ** WARNING**
+
 Transactions are signing with spec256k1-php with function secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) and if it is not canonical from first time, you have to make transaction for other block. For searching canonical sign function have to implement two more parameters, but spec256k1-php library does not have it.
 It is was solved with php-hack in Transaction::sign()
 ```php
