@@ -5,27 +5,27 @@ namespace GrapheneNodeClient\Tools\ChainOperations;
 use GrapheneNodeClient\Commands\Broadcast\BroadcastTransactionCommand;
 use GrapheneNodeClient\Commands\Broadcast\BroadcastTransactionSynchronousCommand;
 use GrapheneNodeClient\Commands\CommandQueryData;
-use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
-use GrapheneNodeClient\Connectors\WebSocket\SteemitWSConnector;
+use GrapheneNodeClient\Connectors\ConnectorInterface;
 use GrapheneNodeClient\Tools\Transaction;
 
 class OpTransfer
 {
     /**
-     * @param string  $chainName
-     * @param string  $from
-     * @param string  $privateActiveWif
-     * @param string  $to
-     * @param string  $amountWithAsset
-     * @param string $memo
+     * @param ConnectorInterface $connector
+     * @param string             $from
+     * @param string             $privateActiveWif
+     * @param string             $to
+     * @param string             $amountWithAsset
+     * @param string             $memo
      *
      * @return mixed
      * @throws \Exception
      */
-    public static function do($chainName, $privateActiveWif, $from, $to, $amountWithAsset, $memo)
+    public static function do(ConnectorInterface $connector, $privateActiveWif, $from, $to, $amountWithAsset, $memo)
     {
+        $chainName = $connector->getPlatform();
         /** @var CommandQueryData $tx */
-        $tx = Transaction::init($chainName);
+        $tx = Transaction::init($connector);
         $tx->setParamByKey(
             '0:operations:0',
             [
@@ -39,11 +39,6 @@ class OpTransfer
             ]
         );
 
-        if (Transaction::CHAIN_GOLOS === $chainName) {
-            $connector = new GolosWSConnector();
-        } elseif (Transaction::CHAIN_STEEM === $chainName) {
-            $connector = new SteemitWSConnector();
-        }
         $command = new BroadcastTransactionCommand($connector);
         Transaction::sign($chainName, $tx, ['active' => $privateActiveWif]);
 
@@ -55,20 +50,21 @@ class OpTransfer
     }
 
     /**
-     * @param string  $chainName
-     * @param string  $from
-     * @param string  $privateActiveWif
-     * @param string  $to
-     * @param string  $amountWithAsset
-     * @param string $memo
+     * @param ConnectorInterface $connector
+     * @param string             $from
+     * @param string             $privateActiveWif
+     * @param string             $to
+     * @param string             $amountWithAsset
+     * @param string             $memo
      *
      * @return mixed
      * @throws \Exception
      */
-    public static function doSynchronous($chainName, $privateActiveWif, $from, $to, $amountWithAsset, $memo)
+    public static function doSynchronous(ConnectorInterface $connector, $privateActiveWif, $from, $to, $amountWithAsset, $memo)
     {
+        $chainName = $connector->getPlatform();
         /** @var CommandQueryData $tx */
-        $tx = Transaction::init($chainName);
+        $tx = Transaction::init($connector);
         $tx->setParamByKey(
             '0:operations:0',
             [
@@ -82,11 +78,6 @@ class OpTransfer
             ]
         );
 
-        if (Transaction::CHAIN_GOLOS === $chainName) {
-            $connector = new GolosWSConnector();
-        } elseif (Transaction::CHAIN_STEEM === $chainName) {
-            $connector = new SteemitWSConnector();
-        }
         $command = new BroadcastTransactionSynchronousCommand($connector);
         Transaction::sign($chainName, $tx, ['active' => $privateActiveWif]);
 
