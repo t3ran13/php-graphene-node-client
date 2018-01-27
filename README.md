@@ -137,10 +137,12 @@ namespace:
 <?php
 
 use GrapheneNodeClient\Tools\ChainOperations\OpVote;
-use GrapheneNodeClient\Tools\Transaction;
+
+$connector = new SteemitHttpConnector();
+//$connector = new GolosWSConnector();
 
 $answer = OpVote::doSynchronous(
-    Transaction::CHAIN_STEEM, //Transaction::CHAIN_GOLOS
+    $connector,
     'guest123',
     '5JRaypasxMx1L97ZUX7YuC5Psb5EAbF821kkAGtBj7xCJFQcbLg',
     'firepower',
@@ -372,8 +374,11 @@ $rep = Reputation::calculate($account['reputation']);
 
 use GrapheneNodeClient\Tools\Transaction;
 
+$connector = new SteemitHttpConnector();
+//$connector = new GolosWSConnector();
+
 /** @var CommandQueryData $tx */
-$tx = Transaction::init($chainName);
+$tx = Transaction::init($connector);
 $tx->setParamByKey(
     '0:operations:0',
     [
@@ -387,11 +392,6 @@ $tx->setParamByKey(
     ]
 );
 
-if (Transaction::CHAIN_GOLOS === $chainName) {
-    $connector = new GolosWSConnector();
-} elseif (Transaction::CHAIN_STEEM === $chainName) {
-    $connector = new SteemitWSConnector();
-}
 $command = new BroadcastTransactionSynchronousCommand($connector);
 Transaction::sign($chainName, $tx, ['posting' => $publicWif]);
 
@@ -402,3 +402,42 @@ $answer = $command->execute(
 ```
 ** WARNING**
 Transactions are signing with spec256k1-php with function secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) and if it is not canonical from first time, you have to make transaction for other block. For searching canonical sign function have to implement two more parameters, but spec256k1-php library does not have it.
+It is was solved with php-hack in Transaction::sign()
+```php
+...
+//becouse spec256k1-php canonical sign trouble will use php hack.
+//If sign is not canonical, we have to chang msg (we will add 1 sec to tx expiration time) and try to sign again
+$nTries = 0;
+while (true) {
+    $nTries++;
+    $msg = self::getTxMsg($chainName, $trxData);
+    echo '<pre>' . print_r($trxData->getParams(), true) . '<pre>'; //FIXME delete it
+
+    try {
+        foreach ($privateWIFs as $keyName => $privateWif) {
+            $index = count($trxData->getParams()[0]['signatures']);
+
+            /** @var CommandQueryData $trxData */
+            $trxData->setParamByKey('0:signatures:' . $index, self::signOperation($msg, $privateWif));
+        }
+        break;
+    } catch (TransactionSignException $e) {
+        if ($nTries > 200) {
+            //stop tries to find canonical sign
+            throw $e;
+            break;
+        } else {
+            /** @var CommandQueryData $trxData */
+            $params = $trxData->getParams();
+            foreach ($params as $key => $tx) {
+                $tx['expiration'] = (new \DateTime($tx['expiration']))
+                    ->add(new \DateInterval('PT0M1S'))
+                    ->format('Y-m-d\TH:i:s\.000');
+                $params[$key] = $tx;
+            }
+            $trxData->setParams($params);
+        }
+    }
+...
+
+```
