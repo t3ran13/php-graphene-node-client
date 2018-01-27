@@ -6,28 +6,27 @@ use GrapheneNodeClient\Commands\Broadcast\BroadcastTransactionCommand;
 use GrapheneNodeClient\Commands\Broadcast\BroadcastTransactionSynchronousCommand;
 use GrapheneNodeClient\Commands\CommandQueryData;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
-use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
-use GrapheneNodeClient\Connectors\WebSocket\SteemitWSConnector;
 use GrapheneNodeClient\Tools\Auth;
 use GrapheneNodeClient\Tools\Transaction;
 
 class OpVote
 {
     /**
-     * @param string  $chainName
-     * @param string  $voter
-     * @param string  $publicWif
-     * @param string  $author
-     * @param string  $permlink
-     * @param integer $weight
+     * @param ConnectorInterface $connector
+     * @param string             $voter
+     * @param string             $publicWif
+     * @param string             $author
+     * @param string             $permlink
+     * @param integer            $weight
      *
      * @return mixed
      * @throws \Exception
      */
-    public static function do($chainName, $voter, $publicWif, $author, $permlink, $weight)
+    public static function do(ConnectorInterface $connector, $voter, $publicWif, $author, $permlink, $weight)
     {
+        $chainName = $connector->getPlatform();
         /** @var CommandQueryData $tx */
-        $tx = Transaction::init($chainName);
+        $tx = Transaction::init($connector);
         $tx->setParamByKey(
             '0:operations:0',
             [
@@ -41,11 +40,6 @@ class OpVote
             ]
         );
 
-        if (Transaction::CHAIN_GOLOS === $chainName) {
-            $connector = new GolosWSConnector();
-        } elseif (Transaction::CHAIN_STEEM === $chainName) {
-            $connector = new SteemitWSConnector();
-        }
         $command = new BroadcastTransactionCommand($connector);////        echo '<pre>' . var_dump($commandQueryData->getParams(), $properties2) . '<pre>'; die; //FIXME delete it
         Transaction::sign($chainName, $tx, ['posting' => $publicWif]);
 //        echo '<pre>' . var_dump($tx->getParams()) . '<pre>'; //FIXME delete it
@@ -57,20 +51,21 @@ class OpVote
     }
 
     /**
-     * @param string  $chainName
-     * @param string  $voter
-     * @param string  $publicWif
-     * @param string  $author
-     * @param string  $permlink
-     * @param integer $weight
+     * @param ConnectorInterface $connector
+     * @param string             $voter
+     * @param string             $publicWif
+     * @param string             $author
+     * @param string             $permlink
+     * @param integer            $weight
      *
-     * @return mixed
+     * @return array|object
      * @throws \Exception
      */
-    public static function doSynchronous($chainName, $voter, $publicWif, $author, $permlink, $weight)
+    public static function doSynchronous(ConnectorInterface $connector, $voter, $publicWif, $author, $permlink, $weight)
     {
+        $chainName = $connector->getPlatform();
         /** @var CommandQueryData $tx */
-        $tx = Transaction::init($chainName);
+        $tx = Transaction::init($connector);
         $tx->setParamByKey(
             '0:operations:0',
             [
@@ -84,14 +79,9 @@ class OpVote
             ]
         );
 
-        if (Transaction::CHAIN_GOLOS === $chainName) {
-            $connector = new GolosWSConnector();
-        } elseif (Transaction::CHAIN_STEEM === $chainName) {
-            $connector = new SteemitWSConnector();
-        }
         $command = new BroadcastTransactionSynchronousCommand($connector);////        echo '<pre>' . var_dump($commandQueryData->getParams(), $properties2) . '<pre>'; die; //FIXME delete it
         Transaction::sign($chainName, $tx, ['posting' => $publicWif]);
-//        echo '<pre>' . var_dump($tx->getParams()) . '<pre>'; //FIXME delete it
+
         $answer = $command->execute(
             $tx
         );
