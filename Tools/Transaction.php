@@ -161,7 +161,6 @@ class Transaction
         while (true) {
             $nTries++;
             $msg = self::getTxMsg($chainName, $trxData);
-            echo '<pre>' . print_r($trxData->getParams(), true) . '<pre>'; //FIXME delete it
 
             try {
                 foreach ($privateWIFs as $keyName => $privateWif) {
