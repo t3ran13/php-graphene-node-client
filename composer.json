@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": "^5.3.3 || ^7.0",
+        "php": "^5.4 || ^7.0",
         "textalk/websocket": "^1.2",
         "bitwasp/secp256k1-php": "^0.1.2",
         "stephenhill/base58": "^1.1",
