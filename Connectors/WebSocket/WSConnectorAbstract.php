@@ -160,7 +160,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
         ];
         try {
             $connection = $this->getConnection();
-            $connection->send(json_encode($data));
+            $connection->send(json_encode($data, JSON_UNESCAPED_UNICODE));
 
             $answerRaw = $connection->receive();
             $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY === $answerFormat);
