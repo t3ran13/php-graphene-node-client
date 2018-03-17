@@ -31,7 +31,10 @@ abstract class HttpConnectorAbstract implements ConnectorInterface
 
 
     /**
-     * current node url, for example 'wss://ws.golos.io'
+     * current node url, for example 'https://api.golos.io'
+     *
+     * if you set several nodes urls, if with first node will be trouble
+     * it will connect after $maxNumberOfTriesToCallApi tries to next node
      *
      * @var string
      */
@@ -139,9 +142,10 @@ abstract class HttpConnectorAbstract implements ConnectorInterface
 
     /**
      * @param string $apiName
-     * @param array $data
+     * @param array  $data
      * @param string $answerFormat
-     * @param int $try_number Try number of getting answer from api
+     * @param int    $try_number Try number of getting answer from api
+     *
      * @return array|object
      * @throws ConnectionFailureException
      */
@@ -149,15 +153,17 @@ abstract class HttpConnectorAbstract implements ConnectorInterface
     {
         try {
             $data = [
-                'method' => 'call',
-                'params' => [
+                'jsonrpc' => '2.0',
+                'id'      => 1,
+                'method'  => 'call',
+                'params'  => [
                     $apiName,
                     $data['method'],
                     $data['params']
                 ]
             ];
             $connection = $this->getConnection();
-            $answer['result'] = $connection->execute($data['method'],$data['params']);
+            $answer['result'] = $connection->execute($data['method'], $data['params']);
 
         } catch (ConnectionFailureException $e) {
 
