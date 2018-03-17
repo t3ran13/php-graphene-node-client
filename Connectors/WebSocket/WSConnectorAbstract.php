@@ -32,6 +32,9 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     /**
      * current node url, for example 'wss://ws.golos.io'
      *
+     * if you set several nodes urls, if with first node will be trouble
+     * it will connect after $maxNumberOfTriesToCallApi tries to next node
+     *
      * @var string
      */
     private $currentNodeURL;
@@ -150,6 +153,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     {
         $requestId = $this->getNextId();
         $data = [
+            'jsonrpc' => '2.0',
             'id'     => $requestId,
             'method' => 'call',
             'params' => [
