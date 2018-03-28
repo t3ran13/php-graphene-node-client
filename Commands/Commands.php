@@ -1,14 +1,15 @@
 <?php
 
 
-namespace GrapheneNodeClient\Commands\DataBase;
+namespace GrapheneNodeClient\Commands;
 
 
-use GrapheneNodeClient\Commands\CommandQueryData;
-use GrapheneNodeClient\Commands\CommandQueryDataInterface;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 
-abstract class Commands implements CommandInterface
+/**
+ * @property $this get_block
+ */
+class Commands implements CommandInterface
 {
     /** @var string */
     protected $method = '';
@@ -17,10 +18,17 @@ abstract class Commands implements CommandInterface
     /** @var ConnectorInterface */
     protected $connector;
     /** @var string */
-    protected $apiName = 'database_api';
+    private $apiName;
 
     //protected $projectApi = [ 'method_name' => [ 'apiName' => 'api_name', 'fields'=>['массив с полями из команды']]];
-    protected $steemAPI = [
+    //protected $steemAPI = [
+    protected $golosAPI = [
+        'get_block' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['integer'], //block_id
+            ]
+        ],
         'get_accounts' => [
             'apiName' => 'database_api',
             'fields' => [
@@ -53,6 +61,7 @@ abstract class Commands implements CommandInterface
     public function __construct(ConnectorInterface $connector)
     {
         $this->connector = $connector;
+        return $this;
     }
 
     /**
@@ -159,6 +168,10 @@ abstract class Commands implements CommandInterface
             throw new \Exception('There is no information about command:'.$name. '. Please create your own class for that command');
         }
 
-        //реализация запроса комманды (как передавать параметры для комманды?)
+
+        $this->apiName = $api[$name]['apiName'];
+        $this->queryDataMap = $api[$name]['fields'];
+        $this->method = $name;
+        return $this;
     }
 }
