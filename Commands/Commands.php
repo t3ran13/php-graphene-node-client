@@ -7,7 +7,7 @@ namespace GrapheneNodeClient\Commands;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 /**
- * @property $this get_block
+ *
  */
 class Commands implements CommandInterface
 {
@@ -21,7 +21,197 @@ class Commands implements CommandInterface
     private $apiName;
 
     //protected $projectApi = [ 'method_name' => [ 'apiName' => 'api_name', 'fields'=>['массив с полями из команды']]];
-    //protected $steemAPI = [
+    protected $steemAPI = [
+        'get_block' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['integer'], //block_id
+            ]
+        ],
+        'get_accounts' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['array'], //authors
+            ]
+        ],
+        'get_account_count' => [
+            'apiName' => 'database_api',
+            'fields' => []
+        ],
+        'get_account_history' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['string'], //authors
+                '1' => ['integer'], //from
+                '2' => ['integer'], //limit max 2000
+            ]
+        ],
+        'get_account_votes' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['string'], //account name
+            ]
+        ],
+        'get_active_votes' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['string'], //author
+                '1' => ['string'], //permlink
+            ]
+        ],
+        'get_active_witnesses' => [
+            'apiName' => 'database_api',
+            'fields' => [
+            ]
+        ],
+        'get_content' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['string'], //author
+                '1' => ['string'], //permlink
+            ]
+        ],
+        'get_block_header' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['integer'], //block_id
+            ]
+        ],
+        'get_content_replies' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['string'], //author
+                '1' => ['string'], //permlink
+            ]
+        ],
+        'get_current_median_history_price' => [
+            'apiName' => 'database_api',
+            'fields' => [
+            ]
+        ],
+        'get_discussions_by_author_before_date' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['string'], //'author',
+                '1' => ['string'], //'start_permlink' for pagination,
+                '2' => ['string'], //'before_date'
+                '3' => ['integer'], //'limit'
+            ]
+        ],
+        'get_discussions_by_blog' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '*:tag' => ['string'], //'author',
+                '*:limit' => ['integer'], //'limit'
+                '*:start_author' => ['nullOrString'], //'start_author' for pagination,
+                '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
+            ]
+        ],
+        'get_discussions_by_created' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '*:tag'            => ['nullOrString'], //'author',
+                '*:limit'          => ['integer'], //'limit'
+                '*:start_author'   => ['nullOrString'], //'start_author' for pagination,
+                '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
+            ]
+        ],
+        'get_discussions_by_feed' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '*:tag'            => ['string'], //'author',
+                '*:limit'          => ['integer'], //'limit'
+                '*:start_author'   => ['nullOrString'], //'start_author' for pagination,
+                '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
+            ]
+        ],
+        'get_discussions_by_trending' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '*:tag'            => ['nullOrString'], //'author',
+                '*:limit'          => ['integer'], //'limit'
+                '*:start_author'   => ['nullOrString'], //'start_author' for pagination,
+                '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
+            ]
+        ],
+        'get_dynamic_global_properties' => [
+            'apiName' => 'database_api',
+            'fields' => [
+            ]
+        ],
+        'get_ops_in_block' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['integer'], //blockNum
+                '1' => ['bool'], //onlyVirtual
+            ]
+        ],
+        'get_trending_categories' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['nullOrString'], //after
+                '1' => ['integer'], //permlink
+            ]
+        ],
+        'get_witnesses_by_vote' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['string'], //from accountName, can be empty string ''
+                '1' => ['integer'] //limit
+            ]
+        ],
+        'get_followers' => [
+            'apiName' => 'follow_api',
+            'fields' => [
+                '0' => ['string'], //author
+                '1' => ['nullOrString'], //startFollower
+                '2' => ['string'], //followType //blog, ignore
+                '3' => ['integer'], //limit
+            ]
+        ],
+        'login' => [
+            'apiName' => 'login_api',
+            'fields' => [
+                0 => ['string'],
+                1 => ['string']
+            ]
+        ],
+        'get_version' => [
+            'apiName' => 'login_api',
+            'fields' => [
+            ]
+        ],
+        'get_api_by_name' => [
+            'apiName' => 'login_api',
+            'fields' => [
+                '0' => ['string'], //'api_name',for example follow_api, database_api, login_api and ect.
+            ]
+        ],
+        'broadcast_transaction' => [
+            'apiName' => 'network_broadcast_api',
+            'fields' => [
+                '0:ref_block_num'    => ['integer'],
+                '0:ref_block_prefix' => ['integer'],
+                '0:expiration'       => ['string'],
+                '0:operations:*:0'   => ['string'],
+                '0:operations:*:1'   => ['array'],
+                '0:extensions'       => ['array'],
+                '0:signatures'       => ['array']
+            ]
+        ],
+        'broadcast_transaction_synchronous' => [
+            'apiName' => 'network_broadcast_api',
+            'fields' => [
+                '0:ref_block_num'    => ['integer'],
+                '0:ref_block_prefix' => ['integer'],
+                '0:expiration'       => ['string'],
+                '0:operations:*:0'   => ['string'],
+                '0:operations:*:1'   => ['array'],
+                '0:extensions'       => ['array'],
+                '0:signatures'       => ['array']
+            ]
+        ],
+    ];
     protected $golosAPI = [
         'get_block' => [
             'apiName' => 'database_api',
@@ -47,12 +237,188 @@ class Commands implements CommandInterface
                 '2' => ['integer'], //limit max 2000
             ]
         ],
-        /*'get_account_count' => [
+        'get_account_votes' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '0' => ['string'], //account name
+            ]
+        ],
+        'get_active_votes' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '0' => ['string'], //author
+                '1' => ['string'], //permlink
+            ]
+        ],
+        'get_active_witnesses' => [
             'apiName' => 'database_api',
             'fields' => [
-                '0' => ['array'], //authors
             ]
-        ],*/
+        ],
+        'get_content' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '0' => ['string'], //author
+                '1' => ['string'], //permlink
+            ]
+        ],
+        'get_block_header' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['integer'], //block_id
+            ]
+        ],
+        'get_content_replies' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '0' => ['string'], //author
+                '1' => ['string'], //permlink
+            ]
+        ],
+        'get_current_median_history_price' => [
+            'apiName' => 'database_api',
+            'fields' => [
+            ]
+        ],
+        'get_discussions_by_author_before_date' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '0' => ['string'], //'author',
+                '1' => ['string'], //'start_permlink' for pagination,
+                '2' => ['string'], //'before_date'
+                '3' => ['integer'], //'limit'
+            ]
+        ],
+        'get_discussions_by_blog' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '*:limit'            => ['integer'], //the discussions return amount top limit
+                '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
+                '*:select_authors:*' => ['nullOrString'], //list of authors to select
+                '*:truncate_body'    => ['nullOrInteger'], //the amount of bytes of the post body to return, 0 for all
+                '*:start_author'     => ['nullOrString'], //the author of discussion to start searching from
+                '*:start_permlink'   => ['nullOrString'], //the permlink of discussion to start searching from
+                '*:parent_author'    => ['nullOrString'], //the author of parent discussion
+                '*:parent_permlink'  => ['nullOrString'] //the permlink of parent discussion
+            ]
+        ],
+        'get_discussions_by_created' => [
+            'apiName' => 'social_network',
+            'fields' => [
+
+                    '*:limit'            => ['integer'], //the discussions return amount top limit
+                    '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
+                    '*:select_authors:*' => ['nullOrString'], //list of authors to select
+                    '*:truncate_body'    => ['nullOrInteger'], //the amount of bytes of the post body to return, 0 for all
+                    '*:start_author'     => ['nullOrString'], //the author of discussion to start searching from
+                    '*:start_permlink'   => ['nullOrString'], //the permlink of discussion to start searching from
+                    '*:parent_author'    => ['nullOrString'], //the author of parent discussion
+                    '*:parent_permlink'  => ['nullOrString'] //the permlink of parent discussion
+                ],
+        ],
+        'get_discussions_by_feed' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '*:limit'            => ['integer'], //the discussions return amount top limit
+                '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
+                '*:select_authors:*' => ['nullOrString'], //list of authors to select
+                '*:truncate_body'    => ['nullOrInteger'], //the amount of bytes of the post body to return, 0 for all
+                '*:start_author'     => ['nullOrString'], //the author of discussion to start searching from
+                '*:start_permlink'   => ['nullOrString'], //the permlink of discussion to start searching from
+                '*:parent_author'    => ['nullOrString'], //the author of parent discussion
+                '*:parent_permlink'  => ['nullOrString'] //the permlink of parent discussion
+            ]
+        ],
+        'get_discussions_by_trending' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '*:limit'            => ['integer'], //the discussions return amount top limit
+                '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
+                '*:select_authors:*' => ['nullOrString'], //list of authors to select
+                '*:truncate_body'    => ['nullOrInteger'], //the amount of bytes of the post body to return, 0 for all
+                '*:start_author'     => ['nullOrString'], //the author of discussion to start searching from
+                '*:start_permlink'   => ['nullOrString'], //the permlink of discussion to start searching from
+                '*:parent_author'    => ['nullOrString'], //the author of parent discussion
+                '*:parent_permlink'  => ['nullOrString'] //the permlink of parent discussion
+            ]
+        ],
+        'get_dynamic_global_properties' => [
+            'apiName' => 'database_api',
+            'fields' => [
+            ]
+        ],
+        'get_ops_in_block' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['integer'], //blockNum
+                '1' => ['bool'], //onlyVirtual
+            ]
+        ],
+        'get_trending_categories' => [
+            'apiName' => 'social_network',
+            'fields' => [
+                '0' => ['nullOrString'], //after
+                '1' => ['integer'], //permlink
+            ]
+        ],
+        'get_witnesses_by_vote' => [
+            'apiName' => 'database_api',
+            'fields' => [
+                '0' => ['string'], //from accountName, can be empty string ''
+                '1' => ['integer'] //limit
+            ]
+        ],
+        'get_followers' => [
+            'apiName' => 'follow',
+            'fields' => [
+                '0' => ['string'], //author
+                '1' => ['nullOrString'], //startFollower
+                '2' => ['string'], //followType //blog, ignore
+                '3' => ['integer'], //limit
+            ]
+        ],
+        'login' => [
+            'apiName' => 'login_api',
+            'fields' => [
+                0 => ['string'],
+                1 => ['string']
+            ]
+        ],
+        'get_version' => [
+            'apiName' => 'login_api',
+            'fields' => [
+            ]
+        ],
+        'get_api_by_name' => [
+            'apiName' => 'login_api',
+            'fields' => [
+                '0' => ['string'], //'api_name',for example follow_api, database_api, login_api and ect.
+            ]
+        ],
+        'broadcast_transaction' => [
+            'apiName' => 'network_broadcast_api',
+            'fields' => [
+                '0:ref_block_num'    => ['integer'],
+                '0:ref_block_prefix' => ['integer'],
+                '0:expiration'       => ['string'],
+                '0:operations:*:0'   => ['string'],
+                '0:operations:*:1'   => ['array'],
+                '0:extensions'       => ['array'],
+                '0:signatures'       => ['array']
+            ]
+        ],
+        'broadcast_transaction_synchronous' => [
+            'apiName' => 'network_broadcast_api',
+            'fields' => [
+                '0:ref_block_num'    => ['integer'],
+                '0:ref_block_prefix' => ['integer'],
+                '0:expiration'       => ['string'],
+                '0:operations:*:0'   => ['string'],
+                '0:operations:*:1'   => ['array'],
+                '0:extensions'       => ['array'],
+                '0:signatures'       => ['array']
+            ]
+        ],
     ];
 
     //protected $projectApi = [ 'method_name' => [ 'apiName' => 'api_name', 'fields'=>['массив с полями из команды']]];
@@ -148,24 +514,30 @@ class Commands implements CommandInterface
         return $data;
     }
 
-    public function __get($name)
+    /**
+     * @param $name
+     * @param $params
+     * @return $this
+     * @throws \Exception
+     */
+    public function __call($name, $params)
     {
         $platform = $this->connector->getPlatform();
 
-        if ($platform===ConnectorInterface::PLATFORM_GOLOS){
+        if ($platform === ConnectorInterface::PLATFORM_GOLOS) {
             $api = $this->golosAPI;
         }
 
-        if ($platform===ConnectorInterface::PLATFORM_STEEMIT){
+        if ($platform === ConnectorInterface::PLATFORM_STEEMIT) {
             $api = $this->steemAPI;
         }
 
-        if (!isset($api)){
+        if (!isset($api)) {
             throw new \Exception('There is no api');
         }
 
-        if (!isset($api[$name])){
-            throw new \Exception('There is no information about command:'.$name. '. Please create your own class for that command');
+        if (!isset($api[$name])) {
+            throw new \Exception('There is no information about command:' . $name . '. Please create your own class for that command');
         }
 
 
