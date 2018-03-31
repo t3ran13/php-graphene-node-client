@@ -1,7 +1,7 @@
 <?php
 
 
-namespace GrapheneNodeClient\Commands\Login;
+namespace GrapheneNodeClient\Commands\Single;
 
 
 class GetVersionCommand extends CommandAbstract

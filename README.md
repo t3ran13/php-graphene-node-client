@@ -26,7 +26,7 @@ install extensions
 <?php
 
 use GrapheneNodeClient\Commands\CommandQueryData;
-use GrapheneNodeClient\Commands\DataBase\GetDiscussionsByCreatedCommand;
+use GrapheneNodeClient\Commands\Single\GetDiscussionsByCreatedCommand;
 use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
 use GrapheneNodeClient\Connectors\WebSocket\SteemitWSConnector;
 
@@ -92,7 +92,7 @@ $steemitPosts = $command->execute(
 
 namespace: 
 - GrapheneNodeClient\Commands\Broadcast;
-- GrapheneNodeClient\Commands\DataBase;
+- GrapheneNodeClient\Commands\Single;
 - GrapheneNodeClient\Commands\Follow;
 - GrapheneNodeClient\Commands\Login;
 
@@ -115,9 +115,7 @@ namespace:
 - GetTrendingCategoriesCommand
   
 ### login_api
-- GetApiByNameCommand
 - GetVersionCommand
-- LoginCommand
    
   
 ### follow_api
@@ -180,7 +178,7 @@ switch between connectors
 <?php
 
 use GrapheneNodeClient\Commands\CommandQueryData;
-use GrapheneNodeClient\Commands\DataBase\GetContentCommand;
+use GrapheneNodeClient\Commands\Single\GetContentCommand;
 use GrapheneNodeClient\Connectors\InitConnector;
 
 $command = new GetContentCommand(InitConnector::getConnector(InitConnector::PLATFORM_STEEMIT));
@@ -253,7 +251,7 @@ Or use GrapheneNodeClient\Connectors\WebSocket\WSConnectorAbstract for extending
 
 namespace My\App\Commands;
 
-use GrapheneNodeClient\Commands\DataBase\CommandAbstract;
+use GrapheneNodeClient\Commands\Single\CommandAbstract;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 class GolosWSConnector extends WSConnectorAbstract
@@ -292,7 +290,7 @@ class GolosWSConnector extends WSConnectorAbstract
 
 namespace My\App\Commands;
 
-use GrapheneNodeClient\Commands\DataBase\CommandAbstract;
+use GrapheneNodeClient\Commands\Single\CommandAbstract;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 class MyCommand extends CommandAbstract 

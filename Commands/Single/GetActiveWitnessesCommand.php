@@ -1,7 +1,7 @@
 <?php
 
 
-namespace GrapheneNodeClient\Commands\DataBase;
+namespace GrapheneNodeClient\Commands\Single;
 
 
 

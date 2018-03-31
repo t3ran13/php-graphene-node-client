@@ -7,9 +7,29 @@ namespace GrapheneNodeClient\Commands;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 /**
- * @method Commands get_block()
  * @method Commands get_accounts()
+ * @method Commands get_account_count()
+ * @method Commands get_account_history()
+ * @method Commands get_account_votes()
+ * @method Commands get_active_votes()
+ * @method Commands get_active_witnesses()
+ * @method Commands get_api_by_name() ONLY for STEEM
+ * @method Commands get_block()
+ * @method Commands get_block_header()
+ * @method Commands get_content()
+ * @method Commands get_content_replies()
+ * @method Commands get_current_median_history_price()
+ * @method Commands get_discussions_by_author_before_date()
+ * @method Commands get_discussions_by_blog()
  * @method Commands get_discussions_by_created()
+ * @method Commands get_discussions_by_feed()
+ * @method Commands get_discussions_by_trending()
+ * @method Commands get_dynamic_global_properties()
+ * @method Commands get_ops_in_block()
+ * @method Commands get_trending_categories()
+ * @method Commands get_version()
+ * @method Commands get_witnesses_by_vote()
+ * @method Commands login() ONLY for STEEM
  */
 class Commands implements CommandInterface
 {
@@ -378,22 +398,9 @@ class Commands implements CommandInterface
                 '3' => ['integer'], //limit
             ]
         ],
-        'login'                                 => [
-            'apiName' => 'login_api',
-            'fields'  => [
-                0 => ['string'],
-                1 => ['string']
-            ]
-        ],
         'get_version'                           => [
             'apiName' => 'login_api',
             'fields'  => [
-            ]
-        ],
-        'get_api_by_name'                       => [
-            'apiName' => 'login_api',
-            'fields'  => [
-                '0' => ['string'], //'api_name',for example follow_api, database_api, login_api and ect.
             ]
         ],
         'broadcast_transaction'                 => [
