@@ -90,43 +90,36 @@ $steemitPosts = $command->execute(
 
 ## Implemented Commands List
 
-namespace: 
-- GrapheneNodeClient\Commands\Broadcast;
-- GrapheneNodeClient\Commands\Single;
-- GrapheneNodeClient\Commands\Follow;
-- GrapheneNodeClient\Commands\Login;
-
-### database_api
-- GetDynamicGlobalPropertiesCommand
-- GetBlockCommand
-- GetBlockHeaderCommand
-- GetWitnessesByVoteCommand
-- GetActiveWitnessesCommand
-- GetAccountCommand
+### Single Commands
+- BroadcastTransactionCommand
+- BroadcastTransactionSynchronousCommand
 - GetAccountCountCommand
 - GetAccountHistoryCommand
+- GetAccountsCommand
 - GetAccountVotesCommand
+- GetActiveWitnessesCommand
+- GetApiByNameCommand //ONLY STEEM
+- GetBlockCommand
+- GetBlockHeaderCommand
 - GetContentCommand
+- GetContentRepliesCommand
+- GetCurrentMedianHistoryPriceCommand
 - GetDiscussionsByAuthorBeforeDateCommand
 - GetDiscussionsByBlogCommand
 - GetDiscussionsByCreatedCommand
 - GetDiscussionsByFeedCommand
 - GetDiscussionsByTrendingCommand
-- GetTrendingCategoriesCommand
-  
-### login_api
-- GetVersionCommand
-   
-  
-### follow_api
+- GetDynamicGlobalPropertiesCommand
 - GetFollowersCommand
-   
-  
-### broadcast_api
-- BroadcastTransactionCommand
-- BroadcastTransactionSynchronousCommand
+- GetOpsInBlock
+- GetTrendingCategoriesCommand
+- GetVersionCommand
+- GetWitnessesByVoteCommand
+- LoginCommand //ONLY STEEM
 
-### broadcast_api operations templates
+All single commands can be called through Commands Class as methods (example: (new Commands)->get_block()->execute(...) )
+
+### broadcast operations templates
 - vote
 - transfer
 - comment 
