@@ -7,6 +7,8 @@ namespace GrapheneNodeClient\Commands;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 /**
+ * @method Commands broadcast_transaction()
+ * @method Commands broadcast_transaction_synchronous()
  * @method Commands get_accounts()
  * @method Commands get_account_count()
  * @method Commands get_account_history()
@@ -25,6 +27,7 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
  * @method Commands get_discussions_by_feed()
  * @method Commands get_discussions_by_trending()
  * @method Commands get_dynamic_global_properties()
+ * @method Commands get_followers()
  * @method Commands get_ops_in_block()
  * @method Commands get_trending_categories()
  * @method Commands get_version()
