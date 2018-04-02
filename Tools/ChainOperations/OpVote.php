@@ -2,8 +2,8 @@
 
 namespace GrapheneNodeClient\Tools\ChainOperations;
 
-use GrapheneNodeClient\Commands\Broadcast\BroadcastTransactionCommand;
-use GrapheneNodeClient\Commands\Broadcast\BroadcastTransactionSynchronousCommand;
+use GrapheneNodeClient\Commands\Single\BroadcastTransactionCommand;
+use GrapheneNodeClient\Commands\Single\BroadcastTransactionSynchronousCommand;
 use GrapheneNodeClient\Commands\CommandQueryData;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 use GrapheneNodeClient\Tools\Auth;
@@ -42,7 +42,7 @@ class OpVote
 
         $command = new BroadcastTransactionCommand($connector);////        echo '<pre>' . var_dump($commandQueryData->getParams(), $properties2) . '<pre>'; die; //FIXME delete it
         Transaction::sign($chainName, $tx, ['posting' => $publicWif]);
-//        echo '<pre>' . var_dump($tx->getParams()) . '<pre>'; //FIXME delete it
+
         $answer = $command->execute(
             $tx
         );
