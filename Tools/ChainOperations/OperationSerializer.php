@@ -15,7 +15,6 @@ class OperationSerializer
             'voter'    => self::TYPE_STRING,
             'author'   => self::TYPE_STRING,
             'permlink' => self::TYPE_STRING,
-            'permlink' => self::TYPE_STRING,
             'weight'   => self::TYPE_INT16
         ],
         ChainOperations::OPERATION_COMMENT  => [
@@ -99,7 +98,19 @@ class OperationSerializer
     public static function serializeType($type, $value, $byteBuffer)
     {
         if ($type === self::TYPE_STRING) {
-            $byteBuffer->writeInt8(strlen($value));
+            //Writes a UTF8 encoded string prefixed 32bit base 128 variable-length integer.
+            $strLength = strlen($value);
+            if ($strLength < 128) {
+                $byteBuffer->writeInt8($strLength);
+            } elseif ($strLength < 256) {
+                $strLength = round($strLength / 128, 0) * 256
+                    + ($strLength - (round($strLength / 128, 0) - 1) * 128);
+                $byteBuffer->writeInt16LE($strLength);
+            } else {
+                $strLength = round($strLength / 128, 0) * 256
+                    + ($strLength - round($strLength / 128, 0) * 128);
+                $byteBuffer->writeInt16LE($strLength);
+            }
             $byteBuffer->writeVStringLE($value);
         } elseif ($type === self::TYPE_INT16) {
             $byteBuffer->writeInt16LE($value);
