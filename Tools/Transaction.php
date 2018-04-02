@@ -6,9 +6,9 @@ namespace GrapheneNodeClient\Tools;
 
 use GrapheneNodeClient\Commands\CommandQueryData;
 use GrapheneNodeClient\Commands\CommandQueryDataInterface;
-use GrapheneNodeClient\Commands\DataBase\GetBlockCommand;
-use GrapheneNodeClient\Commands\DataBase\GetDynamicGlobalPropertiesCommand;
-use GrapheneNodeClient\Commands\Login\LoginCommand;
+use GrapheneNodeClient\Commands\Single\GetBlockCommand;
+use GrapheneNodeClient\Commands\Single\GetDynamicGlobalPropertiesCommand;
+use GrapheneNodeClient\Commands\Single\LoginCommand;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 use GrapheneNodeClient\Tools\ChainOperations\OperationSerializer;
 use t3ran13\ByteBuffer\ByteBuffer;
@@ -43,17 +43,6 @@ class Transaction
         $tx = null;
         $chainName = $connector->getPlatform();
 
-        $command = new LoginCommand($connector);
-        $commandQueryData = new CommandQueryData();
-        $commandQueryData->setParams(
-            ['', '']
-        );
-        $isLogin = $command->execute(
-            $commandQueryData,
-            'result'
-        );
-
-        if ($isLogin === true) {
             $command = new GetDynamicGlobalPropertiesCommand($connector);
             $commandQueryData = new CommandQueryData();
             $properties = $command->execute(
@@ -98,7 +87,6 @@ class Transaction
                     ]]
                 );
             }
-        }
 
         if (!($tx instanceof CommandQueryDataInterface)) {
             throw new \Exception('cant init Tx');
