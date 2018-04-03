@@ -26,6 +26,7 @@ install extensions
 <?php
 
 use GrapheneNodeClient\Commands\CommandQueryData;
+use GrapheneNodeClient\Commands\Commands;
 use GrapheneNodeClient\Commands\Single\GetDiscussionsByCreatedCommand;
 use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
 use GrapheneNodeClient\Connectors\WebSocket\SteemitWSConnector;
@@ -48,10 +49,21 @@ $commandQuery->setParamByKey('0:limit', $limit);
 $commandQuery->setParamByKey('0:select_tags', [$tag]);
 $commandQuery->setParamByKey('0:tag', $tag);
 
+
+//and use single command
 $command = new GetDiscussionsByCreatedCommand(new GolosWSConnector());
 $golosPosts = $command->execute(
     $commandQuery
 );
+
+//or commands aggregator class
+$commands = new Commands(new GolosWSConnector());
+$golosPosts = $commands->get_discussions_by_created()
+    ->execute(
+       $commandQuery
+);
+
+
 // will return
 // [
 //      "id" => 1,
@@ -66,12 +78,25 @@ $golosPosts = $command->execute(
 //      ]
 // ]
   
+  
+//single command  
 $command = new GetDiscussionsByCreatedCommand(new SteemitWSConnector());
 $steemitPosts = $command->execute(
     $commandQuery,
     'result',
     SteemitWSConnector::ANSWER_FORMAT_ARRAY // or SteemitWSConnector::ANSWER_FORMAT_OBJECT
 );
+
+//or commands aggregator class
+$commands = new Commands(new GolosWSConnector());
+$golosPosts = $commands->get_discussions_by_created()
+    ->execute(
+        $commandQuery,
+        'result',
+        SteemitWSConnector::ANSWER_FORMAT_ARRAY // or SteemitWSConnector::ANSWER_FORMAT_OBJECT
+);
+
+
 // will return
 // [
 //      [
@@ -119,7 +144,11 @@ $steemitPosts = $command->execute(
 
 All single commands can be called through Commands Class as methods (example: (new Commands)->get_block()->execute(...) )
 
+
 ### broadcast operations templates
+
+namespace GrapheneNodeClient\Tools\ChainOperations
+
 - vote
 - transfer
 - comment 
@@ -161,12 +190,16 @@ $answer = OpVote::doSynchronous(
 
 ## Implemented Connectors List
 
-namespace: GrapheneNodeClient\Connectors\WebSocket;
+namespace: GrapheneNodeClient\Connectors\WebSocket OR GrapheneNodeClient\Connectors\Http;
 
 - GolosWSConnector (wss://ws.golos.io)
-- SteemitWSConnector (wss://ws.steemit.com)
+- SteemitWSConnector (wss://steemd.minnowsupportproject.org)
+- SteemitHttpConnector (https://steemd.privex.io)
 
-switch between connectors 
+List of available STEEM nodes are [here](https://www.steem.center/index.php?title=Public_Websocket_Servers)
+
+
+#### Switching between connectors 
 ```php
 <?php
 
@@ -253,6 +286,13 @@ class GolosWSConnector extends WSConnectorAbstract
      * @var string
      */
     protected $platform = self::PLATFORM_GOLOS;
+
+    /**
+     * waiting answer from Node during $wsTimeoutSeconds seconds
+     *
+     * @var int
+     */
+    protected $wsTimeoutSeconds = 5;
 
     /**
      * max number of tries to get answer from the node
