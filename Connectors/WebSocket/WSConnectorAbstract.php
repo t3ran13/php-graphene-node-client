@@ -152,7 +152,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY, $try_number = 1)
     {
         $requestId = $this->getNextId();
-        $data = [
+        $requestData = [
             'jsonrpc' => '2.0',
             'id'     => $requestId,
             'method' => 'call',
@@ -164,11 +164,14 @@ abstract class WSConnectorAbstract implements ConnectorInterface
         ];
         try {
             $connection = $this->getConnection();
-            $connection->send(json_encode($data, JSON_UNESCAPED_UNICODE));
+            $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE));
 
             $answerRaw = $connection->receive();
             $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY === $answerFormat);
 
+            if (isset($answer['error'])) {
+                throw new ConnectionException('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
+            }
             //check that answer has the same id or id from previous tries, else it is answer from other request
             if (self::ANSWER_FORMAT_ARRAY === $answerFormat) {
                 $answerId = $answer['id'];
@@ -176,7 +179,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
                 $answerId = $answer->id;
             }
             if ($requestId - $answerId > ($try_number - 1)) {
-                throw new ConnectionException('get answer from old request');
+                throw new ConnectionException('got answer from old request');
             }
 
 

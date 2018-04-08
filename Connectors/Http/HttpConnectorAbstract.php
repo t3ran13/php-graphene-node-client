@@ -147,23 +147,18 @@ abstract class HttpConnectorAbstract implements ConnectorInterface
      * @param int    $try_number Try number of getting answer from api
      *
      * @return array|object
+     * @throws ConnectionException
      * @throws ConnectionFailureException
      */
     public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY, $try_number = 1)
     {
         try {
-            $data = [
-                'jsonrpc' => '2.0',
-                'id'      => 1,
-                'method'  => 'call',
-                'params'  => [
-                    $apiName,
-                    $data['method'],
-                    $data['params']
-                ]
-            ];
             $connection = $this->getConnection();
-            $answer['result'] = $connection->execute($data['method'], $data['params']);
+            $answer['result'] = $connection->execute('call', $data['params']);
+
+            if (isset($answer['error'])) {
+                throw new ConnectionFailureException('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
+            }
 
         } catch (ConnectionFailureException $e) {
 
