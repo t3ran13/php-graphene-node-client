@@ -97,12 +97,16 @@ class CommandQueryData implements CommandQueryDataInterface
     {
         if ($rule === 'required') {
             return $value === null ? false : true;
+        } elseif ($rule === 'bool') {
+            return  $value !== null && is_bool($value);
         } elseif ($rule === 'array') {
             return $value !== null && is_array($value);
         } elseif ($rule === 'string') {
             return $value !== null && is_string($value);
         } elseif ($rule === 'integer') {
             return $value !== null && is_int($value);
+        } elseif ($rule === 'nullOrBool') {
+            return $value === null || is_bool($value);
         } elseif ($rule === 'nullOrArray') {
             return $value === null || is_array($value);
         } elseif ($rule === 'nullOrString') {
