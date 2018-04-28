@@ -19,5 +19,5 @@ class SteemitHttpConnector extends HttpConnectorAbstract
      *
      * @var string
      */
-    protected $nodeURL = ['https://steemd.privex.io'];
+    protected $nodeURL = ['https://steemd.privex.io','api.steemit.com'];
 }

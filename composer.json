@@ -20,5 +20,8 @@
     },
     "autoload": {
         "psr-4": { "GrapheneNodeClient\\": "" }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "7.0"
     }
 }
