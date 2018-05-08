@@ -37,7 +37,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      *
      * @var string
      */
-    private $currentNodeURL;
+    protected static $currentNodeURL;
 
     /**
      * waiting answer from Node during $wsTimeoutSeconds seconds
@@ -145,7 +145,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
 
     public function getCurrentUrl()
     {
-        if ($this->currentNodeURL === null) {
+        if (static::$currentNodeURL === null) {
             if (is_array(static::$nodeURL)) {
                 $this->reserveNodeUrlList = static::$nodeURL;
                 $url = array_shift($this->reserveNodeUrlList);
@@ -153,10 +153,10 @@ abstract class WSConnectorAbstract implements ConnectorInterface
                 $url = static::$nodeURL;
             }
 
-            $this->currentNodeURL = $url;
+            static::$currentNodeURL = $url;
         }
 
-        return $this->currentNodeURL;
+        return static::$currentNodeURL;
     }
 
     public function isExistReserveNodeUrl()
@@ -166,11 +166,13 @@ abstract class WSConnectorAbstract implements ConnectorInterface
 
     protected function setReserveNodeUrlToCurrentUrl()
     {
-        $this->currentNodeURL = array_shift($this->reserveNodeUrlList);
+        static::$currentNodeURL = array_shift($this->reserveNodeUrlList);
     }
 
     public function connectToReserveNode()
     {
+        $connection = $this->getConnection();
+        $connection->close();
         $this->setReserveNodeUrlToCurrentUrl();
         return $this->newConnection($this->getCurrentUrl());
     }
