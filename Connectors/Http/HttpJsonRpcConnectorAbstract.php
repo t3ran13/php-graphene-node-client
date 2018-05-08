@@ -3,8 +3,6 @@
 namespace GrapheneNodeClient\Connectors\Http;
 
 use GrapheneNodeClient\Connectors\ConnectorInterface;
-use JsonRPC\Client;
-use JsonRPC\Exception\ConnectionFailureException;
 
 
 abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
@@ -20,14 +18,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
      *
      * @var string|array
      */
-    protected $nodeURL;
-
-    /**
-     * current node url, for example 'wss://ws.golos.io'
-     *
-     * @var string
-     */
-    private $reserveNodeUrlList;
+    protected static $nodeURL;
 
 
     /**
@@ -38,14 +29,14 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
      *
      * @var string
      */
-    private $currentNodeURL;
+    protected static $currentNodeURL;
 
     /**
      * waiting answer from Node during $wsTimeoutSeconds seconds
      *
      * @var int
      */
-    protected $wsTimeoutSeconds = 5;
+    protected $wsTimeoutSeconds = 3;
 
     /**
      * max number of tries to get answer from the node
@@ -54,39 +45,107 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
      */
     protected $maxNumberOfTriesToCallApi = 3;
 
-    protected static $connection;
+    /**
+     * counter of tries to change node to get answer. max = total nodes
+     *
+     * @var int
+     */
+    protected $resetTryNodes = 1;
+
     protected static $currentId;
+
+    /**
+     * HttpJsonRpcConnectorAbstract constructor.
+     *
+     * @param int $orderNodesByTimeoutMs skip this checks when it is 0.
+     *                                   do not set it is too low, if node do not answer it go out from list
+     */
+    public function __construct($orderNodesByTimeoutMs = 0) {
+
+        if ($orderNodesByTimeoutMs > 0 && is_array(static::$nodeURL) && count(static::$nodeURL) > 1) {
+            $this->orderNodesByTimeoutMs($orderNodesByTimeoutMs);
+        }
+    }
+
+
+    /**
+     * @param integer $orderNodesByTimeoutMs Only if you set few nodes. do not set it is too low, if node do not answer it go out from list
+     *
+     * @return void
+     */
+    public function orderNodesByTimeoutMs($orderNodesByTimeoutMs)
+    {
+        $requestId = $this->getNextId();
+        $requestData = [
+            'jsonrpc' => '2.0',
+            'id'      => $requestId,
+            'method'  => 'call',
+            'params'  => [
+                'database_api',
+                'get_dynamic_global_properties',
+                []
+            ]
+        ];
+        $timeouts = [];
+        foreach (static::$nodeURL as $currentNodeURL) {
+            try {
+                $curlOptions = [];
+                $curlOptions['CURLOPT_CONNECTTIMEOUT_MS'] = $orderNodesByTimeoutMs;
+                $startMTime = microtime(true);
+                $answerRaw = $this->curlRequest(
+                    $currentNodeURL,
+                    'post',
+                    json_encode($requestData, JSON_UNESCAPED_UNICODE),
+                    $curlOptions
+                );
+                $timeout = $requestTimeout = microtime(true) - $startMTime;
+
+                if ($answerRaw['code'] !== 200) {
+                    throw new \Exception("Curl answer code is '{$answerRaw['code']}' and response '{$answerRaw['response']}'");
+                }
+                $answer = json_decode($answerRaw['response'], self::ANSWER_FORMAT_ARRAY);
+
+                if (isset($answer['error'])) {
+                    throw new \Exception('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
+                }
+                $timeouts[$currentNodeURL] = round($timeout, 4);
+
+            } catch (\Exception $e) {
+            }
+        }
+        asort($timeouts);
+        static::$nodeURL = array_keys($timeouts);
+    }
+
 
     public function getCurrentUrl()
     {
-        if ($this->currentNodeURL === null) {
-            if (is_array($this->nodeURL)) {
-                $this->reserveNodeUrlList = $this->nodeURL;
-                $url = array_shift($this->reserveNodeUrlList);
+        if (static::$currentNodeURL === null) {
+            if (is_array(static::$nodeURL)) {
+                $url = array_values(static::$nodeURL)[0];
             } else {
-                $url = $this->nodeURL;
+                $url = static::$nodeURL;
             }
 
-            $this->currentNodeURL = $url;
+            static::$currentNodeURL = $url;
         }
 
-        return $this->currentNodeURL;
-    }
-
-    public function isExistReserveNodeUrl()
-    {
-        return !empty($this->reserveNodeUrlList);
+        return static::$currentNodeURL;
     }
 
     protected function setReserveNodeUrlToCurrentUrl()
     {
-        $this->currentNodeURL = array_shift($this->reserveNodeUrlList);
-    }
-
-    public function connectToReserveNode()
-    {
-        $this->setReserveNodeUrlToCurrentUrl();
-        return $this->newConnection($this->getCurrentUrl());
+        $totalNodes = count(static::$nodeURL);
+        foreach (static::$nodeURL as $key => $node) {
+            if ($node === $this->getCurrentUrl()) {
+                if ($key + 1 < $totalNodes) {
+                    static::$currentNodeURL = static::$nodeURL[$key + 1];
+                } else {
+                    static::$currentNodeURL = static::$nodeURL[0];
+                }
+                break;
+            }
+        }
     }
 
     public function getCurrentId()
@@ -121,25 +180,36 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
      * @param array  $data
      * @param string $answerFormat
      * @param int    $try_number Try number of getting answer from api
+     * @param bool   $resetTryNodes update total requested nodes tries counter
      *
      * @return array|object
      * @throws \Exception
      */
-    public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY, $try_number = 1)
+    public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY, $try_number = 1, $resetTryNodes = true)
     {
+        if ($resetTryNodes) {
+            $this->resetTryNodes = count(static::$nodeURL);
+        }
         $requestId = $this->getNextId();
         $requestData = [
             'jsonrpc' => '2.0',
-            'id'     => $requestId,
-            'method' => 'call',
-            'params' => [
+            'id'      => $requestId,
+            'method'  => 'call',
+            'params'  => [
                 $apiName,
                 $data['method'],
                 $data['params']
             ]
         ];
         try {
-            $answerRaw = $this->curlRequest($this->getCurrentUrl(), 'post', json_encode($requestData, JSON_UNESCAPED_UNICODE));
+            $curlOptions = [];
+            $curlOptions['CURLOPT_CONNECTTIMEOUT'] = $this->wsTimeoutSeconds;
+            $answerRaw = $this->curlRequest(
+                $this->getCurrentUrl(),
+                'post',
+                json_encode($requestData, JSON_UNESCAPED_UNICODE),
+                $curlOptions
+            );
             if ($answerRaw['code'] !== 200) {
                 throw new \Exception("Curl answer code is '{$answerRaw['code']}' and response '{$answerRaw['response']}'");
             }
@@ -160,14 +230,14 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
 
 
         } catch (\Exception $e) {
-
             if ($try_number < $this->maxNumberOfTriesToCallApi) {
                 //if got WS Exception, try to get answer again
-                $answer = $this->doRequest($apiName, $data, $answerFormat, $try_number + 1);
-            } elseif ($this->isExistReserveNodeUrl()) {
+                $answer = $this->doRequest($apiName, $data, $answerFormat, $try_number + 1, false);
+            } elseif ($this->resetTryNodes > 1) {
+                $this->resetTryNodes = $this->resetTryNodes - 1;
                 //if got WS Exception after few ties, connect to reserve node
-                $this->connectToReserveNode();
-                $answer = $this->doRequest($apiName, $data, $answerFormat);
+                $this->setReserveNodeUrlToCurrentUrl();
+                $answer = $this->doRequest($apiName, $data, $answerFormat, 1, false);
             } else {
                 //if nothing helps
                 throw $e;
@@ -189,7 +259,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         } elseif ($type == 'get' && !empty($data)) {
             $temp = parse_url($url);
-            if(!empty($temp['query'])){
+            if (!empty($temp['query'])) {
                 $data = parse_str($temp['query']) + $data;
             }
             $temp['query'] = $data;
@@ -202,7 +272,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
         foreach ($curlOptions as $option => $val) {
             curl_setopt($ch, constant($option), $val);
         }
-        if (empty($curlOptions['CURLOPT_CONNECTTIMEOUT'])){
+        if (empty($curlOptions['CURLOPT_CONNECTTIMEOUT']) && empty($curlOptions['CURLOPT_CONNECTTIMEOUT_MS'])) {
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         }
 

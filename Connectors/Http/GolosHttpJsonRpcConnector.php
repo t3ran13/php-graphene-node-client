@@ -19,5 +19,5 @@ class GolosHttpJsonRpcConnector extends HttpJsonRpcConnectorAbstract
      *
      * @var string
      */
-    protected $nodeURL = ['http://only_your_own_node:8090'];
+    protected static $nodeURL = ['http://only_your_own_node:8090'];
 }
