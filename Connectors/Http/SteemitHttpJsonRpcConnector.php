@@ -4,7 +4,7 @@ namespace GrapheneNodeClient\Connectors\Http;
 
 
 
-class SteemitHttpConnector extends HttpConnectorAbstract
+class SteemitHttpJsonRpcConnector extends HttpJsonRpcConnectorAbstract
 {
     /**
      * @var string
@@ -19,5 +19,5 @@ class SteemitHttpConnector extends HttpConnectorAbstract
      *
      * @var string
      */
-    protected $nodeURL = ['https://steemd.privex.io'];
+    protected $nodeURL = ['https://steemd.privex.io', 'https://rpc.steemviz.com', 'https://api.steemit.com', 'https://rpc.buildteam.io', 'https://steemd.pevo.science', 'https://steemd.minnowsupportproject.org'];
 }

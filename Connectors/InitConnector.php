@@ -4,7 +4,7 @@
 namespace GrapheneNodeClient\Connectors;
 
 
-use GrapheneNodeClient\Connectors\Http\SteemitHttpConnector;
+use GrapheneNodeClient\Connectors\Http\SteemitHttpJsonRpcConnector;
 use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
 
 class InitConnector
@@ -27,7 +27,7 @@ class InitConnector
             if ($platform === ConnectorInterface::PLATFORM_GOLOS) {
                 self::$connectors[$platform] = new GolosWSConnector();
             } elseif ($platform === ConnectorInterface::PLATFORM_STEEMIT) {
-                self::$connectors[$platform] = new SteemitHttpConnector();
+                self::$connectors[$platform] = new SteemitHttpJsonRpcConnector();
             }
         }
 
