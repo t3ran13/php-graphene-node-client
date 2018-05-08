@@ -19,7 +19,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      *
      * @var string|array
      */
-    protected $nodeURL;
+    protected static $nodeURL;
 
     /**
      * current node url, for example 'wss://ws.golos.io'
@@ -57,6 +57,69 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     protected static $currentId;
 
     /**
+     * WSConnectorAbstract constructor.
+     *
+     * @param int $orderNodesByTimeout skip this checks when it is 0.
+     *                                   do not set it is too low, if node do not answer it go out from list
+     *
+     * @throws \WebSocket\BadOpcodeException
+     */
+    public function __construct($orderNodesByTimeout = 0) {
+
+        if ($orderNodesByTimeout > 0 && is_array(static::$nodeURL) && count(static::$nodeURL) > 1) {
+            $this->orderNodesByTimeout($orderNodesByTimeout);
+        }
+    }
+
+
+    /**
+     * @param integer $orderNodesByTimeout Only if you set few nodes. do not set it is too low, if node do not answer it go out from list
+     *
+     *
+     * @throws \WebSocket\BadOpcodeException
+     */
+    public function orderNodesByTimeout($orderNodesByTimeout)
+    {
+        $requestId = $this->getNextId();
+        $requestData = [
+            'jsonrpc' => '2.0',
+            'id'      => $requestId,
+            'method'  => 'call',
+            'params'  => [
+                'database_api',
+                'get_dynamic_global_properties',
+                []
+            ]
+        ];
+        $wsTimeoutSeconds = $this->wsTimeoutSeconds;
+        $this->wsTimeoutSeconds = $orderNodesByTimeout;
+        $timeouts = [];
+        foreach (static::$nodeURL as $currentNodeURL) {
+            try {
+                $connection = $this->newConnection($currentNodeURL);
+
+                $startMTime = microtime(true);
+                $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE));
+                $answerRaw = $connection->receive();
+                $timeout = $requestTimeout = microtime(true) - $startMTime;
+
+                $connection->close();
+                $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY);
+
+                if (isset($answer['error'])) {
+                    throw new ConnectionException('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
+                }
+                $timeouts[$currentNodeURL] = round($timeout, 4);
+            } catch (ConnectionException $e) {
+            }
+        }
+        static::$connection = null;
+        $this->wsTimeoutSeconds = $wsTimeoutSeconds;
+        asort($timeouts);
+        static::$nodeURL = array_keys($timeouts);
+    }
+
+    /**
      * @return Client|null
      */
     public function getConnection()
@@ -83,11 +146,11 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     public function getCurrentUrl()
     {
         if ($this->currentNodeURL === null) {
-            if (is_array($this->nodeURL)) {
-                $this->reserveNodeUrlList = $this->nodeURL;
+            if (is_array(static::$nodeURL)) {
+                $this->reserveNodeUrlList = static::$nodeURL;
                 $url = array_shift($this->reserveNodeUrlList);
             } else {
-                $url = $this->nodeURL;
+                $url = static::$nodeURL;
             }
 
             $this->currentNodeURL = $url;
@@ -165,11 +228,13 @@ abstract class WSConnectorAbstract implements ConnectorInterface
         try {
             $connection = $this->getConnection();
             $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE));
-
             $answerRaw = $connection->receive();
             $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY === $answerFormat);
 
-            if (isset($answer['error'])) {
+            if (
+                (self::ANSWER_FORMAT_ARRAY === $answerFormat && isset($answer['error']))
+                || (self::ANSWER_FORMAT_OBJECT === $answerFormat && isset($answer->error))
+            ) {
                 throw new ConnectionException('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
             }
             //check that answer has the same id or id from previous tries, else it is answer from other request
