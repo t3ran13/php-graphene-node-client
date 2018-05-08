@@ -7,7 +7,7 @@ use JsonRPC\Client;
 use JsonRPC\Exception\ConnectionFailureException;
 
 
-abstract class HttpConnectorAbstract implements ConnectorInterface
+abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
 {
     /**
      * @var string
@@ -56,30 +56,6 @@ abstract class HttpConnectorAbstract implements ConnectorInterface
 
     protected static $connection;
     protected static $currentId;
-
-    /**
-     * @return Client|null
-     */
-    public function getConnection()
-    {
-        if (self::$connection === null) {
-            $this->newConnection($this->getCurrentUrl());
-        }
-
-        return self::$connection;
-    }
-
-    /**
-     * @param string $nodeUrl
-     *
-     * @return Client
-     */
-    public function newConnection($nodeUrl)
-    {
-        self::$connection = new Client($nodeUrl);
-
-        return self::$connection;
-    }
 
     public function getCurrentUrl()
     {
@@ -147,20 +123,43 @@ abstract class HttpConnectorAbstract implements ConnectorInterface
      * @param int    $try_number Try number of getting answer from api
      *
      * @return array|object
-     * @throws ConnectionException
-     * @throws ConnectionFailureException
+     * @throws \Exception
      */
     public function doRequest($apiName, array $data, $answerFormat = self::ANSWER_FORMAT_ARRAY, $try_number = 1)
     {
+        $requestId = $this->getNextId();
+        $requestData = [
+            'jsonrpc' => '2.0',
+            'id'     => $requestId,
+            'method' => 'call',
+            'params' => [
+                $apiName,
+                $data['method'],
+                $data['params']
+            ]
+        ];
         try {
-            $connection = $this->getConnection();
-            $answer['result'] = $connection->execute('call', $data['params']);
+            $answerRaw = $this->curlRequest($this->getCurrentUrl(), 'post', json_encode($requestData, JSON_UNESCAPED_UNICODE));
+            if ($answerRaw['code'] !== 200) {
+                throw new \Exception("Curl answer code is '{$answerRaw['code']}' and response '{$answerRaw['response']}'");
+            }
+            $answer = json_decode($answerRaw['response'], self::ANSWER_FORMAT_ARRAY === $answerFormat);
 
             if (isset($answer['error'])) {
-                throw new ConnectionFailureException('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
+                throw new \Exception('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
+            }
+            //check that answer has the same id or id from previous tries, else it is answer from other request
+            if (self::ANSWER_FORMAT_ARRAY === $answerFormat) {
+                $answerId = $answer['id'];
+            } else { //if (self::ANSWER_FORMAT_OBJECT === $answerFormat) {
+                $answerId = $answer->id;
+            }
+            if ($requestId - $answerId > ($try_number - 1)) {
+                throw new \Exception('got answer from old request');
             }
 
-        } catch (ConnectionFailureException $e) {
+
+        } catch (\Exception $e) {
 
             if ($try_number < $this->maxNumberOfTriesToCallApi) {
                 //if got WS Exception, try to get answer again
@@ -176,5 +175,68 @@ abstract class HttpConnectorAbstract implements ConnectorInterface
         }
 
         return $answer;
+    }
+
+    public function curlRequest($url, $type = 'get', $data = [], $curlOptions = [])
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:48.0) Gecko/20100101 Firefox/48.0");
+
+        if ($type == 'post') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        } elseif ($type == 'get' && !empty($data)) {
+            $temp = parse_url($url);
+            if(!empty($temp['query'])){
+                $data = parse_str($temp['query']) + $data;
+            }
+            $temp['query'] = $data;
+
+            $url = $this->makeUrlFromArray($temp);
+        }
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        foreach ($curlOptions as $option => $val) {
+            curl_setopt($ch, constant($option), $val);
+        }
+        if (empty($curlOptions['CURLOPT_CONNECTTIMEOUT'])){
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+        }
+
+        $response = curl_exec($ch);
+
+        $data = [];
+        $data['code'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        $data['response'] = $response;
+        curl_close($ch);
+
+        return $data;
+    }
+
+
+    public function makeUrlFromArray($data)
+    {
+        $url = '';
+        if (!empty($data['scheme'])) {
+            $url .= $data['scheme'] . '://';
+        }
+        if (!empty($data['host'])) {
+            $url .= $data['host'];
+        }
+        if (!empty($data['path'])) {
+            $url .= $data['path'];
+        }
+        if (!empty($data['query'])) {
+            if (is_array($data['query'])) {
+                $data['query'] = http_build_query($data['query']);
+            }
+            $url .= '?' . $data['query'];
+        }
+
+        return $url;
     }
 }
