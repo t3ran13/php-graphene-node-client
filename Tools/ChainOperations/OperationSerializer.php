@@ -104,7 +104,7 @@ class OperationSerializer
                 $byteBuffer->writeInt8($strLength);
             } elseif ($strLength < 256) {
                 $strLength = round($strLength / 128, 0) * 256
-                    + ($strLength - (round($strLength / 128, 0) - 1) * 128);
+                    + ($strLength - (round($strLength / 256, 0) * 256));
                 $byteBuffer->writeInt16LE($strLength);
             } else {
                 $strLength = round($strLength / 128, 0) * 256
