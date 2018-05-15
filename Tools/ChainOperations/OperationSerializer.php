@@ -100,13 +100,11 @@ class OperationSerializer
         if ($type === self::TYPE_STRING) {
             //Writes a UTF8 encoded string prefixed 32bit base 128 variable-length integer.
             $strLength = strlen($value);
-            echo PHP_EOL . ' $value ' . $value;
-            echo PHP_EOL . ' $strLength ' . $strLength;
+
             if ($strLength < 128) {
                 $byteBuffer->writeInt8($strLength);
             } else {
-                echo PHP_EOL . ' prefix ' . round($strLength / 128, 0);
-                echo PHP_EOL . ' number ' . ($strLength - round($strLength / 128, 0) * 128);
+
                 $strLength = ceil($strLength / 128) * 256
                     + ($strLength - ceil($strLength / 128) * 128);
                 $byteBuffer->writeInt16LE($strLength);
