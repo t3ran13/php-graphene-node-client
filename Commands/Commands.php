@@ -102,6 +102,11 @@ class Commands implements CommandInterface
                 '0' => ['integer'], //block_id
             ]
         ],
+        'get_config'                   => [
+            'apiName' => 'database_api',
+            'fields'  => [
+            ]
+        ],
         'get_content_replies'                   => [
             'apiName' => 'database_api',
             'fields'  => [
@@ -280,17 +285,22 @@ class Commands implements CommandInterface
             'fields'  => [
             ]
         ],
+        'get_block_header'                      => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '0' => ['integer'], //block_id
+            ]
+        ],
+        'get_config'                   => [
+            'apiName' => 'database_api',
+            'fields'  => [
+            ]
+        ],
         'get_content'                           => [
             'apiName' => 'social_network',
             'fields'  => [
                 '0' => ['string'], //author
                 '1' => ['string'], //permlink
-            ]
-        ],
-        'get_block_header'                      => [
-            'apiName' => 'database_api',
-            'fields'  => [
-                '0' => ['integer'], //block_id
             ]
         ],
         'get_content_replies'                   => [
