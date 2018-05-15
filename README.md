@@ -126,6 +126,7 @@ $golosPosts = $commands->get_discussions_by_created()
 - GetApiByNameCommand //ONLY STEEM
 - GetBlockCommand
 - GetBlockHeaderCommand
+- GetConfigCommand
 - GetContentCommand
 - GetContentRepliesCommand
 - GetCurrentMedianHistoryPriceCommand
