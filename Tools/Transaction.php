@@ -34,11 +34,12 @@ class Transaction
 
     /**
      * @param ConnectorInterface $connector
+     * @param string             $expirationTime is string in DateInterval format, example 'PT2M'
      *
      * @return CommandQueryData
      * @throws \Exception
      */
-    public static function init(ConnectorInterface $connector)
+    public static function init(ConnectorInterface $connector, $expirationTime = 'PT2M')
     {
         $tx = null;
         $chainName = $connector->getPlatform();
@@ -80,7 +81,7 @@ class Transaction
                     [[
                         'ref_block_num'    => $refBlockNum,
                         'ref_block_prefix' => $buf->readInt32lE(4),
-                        'expiration'       => (new \DateTime($properties['time']))->add(new \DateInterval('PT1M'))->format('Y-m-d\TH:i:s\.000'),
+                        'expiration'       => (new \DateTime($properties['time']))->add(new \DateInterval($expirationTime))->format('Y-m-d\TH:i:s\.000'),
                         'operations'       => [],
                         'extensions'       => [],
                         'signatures'       => []
