@@ -81,14 +81,15 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     public function orderNodesByTimeout($orderNodesByTimeout)
     {
         $requestId = $this->getNextId();
+        $limits = [4, 7];
         $requestData = [
             'jsonrpc' => '2.0',
             'id'      => $requestId,
             'method'  => 'call',
             'params'  => [
                 'database_api',
-                'get_dynamic_global_properties',
-                []
+                'get_discussions_by_created',
+                [['limit' => 7]]
             ]
         ];
         $wsTimeoutSeconds = $this->wsTimeoutSeconds;
@@ -99,16 +100,21 @@ abstract class WSConnectorAbstract implements ConnectorInterface
                 $connection = $this->newConnection($currentNodeURL);
 
                 $startMTime = microtime(true);
-                $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE));
-                $answerRaw = $connection->receive();
+                foreach ($limits as $limit) {
+                    $requestData['params'][2] = [['limit' => $limit]];
+
+                    $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE));
+                    $answerRaw = $connection->receive();
+
+                    $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY);
+
+                    if (isset($answer['error'])) {
+                        throw new ConnectionException('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
+                    }
+                }
                 $timeout = $requestTimeout = microtime(true) - $startMTime;
 
                 $connection->close();
-                $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY);
-
-                if (isset($answer['error'])) {
-                    throw new ConnectionException('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
-                }
                 $timeouts[$currentNodeURL] = round($timeout, 4);
             } catch (ConnectionException $e) {
             }

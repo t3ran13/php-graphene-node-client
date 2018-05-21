@@ -76,14 +76,15 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
     public function orderNodesByTimeoutMs($orderNodesByTimeoutMs)
     {
         $requestId = $this->getNextId();
+        $limits = [4, 7];
         $requestData = [
             'jsonrpc' => '2.0',
             'id'      => $requestId,
             'method'  => 'call',
             'params'  => [
                 'database_api',
-                'get_dynamic_global_properties',
-                []
+                'get_discussions_by_created',
+                [['limit' => 7]]
             ]
         ];
         $timeouts = [];
@@ -92,22 +93,24 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
                 $curlOptions = [];
                 $curlOptions['CURLOPT_CONNECTTIMEOUT_MS'] = $orderNodesByTimeoutMs;
                 $startMTime = microtime(true);
-                $answerRaw = $this->curlRequest(
-                    $currentNodeURL,
-                    'post',
-                    json_encode($requestData, JSON_UNESCAPED_UNICODE),
-                    $curlOptions
-                );
+                foreach ($limits as $limit) {
+                    $requestData['params'][2] = [['limit' => $limit]];
+                    $answerRaw = $this->curlRequest(
+                        $currentNodeURL,
+                        'post',
+                        json_encode($requestData, JSON_UNESCAPED_UNICODE),
+                        $curlOptions
+                    );
+
+                    if ($answerRaw['code'] !== 200) {
+                        throw new \Exception("Curl answer code is '{$answerRaw['code']}' and response '{$answerRaw['response']}'");
+                    }
+                    $answer = json_decode($answerRaw['response'], self::ANSWER_FORMAT_ARRAY);
+                    if (isset($answer['error'])) {
+                        throw new \Exception('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
+                    }
+                }
                 $timeout = $requestTimeout = microtime(true) - $startMTime;
-
-                if ($answerRaw['code'] !== 200) {
-                    throw new \Exception("Curl answer code is '{$answerRaw['code']}' and response '{$answerRaw['response']}'");
-                }
-                $answer = json_decode($answerRaw['response'], self::ANSWER_FORMAT_ARRAY);
-
-                if (isset($answer['error'])) {
-                    throw new \Exception('got error in answer: ' . $answer['error']['code'] . ' ' . $answer['error']['message']);
-                }
                 $timeouts[$currentNodeURL] = round($timeout, 4);
 
             } catch (\Exception $e) {
