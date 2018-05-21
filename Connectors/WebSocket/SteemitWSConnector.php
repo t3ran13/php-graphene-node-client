@@ -18,5 +18,10 @@ class SteemitWSConnector extends WSConnectorAbstract
      *
      * @var string
      */
-    protected static $nodeURL = ['wss://steemd.privex.io', 'wss://rpc.buildteam.io', 'wss://steemd.pevo.science', 'wss://steemd.minnowsupportproject.org'];
+    protected static $nodeURL = [
+        'wss://steemd.privex.io',
+        'wss://rpc.buildteam.io',
+        'wss://steemd.pevo.science'
+//        'wss://steemd.minnowsupportproject.org'  //not full answers
+    ];
 }
