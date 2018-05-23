@@ -67,6 +67,24 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
         }
     }
 
+    /**
+     * @param int $timeoutSeconds
+     */
+    public function setConnectionTimeoutSeconds($timeoutSeconds)
+    {
+        $this->wsTimeoutSeconds = $timeoutSeconds;
+    }
+
+    /**
+     * Number of tries to reconnect (get correct answer) to api
+     *
+     * @param int $triesN
+     */
+    public function setMaxNumberOfTriesToReconnect($triesN)
+    {
+        $this->maxNumberOfTriesToCallApi = $triesN;
+    }
+
 
     /**
      * @param integer $orderNodesByTimeoutMs Only if you set few nodes. do not set it is too low, if node do not answer it go out from list

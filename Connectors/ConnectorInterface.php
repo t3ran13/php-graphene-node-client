@@ -12,6 +12,18 @@ interface ConnectorInterface
     const ANSWER_FORMAT_OBJECT = 'object';
 
     /**
+     * @param int $timeoutSeconds
+     */
+    public function setConnectionTimeoutSeconds($timeoutSeconds);
+
+    /**
+     * Number of tries to reconnect (get correct answer) to api
+     *
+     * @param int $triesN
+     */
+    public function setMaxNumberOfTriesToReconnect($triesN);
+
+    /**
      * @return string
      */
     public function getPlatform();
