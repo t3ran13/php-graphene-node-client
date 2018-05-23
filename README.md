@@ -409,20 +409,53 @@ $rep = Reputation::calculate($account['reputation']);
 
 ## Bandwidth
 
-Before to make transaction you can see user bandwidth
+Sometimes you can't send transaction to blockchain because your account has not enough bandwidth. Now you can check this before sending transaction to blockchain as shown below
+
 
 ```php
 <?php
 
+use GrapheneNodeClient\Connectors\Http\SteemitHttpConnector;
+use GrapheneNodeClient\Commands\CommandQueryData;
 use GrapheneNodeClient\Tools\Bandwidth;
+use GrapheneNodeClient\Tools\Transaction;
 
-$answer = Bandwidth::getBandwidthByAccountName('golos-top-newbie', 'market', $connector);
+
+$connector = new SteemitHttpConnector();
+/** @var CommandQueryData $tx */
+$tx = Transaction::init($connector, 'PT4M');
+$tx->setParamByKey(
+    '0:operations:0',
+    [
+        'vote',
+        [
+            'voter'    => $voter,
+            'author'   => $author,
+            'permlink' => $permlink,
+            'weight'   => $weight
+        ]
+    ]
+);
+$command = new BroadcastTransactionSynchronousCommand($connector);
+Transaction::sign($chainName, $tx, ['posting' => $publicWif]);
+
+$bandwidth = Bandwidth::getBandwidthByAccountName($this->rewardPoolName, 'market', $connector);
 
 //Array
 //(
 //    [used] => 3120016
 //    [available] => 148362781
 //)
+
+$trxString = mb_strlen(json_encode($tx->getParams()), '8bit');
+
+if ($trxString * 10 + $bandwidth['used'] < $bandwidth['available']) {
+	$answer = $command->execute(
+		$tx
+	);
+}
+
+
 
 ```
 
@@ -441,7 +474,7 @@ $connector = new SteemitHttpConnector();
 //$connector = new GolosWSConnector();
 
 /** @var CommandQueryData $tx */
-$tx = Transaction::init($connector);
+$tx = Transaction::init($connector, 'PT4M');
 $tx->setParamByKey(
     '0:operations:0',
     [
