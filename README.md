@@ -249,6 +249,14 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
 
 class MyConnector implements ConnectorInterface 
 {
+    public function setConnectionTimeoutSeconds($timeoutSeconds) {
+     // TODO: Implement setConnectionTimeoutSeconds() method.
+    }
+    
+    public function setMaxNumberOfTriesToReconnect($triesN) {
+     // TODO: Implement setMaxNumberOfTriesToReconnect() method.
+    }
+    
     /**
     * platform name for witch connector is. steemit or golos.
     */
@@ -319,49 +327,49 @@ class GolosWSConnector extends WSConnectorAbstract
    
 
 ## Creating Own Command
+
+You have to update $steemAPI/$golosAPI properties in class GrapheneNodeClient\Commands\Commands.php as shown below
+
 ```php
 <?php
 
-namespace My\App\Commands;
 
-use GrapheneNodeClient\Commands\Single\CommandAbstract;
+namespace GrapheneNodeClient\Commands;
+
+
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 
-class MyCommand extends CommandAbstract 
+/**
+ * @method Commands broadcast_transaction()
+ * //...
+ * @method Commands your_method()
+ */
+class Commands implements CommandInterface
 {
-    protected $method            = 'method_name';
-    //protected $apiName         = 'login_api'; in CommandAbstract have to be set correct $apiName
-    
-    //If different for platforms
-    protected $queryDataMap = [
-        ConnectorInterface::PLATFORM_GOLOS   => [
-            //on the left is array keys and on the right is validators
-            //validators for ani list element have to be have '*'  
-            '*:limit'            => ['integer'], //the discussions return amount top limit
-            '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
-            '*:select_authors:*' => ['nullOrString'], //list of authors to select
-            '*:truncate_body'    => ['nullOrInteger'], //the amount of bytes of the post body to return, 0 for all
-            '*:start_author'     => ['nullOrString'], //the author of discussion to start searching from
-            '*:start_permlink'   => ['nullOrString'], //the permlink of discussion to start searching from
-            '*:parent_author'    => ['nullOrString'], //the author of parent discussion
-            '*:parent_permlink'  => ['nullOrString'] //the permlink of parent discussion
+    //...
+    //protected $projectApi = [ 'method_name' => [ 'apiName' => 'api_name', 'fields'=>['массив с полями из команды']]];
+    protected $steemAPI = [
+        //...
+        'broadcast_transaction'                 => [
+            'apiName' => 'network_broadcast_api',
+            'fields'  => [
+                '0:ref_block_num'    => ['integer'],
+                '0:ref_block_prefix' => ['integer'],
+                '0:expiration'       => ['string'],
+                '0:operations:*:0'   => ['string'],
+                '0:operations:*:1'   => ['array'],
+                '0:extensions'       => ['array'],
+                '0:signatures'       => ['array']
+            ]
         ],
-        ConnectorInterface::PLATFORM_STEEMIT => [
-            //for list params
-            '*:tag'            => ['nullOrString'], //'author',
-            '*:limit'          => ['integer'], //'limit'
-            '*:start_author'   => ['nullOrString'], //'start_author' for pagination,
-            '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
+        //...
+        'broadcast_transaction'                 => [
+            'apiName' => 'your_method',
+            'fields'  => [
+                //your fields
+            ]
         ]
     ];
-    
-    
-    //If the same for platforms
-    //protected $queryDataMap = [
-    // route example: 'key:123:array' => $_SESSION['key'][123]['array']
-    //    'some_array_key:some_other_key' => ['integer'],   // available validators are 'required', 'array', 'string',
-                                                            // 'integer', 'nullOrArray', 'nullOrString', 'nullOrInteger'.
-    //];
 }
 
 
@@ -396,6 +404,25 @@ $tag = Transliterator::encode('ru--pol', Transliterator::LANG_RU); // return 'п
 use GrapheneNodeClient\Tools\Reputation;
 
 $rep = Reputation::calculate($account['reputation']);
+
+```
+
+## Bandwidth
+
+Before to make transaction you can see user bandwidth
+
+```php
+<?php
+
+use GrapheneNodeClient\Tools\Bandwidth;
+
+$answer = Bandwidth::getBandwidthByAccountName('golos-top-newbie', 'market', $connector);
+
+//Array
+//(
+//    [used] => 3120016
+//    [available] => 148362781
+//)
 
 ```
 
