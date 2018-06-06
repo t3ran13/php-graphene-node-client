@@ -6,18 +6,19 @@ use t3ran13\ByteBuffer\ByteBuffer;
 
 class OperationSerializer
 {
-    const TYPE_STRING = 'string';
-    const TYPE_INT16  = 'int16';
-    const TYPE_ASSET  = 'asset';
+    const TYPE_SET_STRING = 'set_string';
+    const TYPE_STRING     = 'string';
+    const TYPE_INT16      = 'int16';
+    const TYPE_ASSET      = 'asset';
 
     const OPERATIONS_FIELDS_TYPES = [
-        ChainOperations::OPERATION_VOTE     => [
+        ChainOperations::OPERATION_VOTE        => [
             'voter'    => self::TYPE_STRING,
             'author'   => self::TYPE_STRING,
             'permlink' => self::TYPE_STRING,
             'weight'   => self::TYPE_INT16
         ],
-        ChainOperations::OPERATION_COMMENT  => [
+        ChainOperations::OPERATION_COMMENT     => [
             'parent_author'   => self::TYPE_STRING,
             'parent_permlink' => self::TYPE_STRING,
             'author'          => self::TYPE_STRING,
@@ -26,7 +27,7 @@ class OperationSerializer
             'body'            => self::TYPE_STRING,
             'json_metadata'   => self::TYPE_STRING
         ],
-        ChainOperations::OPERATION_TRANSFER => [
+        ChainOperations::OPERATION_TRANSFER    => [
             'from'   => self::TYPE_STRING,
             'to'     => self::TYPE_STRING,
             'amount' => self::TYPE_ASSET,
@@ -116,6 +117,11 @@ class OperationSerializer
                 $byteBuffer->writeInt16LE($strLength);
             }
             $byteBuffer->writeVStringLE($value);
+        } if ($type === self::TYPE_SET_STRING) {
+            $byteBuffer->writeInt8(count($value));
+            foreach ($value as $string) {
+                self::serializeType(self::TYPE_STRING, $string, $byteBuffer);
+            }
         } elseif ($type === self::TYPE_INT16) {
             $byteBuffer->writeInt16LE($value);
         } elseif ($type === self::TYPE_ASSET) {
