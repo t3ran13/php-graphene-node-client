@@ -108,7 +108,7 @@ class OperationSerializer
             //Writes a UTF8 encoded string prefixed 32bit base 128 variable-length integer.
             $strLength = strlen($value);
 
-            if ($strLength < 128) {
+            if ($strLength <= 128) {
                 $byteBuffer->writeInt8($strLength);
             } else {
 
