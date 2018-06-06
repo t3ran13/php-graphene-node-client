@@ -31,6 +31,12 @@ class OperationSerializer
             'to'     => self::TYPE_STRING,
             'amount' => self::TYPE_ASSET,
             'memo'   => self::TYPE_STRING
+        ],
+        ChainOperations::OPERATION_CUSTOM_JSON => [
+            'required_auths'         => self::TYPE_SET_STRING,
+            'required_posting_auths' => self::TYPE_SET_STRING,
+            'id'                     => self::TYPE_STRING,
+            'json'                   => self::TYPE_STRING
         ]
     ];
 
