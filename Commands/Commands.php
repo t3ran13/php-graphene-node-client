@@ -278,6 +278,7 @@ class Commands implements CommandInterface
             'apiName' => 'social_network',
             'fields'  => [
                 '0' => ['string'], //account name
+                '1' => ['nullOrInteger'] //voteLimit by default 10 000
             ]
         ],
         'get_active_votes'                      => [
@@ -285,6 +286,7 @@ class Commands implements CommandInterface
             'fields'  => [
                 '0' => ['string'], //author
                 '1' => ['string'], //permlink
+                '2' => ['nullOrInteger'] //voteLimit by default 10 000
             ]
         ],
         'get_active_witnesses'                  => [
@@ -308,6 +310,7 @@ class Commands implements CommandInterface
             'fields'  => [
                 '0' => ['string'], //author
                 '1' => ['string'], //permlink
+                '2' => ['nullOrInteger'] //voteLimit by default 10 000
             ]
         ],
         'get_content_replies'                   => [
@@ -315,6 +318,7 @@ class Commands implements CommandInterface
             'fields'  => [
                 '0' => ['string'], //author
                 '1' => ['string'], //permlink
+                '2' => ['nullOrInteger'] //voteLimit by default 10 000
             ]
         ],
         'get_current_median_history_price'      => [
