@@ -95,11 +95,13 @@ class Bandwidth
 
         $paramNamePrefix = '';
         if ($connector->getPlatform() === ConnectorInterface::PLATFORM_GOLOS) {
-            $paramNamePrefix = 'new_';
+            $paramNamePrefix = 'lifetime_';
+        } elseif ($connector->getPlatform() === ConnectorInterface::PLATFORM_STEEMIT) {
+            $paramNamePrefix = 'average_';
         }
-        $paramName = $paramNamePrefix . 'average_bandwidth';
+        $paramName = $paramNamePrefix . 'bandwidth';
         if ($type === 'market') {
-            $paramName = $paramNamePrefix . 'average_market_bandwidth';
+            $paramName = $paramNamePrefix . 'market_bandwidth';
         }
         $accountAverageBandwidth = $account[$paramName];
 
