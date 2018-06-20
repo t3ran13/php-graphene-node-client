@@ -19,27 +19,23 @@ require "../vendor/autoload.php";
 
 class CommandsTest extends TestCase
 {
-    private $connector;
-    private $api;
-
-    public function __construct($name = null, array $data = [], $dataName = '')
-    {
-        parent::__construct($name, $data, $dataName);
-        $this->connector = new SteemitHttpJsonRpcConnector();
-        $this->api = 'steem';
-        $this->connector = new GolosWSConnector();
-        $this->api = 'golos';
-        //$this->connector = new SteemitWSConnector();
-
+    public function connectorsDataProvider(){
+        return [
+            [new SteemitHttpJsonRpcConnector(),'steem'],
+            [new GolosWSConnector(),'golos']
+        ];
     }
 
-    public function testGetBlock()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetBlock($connect, $api)
     {
         $block_id = 777777;
         $commandQuery = new CommandQueryData();
         $commandQuery->setParamByKey('0', $block_id);
 
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_block();
 
         $data1 = $command->execute($commandQuery);
@@ -48,12 +44,15 @@ class CommandsTest extends TestCase
         //var_dump($data1);
     }
 
-    public function testGetAccountHistory()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetAccountHistory($connect, $api)
     {
         $acc = 'semasping';
         $from = -1;
         $limit = 0;
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_account_history();
 
         $commandQuery = new CommandQueryData();
@@ -66,10 +65,13 @@ class CommandsTest extends TestCase
 
     }
 
-    public function testGetAccounts()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetAccounts($connect, $api)
     {
         $acc = 'semasping';
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_accounts();
 
         $commandQuery = new CommandQueryData();
@@ -80,9 +82,12 @@ class CommandsTest extends TestCase
 
     }
 
-    public function testGetDynamicGlobalProperties()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetDynamicGlobalProperties($connect, $api)
     {
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_dynamic_global_properties();
 
         $commandQuery = new CommandQueryData();
@@ -91,9 +96,12 @@ class CommandsTest extends TestCase
 
     }
 
-    public function testGetAccountCount()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetAccountCount($connect, $api)
     {
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_account_count();
 
         $commandQuery = new CommandQueryData();
@@ -102,10 +110,13 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetAccountVotes()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetAccountVotes($connect, $api)
     {
         $acc = 'semasping';
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_account_votes();
 
         $commandQuery = new CommandQueryData();
@@ -115,9 +126,12 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetActiveWitnesses()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetActiveWitnesses($connect, $api)
     {
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_active_witnesses();
 
         $commandQuery = new CommandQueryData();
@@ -126,17 +140,20 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetContent()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetContent($connect, $api)
     {
-        if ($this->api == 'golos') {
+        if ($api == 'golos') {
             $author = 'semasping';
             $permlink = 'accusta-zapusk-servisa-dlya-steemit';
         }
-        if ($this->api == 'steem') {
+        if ($api == 'steem') {
             $author = 'semasping';
             $permlink = 'new-structure-of-commands-php-graphene-node-client';
         }
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_content();
 
         $commandQuery = new CommandQueryData();
@@ -147,10 +164,13 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetBlockHeader()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetBlockHeader($connect, $api)
     {
         $block_id = 777777;
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_block_header();
 
         $commandQuery = new CommandQueryData();
@@ -160,17 +180,20 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetContentReplies()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetContentReplies($connect, $api)
     {
-        if ($this->api == 'golos') {
+        if ($api == 'golos') {
             $author = 'semasping';
             $permlink = 'accusta-zapusk-servisa-dlya-steemit';
         }
-        if ($this->api == 'steem') {
+        if ($api == 'steem') {
             $author = 'semasping';
             $permlink = 'new-structure-of-commands-php-graphene-node-client';
         }
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_content_replies();
 
         $commandQuery = new CommandQueryData();
@@ -181,9 +204,12 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetCurrentMedianHistoryPrice()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetCurrentMedianHistoryPrice($connect, $api)
     {
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_current_median_history_price();
 
         $commandQuery = new CommandQueryData();
@@ -192,21 +218,24 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetDiscussionsByAuthorBeforeDate()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetDiscussionsByAuthorBeforeDate($connect, $api)
     {
-        if ($this->api == 'golos') {
+        if ($api == 'golos') {
             $author = 'semasping';
             $permlink = 'accusta-zapusk-servisa-dlya-steemit';
             $date = '2018-01-01T00:00:00';
             $limit = 10;
         }
-        if ($this->api == 'steem') {
+        if ($api == 'steem') {
             $author = 'semasping';
             $permlink = 'new-structure-of-commands-php-graphene-node-client';
             $date = '2018-01-01T00:00:00';
             $limit = 10;
         }
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_discussions_by_author_before_date();
 
         $commandQuery = new CommandQueryData();
@@ -219,29 +248,37 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetDiscussionsByBlog()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetDiscussionsByBlog($connect, $api)
     {
 
         $tag = 'php';
         $limit = 10;
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_discussions_by_blog();
 
         $commandQuery = new CommandQueryData();
         $commandQuery->setParamByKey('0:tag', $tag);
         $commandQuery->setParamByKey('0:limit', $limit);
         $commandQuery->setParamByKey('0:start_author', null);
+        if ($api == 'golos')
+            $commandQuery->setParamByKey('0:select_authors', ['semasping']);
         $commandQuery->setParamByKey('0:start_permlink', null);
         $content = $command->execute($commandQuery);
         $this->assertArrayHasKey('result', $content);
         //var_dump($content['result'][0]);
     }
 
-    public function testGetDiscussionsByCreated()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetDiscussionsByCreated($connect, $api)
     {
         $tag = 'php';
         $limit = 10;
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_discussions_by_created();
 
         $commandQuery = new CommandQueryData();
@@ -254,11 +291,14 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetDiscussionsByFeed()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetDiscussionsByFeed($connect, $api)
     {
         $tag = 'php';
         $limit = 10;
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_discussions_by_feed();
 
         $commandQuery = new CommandQueryData();
@@ -266,16 +306,21 @@ class CommandsTest extends TestCase
         $commandQuery->setParamByKey('0:limit', $limit);
         $commandQuery->setParamByKey('0:start_author', null);
         $commandQuery->setParamByKey('0:start_permlink', null);
+        if ($api == 'golos')
+            $commandQuery->setParamByKey('0:select_authors', ['semasping']);
         $content = $command->execute($commandQuery);
         $this->assertArrayHasKey('result', $content);
         //var_dump($content['result'][0]);
     }
 
-    public function testGetDiscussionsByTrending()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetDiscussionsByTrending($connect, $api)
     {
         $tag = 'php';
         $limit = 10;
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_discussions_by_trending();
 
         $commandQuery = new CommandQueryData();
@@ -288,10 +333,13 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetOpsInBlock()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetOpsInBlock($connect, $api)
     {
         $block_id = 777777;
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_ops_in_block();
 
         $commandQuery = new CommandQueryData();
@@ -303,16 +351,13 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetTrendingCategories()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetTrendingCategories($connect, $api)
     {
-        $command = new Commands($this->connector);
-        if ($this->api == 'steem') {
-            $command = $command->get_trending_tags();
-        }
-        if ($this->api == 'golos') {
-            $command = $command->get_trending_categories();
-        }
-
+        $command = new Commands($connect);
+        $command = $command->get_trending_tags();
 
         $commandQuery = new CommandQueryData();
         $commandQuery->setParamByKey('0', '');
@@ -322,10 +367,13 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetWitnessesByVote()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetWitnessesByVote($connect, $api)
     {
         $acc = 'arcange';
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_witnesses_by_vote();
 
         $commandQuery = new CommandQueryData();
@@ -336,11 +384,14 @@ class CommandsTest extends TestCase
         //var_dump($content['result'][0]);
     }
 
-    public function testGetFollowers()
+    /**
+     * @dataProvider connectorsDataProvider
+     */
+    public function testGetFollowers($connect, $api)
     {
         $author = 'semasping';
 
-        $command = new Commands($this->connector);
+        $command = new Commands($connect);
         $command = $command->get_followers();
 
         $commandQuery = new CommandQueryData();
