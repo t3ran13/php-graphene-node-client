@@ -29,7 +29,7 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
  * @method Commands get_dynamic_global_properties()
  * @method Commands get_followers()
  * @method Commands get_ops_in_block()
- * @method Commands get_trending_categories()
+ * @method Commands get_trending_categories() //only steem
  * @method Commands get_version()
  * @method Commands get_witnesses_by_vote()
  * @method Commands login() ONLY for STEEM
