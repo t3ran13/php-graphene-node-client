@@ -93,15 +93,9 @@ class Bandwidth
         $accountVShares = str_replace(' VESTS', '', $account['vesting_shares']);
         $accountVShares = substr($accountVShares, 0, strpos($accountVShares, '.'));
 
-        $paramNamePrefix = '';
-        if ($connector->getPlatform() === ConnectorInterface::PLATFORM_GOLOS) {
-            $paramNamePrefix = 'lifetime_';
-        } elseif ($connector->getPlatform() === ConnectorInterface::PLATFORM_STEEMIT) {
-            $paramNamePrefix = 'average_';
-        }
-        $paramName = $paramNamePrefix . 'bandwidth';
+        $paramName = 'average_bandwidth';
         if ($type === 'market') {
-            $paramName = $paramNamePrefix . 'market_bandwidth';
+            $paramName = 'average_market_bandwidth';
         }
         $accountAverageBandwidth = $account[$paramName];
 
