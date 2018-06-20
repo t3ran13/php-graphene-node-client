@@ -400,13 +400,6 @@ class Commands implements CommandInterface
                 '1' => ['bool'], //onlyVirtual
             ]
         ],
-        'get_trending_categories'               => [
-            'apiName' => 'social_network',
-            'fields'  => [
-                '0' => ['nullOrString'], //after
-                '1' => ['integer'], //permlink
-            ]
-        ],
         'get_trending_tags'               => [
             'apiName' => 'tags',
             'fields'  => [
