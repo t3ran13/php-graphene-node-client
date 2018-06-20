@@ -176,7 +176,7 @@ class Commands implements CommandInterface
                 '1' => ['bool'], //onlyVirtual
             ]
         ],
-        'get_trending_categories'               => [
+        'get_trending_tags'               => [
             'apiName' => 'database_api',
             'fields'  => [
                 '0' => ['nullOrString'], //after
@@ -260,7 +260,7 @@ class Commands implements CommandInterface
             'fields'  => []
         ],
         'get_account_history'                   => [
-            'apiName' => 'database_api',
+            'apiName' => 'account_history',
             'fields'  => [
                 '0' => ['string'], //authors
                 '1' => ['integer'], //from
@@ -281,7 +281,7 @@ class Commands implements CommandInterface
             ]
         ],
         'get_active_witnesses'                  => [
-            'apiName' => 'database_api',
+            'apiName' => 'witness_api',
             'fields'  => [
             ]
         ],
@@ -311,12 +311,12 @@ class Commands implements CommandInterface
             ]
         ],
         'get_current_median_history_price'      => [
-            'apiName' => 'database_api',
+            'apiName' => 'witness_api',
             'fields'  => [
             ]
         ],
         'get_discussions_by_author_before_date' => [
-            'apiName' => 'social_network',
+            'apiName' => 'tags',
             'fields'  => [
                 '0' => ['string'], //'author',
                 '1' => ['string'], //'start_permlink' for pagination,
@@ -325,7 +325,7 @@ class Commands implements CommandInterface
             ]
         ],
         'get_discussions_by_blog'               => [
-            'apiName' => 'social_network',
+            'apiName' => 'tags',
             'fields'  => [
                 '*:limit'            => ['integer'], //the discussions return amount top limit
                 '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
@@ -338,7 +338,7 @@ class Commands implements CommandInterface
             ]
         ],
         'get_discussions_by_created'            => [
-            'apiName' => 'social_network',
+            'apiName' => 'tags',
             'fields'  => [
                 '*:limit'            => ['integer'], //the discussions return amount top limit
                 '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
@@ -351,7 +351,7 @@ class Commands implements CommandInterface
             ],
         ],
         'get_discussions_by_feed'               => [
-            'apiName' => 'social_network',
+            'apiName' => 'tags',
             'fields'  => [
                 '*:limit'            => ['integer'], //the discussions return amount top limit
                 '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
@@ -364,7 +364,7 @@ class Commands implements CommandInterface
             ]
         ],
         'get_discussions_by_trending'           => [
-            'apiName' => 'social_network',
+            'apiName' => 'tags',
             'fields'  => [
                 '*:limit'            => ['integer'], //the discussions return amount top limit
                 '*:select_tags:*'    => ['nullOrString'], //list of tags to include, posts without these tags are filtered
@@ -382,21 +382,21 @@ class Commands implements CommandInterface
             ]
         ],
         'get_ops_in_block'                      => [
-            'apiName' => 'database_api',
+            'apiName' => 'operation_history',
             'fields'  => [
                 '0' => ['integer'], //blockNum
                 '1' => ['bool'], //onlyVirtual
             ]
         ],
-        'get_trending_categories'               => [
-            'apiName' => 'social_network',
+        'get_trending_tags'               => [
+            'apiName' => 'tags',
             'fields'  => [
                 '0' => ['nullOrString'], //after
                 '1' => ['integer'], //permlink
             ]
         ],
         'get_witnesses_by_vote'                 => [
-            'apiName' => 'database_api',
+            'apiName' => 'witness_api',
             'fields'  => [
                 '0' => ['string'], //from accountName, can be empty string ''
                 '1' => ['integer'] //limit
