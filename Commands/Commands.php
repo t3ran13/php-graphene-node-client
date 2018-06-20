@@ -333,6 +333,7 @@ class Commands implements CommandInterface
                 '1' => ['string'], //'start_permlink' for pagination,
                 '2' => ['string'], //'before_date'
                 '3' => ['integer'], //'limit'
+                '4' => ['nullOrInteger'] //voteLimit by default 10 000
             ]
         ],
         'get_discussions_by_blog'               => [
