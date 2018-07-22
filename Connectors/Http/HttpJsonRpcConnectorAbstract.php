@@ -138,20 +138,23 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
         static::$nodeURL = array_keys($timeouts);
     }
 
-
     public function getCurrentUrl()
     {
-        if (static::$currentNodeURL === null) {
+        if (
+            !isset(static::$currentNodeURL[$this->getPlatform()])
+            || static::$currentNodeURL[$this->getPlatform()] === null
+            || !in_array(static::$currentNodeURL[$this->getPlatform()], static::$nodeURL)
+        ) {
             if (is_array(static::$nodeURL)) {
                 $url = array_values(static::$nodeURL)[0];
             } else {
                 $url = static::$nodeURL;
             }
 
-            static::$currentNodeURL = $url;
+            static::$currentNodeURL[$this->getPlatform()] = $url;
         }
 
-        return static::$currentNodeURL;
+        return static::$currentNodeURL[$this->getPlatform()];
     }
 
     protected function setReserveNodeUrlToCurrentUrl()
@@ -160,9 +163,9 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
         foreach (static::$nodeURL as $key => $node) {
             if ($node === $this->getCurrentUrl()) {
                 if ($key + 1 < $totalNodes) {
-                    static::$currentNodeURL = static::$nodeURL[$key + 1];
+                    static::$currentNodeURL[$this->getPlatform()] = static::$nodeURL[$key + 1];
                 } else {
-                    static::$currentNodeURL = static::$nodeURL[0];
+                    static::$currentNodeURL[$this->getPlatform()] = static::$nodeURL[0];
                 }
                 break;
             }
