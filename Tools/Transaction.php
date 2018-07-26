@@ -177,7 +177,7 @@ class Transaction
         $privateKey = Auth::PrivateKeyFromWif($privateWif);
 
         /** @var resource $signature */
-        $signatureRec = '';
+        $signatureRec = null;
         $i = 0;
         while (true) {
             if ($i === 1) {
@@ -186,16 +186,15 @@ class Transaction
             }
             $i++;
 //            echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
-
             if (secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) !== 1) {
                 throw new TransactionSignException("Failed to create recoverable signature");
             }
 
-            $signature = '';
+            $signature = null;
             if (secp256k1_ecdsa_recoverable_signature_convert($context, $signature, $signatureRec) !== 1) {
                 throw new TransactionSignException("Failed to create signature");
             }
-            $der = '';
+            $der = null;
             if (secp256k1_ecdsa_signature_serialize_der($context, $der, $signature) !== 1) {
                 throw new TransactionSignException("Failed to create DER");
             }
@@ -205,12 +204,11 @@ class Transaction
             }
         }
 
-        $serializedSig = '';
+        $serializedSig = null;
         $recid = 0;
-        secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $signatureRec, $serializedSig, $recid);
+        secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $serializedSig, $recid,$signatureRec);
 
         $serializedSig = hex2bin(base_convert($recid + 4 + 27, 10, 16)) . $serializedSig;
-
         $length = strlen($serializedSig);
         if ($length !== 65) {
             throw new \Exception('Expecting 65 bytes for Tx signature, instead got ' . $length);
