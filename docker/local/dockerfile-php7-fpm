@@ -24,10 +24,10 @@ RUN  cd ~  && \
     make && \
     make install
 RUN  cd ~  && \
-    curl -#L https://github.com/Bit-Wasp/secp256k1-php/archive/v0.1.2.zip > file.zip && \
+    curl -#L https://github.com/Bit-Wasp/secp256k1-php/archive/v0.2.1.zip > file.zip && \
     unzip file.zip && \
     rm file.zip && \
-    cd secp256k1-php-0.1.2/secp256k1 && \
+    cd secp256k1-php-0.2.1/secp256k1 && \
     phpize && \
     ./configure --with-secp256k1 && \
     make && \
