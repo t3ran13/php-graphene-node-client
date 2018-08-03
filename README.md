@@ -538,5 +538,12 @@ while (true) {
         }
     }
 ...
+```
 
+## Tests
+You need to install PhpUnit in your system (https://phpunit.de/manual/3.7/en/installation.html)
+```
+cd Tests
+phpunit CommandsTest.php 
+phpunit CommandsTest.php --filter=testGetBlock // test only one command
 ```
