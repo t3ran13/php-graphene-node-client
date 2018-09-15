@@ -132,7 +132,9 @@ abstract class WSConnectorAbstract implements ConnectorInterface
                 }
                 $timeout = $requestTimeout = microtime(true) - $startMTime;
 
-                $connection->close();
+                if ($connection->isConnected()) {
+                    $connection->close();
+                }
                 $timeouts[$currentNodeURL] = round($timeout, 4);
             } catch (ConnectionException $e) {
             }
@@ -200,7 +202,9 @@ abstract class WSConnectorAbstract implements ConnectorInterface
     public function connectToReserveNode()
     {
         $connection = $this->getConnection();
-        $connection->close();
+        if ($connection->isConnected()) {
+            $connection->close();
+        }
         $this->setReserveNodeUrlToCurrentUrl();
         return $this->newConnection($this->getCurrentUrl());
     }
