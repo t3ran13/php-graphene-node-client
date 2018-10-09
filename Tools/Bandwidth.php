@@ -13,17 +13,25 @@ class Bandwidth
 {
     const BANDWIDTH_PRECISION = 1000000;
 
-    /**
-     * @param $trxString
-     * @param $bandwidthPrecision
-     *
-     * @return float|int in bytes
-     */
-    public static function getTrxBandwidth($trxString, $bandwidthPrecision)
-    {
-        $trxBytes = mb_strlen($trxString, '8bit');
 
-        return $bandwidthPrecision * $trxBytes;
+    /**
+     * Checking Bandwidth for Trx
+     *
+     * @param ConnectorInterface $connector
+     * @param                    $accountName
+     * @param                    $type
+     * @param string             $trxJsonString
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public static function isEnough(ConnectorInterface $connector, $accountName, $type, $trxJsonString = '')
+    {
+        $bandwidth = Bandwidth::getBandwidthByAccountName($accountName, $type, $connector);
+
+        $bandwidth['needed'] = mb_strlen($trxJsonString, '8bit') + $bandwidth['used'];
+
+        return $bandwidth['needed'] < $bandwidth['available'];
     }
 
     /**
