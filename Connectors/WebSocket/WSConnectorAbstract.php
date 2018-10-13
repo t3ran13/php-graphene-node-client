@@ -121,7 +121,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
                 foreach ($limits as $limit) {
                     $requestData['params'][2] = [['limit' => $limit]];
 
-                    $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE));
+                    $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
                     $answerRaw = $connection->receive();
 
                     $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY);
@@ -261,7 +261,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
         ];
         try {
             $connection = $this->getConnection();
-            $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE));
+            $connection->send(json_encode($requestData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
             $answerRaw = $connection->receive();
             $answer = json_decode($answerRaw, self::ANSWER_FORMAT_ARRAY === $answerFormat);
 

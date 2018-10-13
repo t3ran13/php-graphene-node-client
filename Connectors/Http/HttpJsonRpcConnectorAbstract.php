@@ -116,7 +116,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
                     $answerRaw = $this->curlRequest(
                         $currentNodeURL,
                         'post',
-                        json_encode($requestData, JSON_UNESCAPED_UNICODE),
+                        json_encode($requestData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
                         $curlOptions
                     );
 
@@ -231,7 +231,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
             $answerRaw = $this->curlRequest(
                 $this->getCurrentUrl(),
                 'post',
-                json_encode($requestData, JSON_UNESCAPED_UNICODE),
+                json_encode($requestData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
                 $curlOptions
             );
             if ($answerRaw['code'] !== 200) {
