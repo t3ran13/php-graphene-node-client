@@ -110,11 +110,21 @@ class OperationSerializer
 
             if ($strLength <= 128) {
                 $byteBuffer->writeInt8($strLength);
-            } else {
-
+            }
+            elseif ($strLength <= 16511) {
                 $strLength = ceil($strLength / 128) * 256
                     + ($strLength - ceil($strLength / 128) * 128);
                 $byteBuffer->writeInt16LE($strLength);
+            } else {
+                $n3 = ceil($strLength / (128 * 128));
+                $n2 = ceil(($strLength - $n3*128*128) / 128);
+                $strLength = $n3 * 256 * 256
+                    + $n2 * 256
+                    + ($strLength - $n3 * 128 * 128 - $n2 * 128);
+                $byteBuffer->writeInt32LE($strLength);
+                if ($strLength <= 16777215) {
+                    $byteBuffer->setCurrentOffset($byteBuffer->getCurrentOffset() - 1);
+                }
             }
             $byteBuffer->writeVStringLE($value);
         } if ($type === self::TYPE_SET_STRING) {
