@@ -69,7 +69,7 @@ class OpComment
      * @return mixed
      * @throws \Exception
      */
-    public static function doSynchronous(ConnectorInterface $connector, $privatePostingWif, $author, $permlink, $title, $body, $jsonMetadata, $parentPermlink = '', $parentAuthor = '')
+    public static function doSynchronous(ConnectorInterface $connector, $privatePostingWif, $author, $permlink, $title, $body, $jsonMetadata, $parentPermlink, $parentAuthor = '')
     {
         $chainName = $connector->getPlatform();
         /** @var CommandQueryData $tx */
