@@ -17,19 +17,20 @@ class Transaction
 {
     const CHAIN_STEEM = ConnectorInterface::PLATFORM_STEEMIT;
     const CHAIN_GOLOS = ConnectorInterface::PLATFORM_GOLOS;
+    const CHAIN_VIZ   = ConnectorInterface::PLATFORM_VIZ;
     const CHAIN_ID    = [
         self::CHAIN_GOLOS => '782a3039b478c839e4cb0c941ff4eaeb7df40bdd68bd441afd444b9da763de12',
-        self::CHAIN_STEEM => '0000000000000000000000000000000000000000000000000000000000000000'
+        self::CHAIN_STEEM => '0000000000000000000000000000000000000000000000000000000000000000',
+        self::CHAIN_VIZ   => '2040effda178d4fffff5eab7a915d4019879f5205cc5392e4bcced2b6edda0cd'
     ];
 
     public static function getChainId($chainName)
     {
-        $answer = null;
-        if (in_array($chainName, [self::CHAIN_GOLOS, self::CHAIN_STEEM], true)) {
-            $answer = self::CHAIN_ID[$chainName];
+        if (!isset(self::CHAIN_ID[$chainName])) {
+            throw new TransactionSignException('Can\'t find chain_id');
         }
 
-        return $answer;
+        return self::CHAIN_ID[$chainName];
     }
 
     /**
@@ -42,52 +43,39 @@ class Transaction
     public static function init(ConnectorInterface $connector, $expirationTime = 'PT2M')
     {
         $tx = null;
-        $chainName = $connector->getPlatform();
 
-            $command = new GetDynamicGlobalPropertiesCommand($connector);
-            $commandQueryData = new CommandQueryData();
-            $properties = $command->execute(
-                $commandQueryData,
-                'result'
+        $command = new GetDynamicGlobalPropertiesCommand($connector);
+        $commandQueryData = new CommandQueryData();
+        $properties = $command->execute(
+            $commandQueryData
+        );
+
+        $blockId = $properties['result']['head_block_number'] - 2;
+        $command = new GetBlockCommand($connector);
+        $commandQueryData = new CommandQueryData();
+        $commandQueryData->setParamByKey('0', $blockId);
+        $block = $command->execute(
+            $commandQueryData
+        );
+
+        if (isset($properties['result']['head_block_number']) && isset($block['result']['previous'])) {
+            $refBlockNum = ($properties['result']['head_block_number'] - 3) & 0xFFFF;
+
+            $tx = new CommandQueryData();
+            $buf = new ByteBuffer();
+            $buf->write(hex2bin($block['result']['previous']));
+
+            $tx->setParams(
+                [[
+                    'ref_block_num'    => $refBlockNum,
+                    'ref_block_prefix' => $buf->readInt32lE(4),
+                    'expiration'       => (new \DateTime($properties['result']['time']))->add(new \DateInterval($expirationTime))->format('Y-m-d\TH:i:s\.000'),
+                    'operations'       => [],
+                    'extensions'       => [],
+                    'signatures'       => []
+                ]]
             );
-
-            if (self::CHAIN_GOLOS === $chainName) {
-                $blockId = $properties['head_block_number'] - 2;
-            } elseif (self::CHAIN_STEEM === $chainName) {
-//                $blockId = $properties['last_irreversible_block_num'];
-                $blockId = $properties['head_block_number'] - 2;
-            }
-            $command = new GetBlockCommand($connector);
-            $commandQueryData = new CommandQueryData();
-            $commandQueryData->setParamByKey('0', $blockId);
-            $block = $command->execute(
-                $commandQueryData,
-                'result'
-            );
-
-            if (isset($properties['head_block_number']) && isset($block['previous'])) {
-                if (self::CHAIN_GOLOS === $chainName) {
-                    $refBlockNum = ($properties['head_block_number'] - 3) & 0xFFFF;
-                } elseif (self::CHAIN_STEEM === $chainName) {
-//                    $refBlockNum = ($properties['last_irreversible_block_num'] - 1) & 0xFFFF;
-                    $refBlockNum = ($properties['head_block_number'] - 3) & 0xFFFF;
-                }
-
-                $tx = new CommandQueryData();
-                $buf = new ByteBuffer();
-                $buf->write(hex2bin($block['previous']));
-
-                $tx->setParams(
-                    [[
-                        'ref_block_num'    => $refBlockNum,
-                        'ref_block_prefix' => $buf->readInt32lE(4),
-                        'expiration'       => (new \DateTime($properties['time']))->add(new \DateInterval($expirationTime))->format('Y-m-d\TH:i:s\.000'),
-                        'operations'       => [],
-                        'extensions'       => [],
-                        'signatures'       => []
-                    ]]
-                );
-            }
+        }
 
         if (!($tx instanceof CommandQueryDataInterface)) {
             throw new \Exception('cant init Tx');
