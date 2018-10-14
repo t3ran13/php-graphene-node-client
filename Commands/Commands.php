@@ -20,7 +20,7 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
  * @method Commands get_block_header()
  * @method Commands get_content()
  * @method Commands get_content_replies()
- * @method Commands get_current_median_history_price()
+ * @method Commands get_current_median_history_price() STEEM/GOLOS
  * @method Commands get_discussions_by_author_before_date()
  * @method Commands get_discussions_by_blog()
  * @method Commands get_discussions_by_created()
@@ -150,7 +150,9 @@ class Commands implements CommandInterface
         $platform = $this->connector->getPlatform();
 
         if (!isset(self::$queryDataMap[$platform])) {
-            if ($platform === ConnectorInterface::PLATFORM_GOLOS) {
+            if ($platform === ConnectorInterface::PLATFORM_VIZ) {
+                $api = VizApiMethods::$map;
+            } elseif ($platform === ConnectorInterface::PLATFORM_GOLOS) {
                 $api = GolosApiMethods::$map;
             } elseif ($platform === ConnectorInterface::PLATFORM_STEEMIT) {
                 $api = SteemitApiMethods::$map;
