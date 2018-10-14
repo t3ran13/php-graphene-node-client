@@ -1,5 +1,5 @@
 # php-graphene-node-client
-PHP client for connection to STEEM/GOLOS node
+PHP client for connection to VIZ/STEEM/GOLOS node
 
 
 ## Install Via Composer
@@ -129,7 +129,7 @@ $golosPosts = $commands->get_discussions_by_created()
 - GetConfigCommand
 - GetContentCommand
 - GetContentRepliesCommand
-- GetCurrentMedianHistoryPriceCommand
+- GetCurrentMedianHistoryPriceCommand //STEEM/GOLOS
 - GetDiscussionsByAuthorBeforeDateCommand
 - GetDiscussionsByBlogCommand
 - GetDiscussionsByCreatedCommand
@@ -152,7 +152,8 @@ namespace GrapheneNodeClient\Tools\ChainOperations
 
 - vote
 - transfer
-- comment 
+- comment // steem or golos
+- content // only viz
 
 ```php
 <?php
@@ -163,6 +164,7 @@ use GrapheneNodeClient\Connectors\WebSocket\GolosWSConnector;
 
 $connector = new SteemitHttpConnector();
 //$connector = new GolosWSConnector();
+//$connector = new VizWSConnector();
 
 $answer = OpVote::doSynchronous(
     $connector,
@@ -193,9 +195,12 @@ $answer = OpVote::doSynchronous(
 
 namespace: GrapheneNodeClient\Connectors\WebSocket OR GrapheneNodeClient\Connectors\Http;
 
-- GolosWSConnector (wss://ws.golos.io)
-- SteemitWSConnector (wss://steemd.minnowsupportproject.org)
-- SteemitHttpConnector (https://steemd.privex.io)
+- VizWSConnector
+- VizHttpJsonRpcConnector
+- GolosWSConnector
+- GolosHttpJsonRpcConnector
+- SteemitWSConnector
+- SteemitHttpJsonRpcConnector
 
 List of available STEEM nodes are [here](https://www.steem.center/index.php?title=Public_Websocket_Servers)
 
@@ -328,7 +333,7 @@ class GolosWSConnector extends WSConnectorAbstract
 
 ## Creating Own Command
 
-You have to update $steemAPI/$golosAPI properties in class GrapheneNodeClient\Commands\Commands.php as shown below
+You have to update $map properties in GolosApiMethods/SteemitApiMethods/VizApiMethods classes as shown below
 
 ```php
 <?php
@@ -336,19 +341,11 @@ You have to update $steemAPI/$golosAPI properties in class GrapheneNodeClient\Co
 
 namespace GrapheneNodeClient\Commands;
 
-
-use GrapheneNodeClient\Connectors\ConnectorInterface;
-
-/**
- * @method Commands broadcast_transaction()
- * //...
- * @method Commands your_method()
- */
-class Commands implements CommandInterface
+class SteemitApiMethods
 {
     //...
     //protected $projectApi = [ 'method_name' => [ 'apiName' => 'api_name', 'fields'=>['массив с полями из команды']]];
-    protected $steemAPI = [
+    protected static $map = [
         //...
         'broadcast_transaction'                 => [
             'apiName' => 'network_broadcast_api',
@@ -439,7 +436,12 @@ $tx->setParamByKey(
 $command = new BroadcastTransactionSynchronousCommand($connector);
 Transaction::sign($chainName, $tx, ['posting' => $publicWif]);
 
-$bandwidth = Bandwidth::getBandwidthByAccountName($this->rewardPoolName, 'market', $connector);
+$trxString = mb_strlen(json_encode($tx->getParams()), '8bit');
+Bandwidth::isEnough($connector, $voter, 'market', $trxString);
+
+//or other way
+
+$bandwidth = Bandwidth::getBandwidthByAccountName($voter, 'market', $connector);
 
 //Array
 //(
@@ -447,15 +449,13 @@ $bandwidth = Bandwidth::getBandwidthByAccountName($this->rewardPoolName, 'market
 //    [available] => 148362781
 //)
 
-$trxString = mb_strlen(json_encode($tx->getParams()), '8bit');
-
 if ($trxString * 10 + $bandwidth['used'] < $bandwidth['available']) {
 	$answer = $command->execute(
 		$tx
 	);
 }
 
-
+// 
 
 ```
 
