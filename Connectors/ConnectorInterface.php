@@ -5,6 +5,7 @@ namespace GrapheneNodeClient\Connectors;
 
 interface ConnectorInterface
 {
+    const PLATFORM_VIZ     = 'viz';
     const PLATFORM_GOLOS   = 'golos';
     const PLATFORM_STEEMIT = 'steemit';
 
