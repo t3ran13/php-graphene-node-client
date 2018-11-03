@@ -15,13 +15,15 @@ use t3ran13\ByteBuffer\ByteBuffer;
 
 class Transaction
 {
-    const CHAIN_STEEM = ConnectorInterface::PLATFORM_STEEMIT;
-    const CHAIN_GOLOS = ConnectorInterface::PLATFORM_GOLOS;
-    const CHAIN_VIZ   = ConnectorInterface::PLATFORM_VIZ;
-    const CHAIN_ID    = [
-        self::CHAIN_GOLOS => '782a3039b478c839e4cb0c941ff4eaeb7df40bdd68bd441afd444b9da763de12',
-        self::CHAIN_STEEM => '0000000000000000000000000000000000000000000000000000000000000000',
-        self::CHAIN_VIZ   => '2040effda178d4fffff5eab7a915d4019879f5205cc5392e4bcced2b6edda0cd'
+    const CHAIN_STEEM       = ConnectorInterface::PLATFORM_STEEMIT;
+    const CHAIN_GOLOS       = ConnectorInterface::PLATFORM_GOLOS;
+    const CHAIN_VIZ         = ConnectorInterface::PLATFORM_VIZ;
+    const CHAIN_WHALESHARES = ConnectorInterface::PLATFORM_WHALESHARES;
+    const CHAIN_ID          = [
+        self::CHAIN_GOLOS       => '782a3039b478c839e4cb0c941ff4eaeb7df40bdd68bd441afd444b9da763de12',
+        self::CHAIN_STEEM       => '0000000000000000000000000000000000000000000000000000000000000000',
+        self::CHAIN_VIZ         => '2040effda178d4fffff5eab7a915d4019879f5205cc5392e4bcced2b6edda0cd',
+        self::CHAIN_WHALESHARES => 'de999ada2ff7ed3d3d580381f229b40b5a0261aec48eb830e540080817b72866'
     ];
 
     public static function getChainId($chainName)
@@ -194,7 +196,7 @@ class Transaction
 
         $serializedSig = null;
         $recid = 0;
-        secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $serializedSig, $recid,$signatureRec);
+        secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $serializedSig, $recid, $signatureRec);
 
         $serializedSig = hex2bin(base_convert($recid + 4 + 27, 10, 16)) . $serializedSig;
         $length = strlen($serializedSig);
