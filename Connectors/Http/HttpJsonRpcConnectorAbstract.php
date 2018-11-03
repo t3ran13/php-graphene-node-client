@@ -116,7 +116,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
                     $answerRaw = $this->curlRequest(
                         $currentNodeURL,
                         'post',
-                        json_encode($requestData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                        $requestData,
                         $curlOptions
                     );
 
@@ -231,7 +231,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
             $answerRaw = $this->curlRequest(
                 $this->getCurrentUrl(),
                 'post',
-                json_encode($requestData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                $requestData,
                 $curlOptions
             );
             if ($answerRaw['code'] !== 200) {
@@ -280,7 +280,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
 
         if ($type == 'post') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         } elseif ($type == 'get' && !empty($data)) {
             $temp = parse_url($url);
             if (!empty($temp['query'])) {
@@ -320,6 +320,9 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
         }
         if (!empty($data['host'])) {
             $url .= $data['host'];
+        }
+        if (!empty($data['port'])) {
+            $url .= ':' . $data['port'];
         }
         if (!empty($data['path'])) {
             $url .= $data['path'];
