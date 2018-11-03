@@ -5,9 +5,10 @@ namespace GrapheneNodeClient\Connectors;
 
 interface ConnectorInterface
 {
-    const PLATFORM_VIZ     = 'viz';
-    const PLATFORM_GOLOS   = 'golos';
-    const PLATFORM_STEEMIT = 'steemit';
+    const PLATFORM_GOLOS       = 'golos';
+    const PLATFORM_STEEMIT     = 'steemit';
+    const PLATFORM_VIZ         = 'viz';
+    const PLATFORM_WHALESHARES = 'whaleshares';
 
     const ANSWER_FORMAT_ARRAY  = 'array';
     const ANSWER_FORMAT_OBJECT = 'object';
