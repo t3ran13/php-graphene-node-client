@@ -1,5 +1,5 @@
 # php-graphene-node-client
-PHP client for connection to VIZ/STEEM/GOLOS node
+PHP client for connection to [VIZ](https://github.com/viz-world)/[STEEM](https://github.com/steemit)/[GOLOS](https://github.com/goloschain)/[WHALESHARES](https://gitlab.com/beyondbitcoin) node
 
 
 ## Install Via Composer
@@ -123,7 +123,7 @@ $golosPosts = $commands->get_discussions_by_created()
 - GetAccountsCommand
 - GetAccountVotesCommand
 - GetActiveWitnessesCommand
-- GetApiByNameCommand //ONLY STEEM
+- GetApiByNameCommand //ONLY STEEM/whaleshares
 - GetBlockCommand
 - GetBlockHeaderCommand
 - GetConfigCommand
@@ -138,10 +138,10 @@ $golosPosts = $commands->get_discussions_by_created()
 - GetDynamicGlobalPropertiesCommand
 - GetFollowersCommand
 - GetOpsInBlock
-- GetTrendingCategoriesCommand
+- GetTrendingCategoriesCommand //only steem/whaleshares
 - GetVersionCommand
 - GetWitnessesByVoteCommand
-- LoginCommand //ONLY STEEM
+- LoginCommand //ONLY for STEEM/whaleshares
 
 All single commands can be called through Commands Class as methods (example: (new Commands)->get_block()->execute(...) )
 
@@ -437,7 +437,11 @@ $command = new BroadcastTransactionSynchronousCommand($connector);
 Transaction::sign($chainName, $tx, ['posting' => $publicWif]);
 
 $trxString = mb_strlen(json_encode($tx->getParams()), '8bit');
-Bandwidth::isEnough($connector, $voter, 'market', $trxString);
+if (Bandwidth::isEnough($connector, $voter, 'market', $trxString)) {
+	$answer = $command->execute(
+		$tx
+	);
+}
 
 //or other way
 

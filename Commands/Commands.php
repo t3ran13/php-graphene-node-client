@@ -15,7 +15,7 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
  * @method Commands get_account_votes()
  * @method Commands get_active_votes()
  * @method Commands get_active_witnesses()
- * @method Commands get_api_by_name() ONLY for STEEM
+ * @method Commands get_api_by_name() ONLY for STEEM/whaleshares
  * @method Commands get_block()
  * @method Commands get_block_header()
  * @method Commands get_content()
@@ -29,10 +29,10 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
  * @method Commands get_dynamic_global_properties()
  * @method Commands get_followers()
  * @method Commands get_ops_in_block()
- * @method Commands get_trending_categories() //only steem
+ * @method Commands get_trending_categories() //only steem/whaleshares
  * @method Commands get_version()
  * @method Commands get_witnesses_by_vote()
- * @method Commands login() ONLY for STEEM
+ * @method Commands login() //ONLY for STEEM/whaleshares
  */
 class Commands implements CommandInterface
 {
@@ -150,12 +150,14 @@ class Commands implements CommandInterface
         $platform = $this->connector->getPlatform();
 
         if (!isset(self::$queryDataMap[$platform])) {
-            if ($platform === ConnectorInterface::PLATFORM_VIZ) {
-                $api = VizApiMethods::$map;
-            } elseif ($platform === ConnectorInterface::PLATFORM_GOLOS) {
+            if ($platform === ConnectorInterface::PLATFORM_GOLOS) {
                 $api = GolosApiMethods::$map;
             } elseif ($platform === ConnectorInterface::PLATFORM_STEEMIT) {
                 $api = SteemitApiMethods::$map;
+            } elseif ($platform === ConnectorInterface::PLATFORM_VIZ) {
+                $api = VizApiMethods::$map;
+            } elseif ($platform === ConnectorInterface::PLATFORM_WHALESHARES) {
+                $api = WhalesharesApiMethods::$map;
             } else {
                 throw new \Exception('There is no api');
             }
