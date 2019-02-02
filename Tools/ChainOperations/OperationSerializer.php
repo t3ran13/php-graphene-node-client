@@ -52,6 +52,12 @@ class OperationSerializer
             'required_posting_auths' => self::TYPE_SET_STRING,
             'id'                     => self::TYPE_STRING,
             'json'                   => self::TYPE_STRING
+        ],
+        ChainOperations::OPERATION_CUSTOM => [//only for VIZ
+            'required_auths'         => self::TYPE_SET_STRING,
+            'required_posting_auths' => self::TYPE_SET_STRING,
+            'id'                     => self::TYPE_STRING,
+            'json'                   => self::TYPE_STRING
         ]
     ];
 

@@ -10,6 +10,7 @@ class ChainOperations
     const OPERATION_CONTENT     = 'content'; //only for VIZ
     const OPERATION_TRANSFER    = 'transfer';
     const OPERATION_CUSTOM_JSON = 'custom_json';
+    const OPERATION_CUSTOM      = 'custom';//only for VIZ
 
     const OPERATIONS_IDS = [
         self::OPERATION_VOTE        => 0,
