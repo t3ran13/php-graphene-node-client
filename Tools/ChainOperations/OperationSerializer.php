@@ -30,17 +30,6 @@ class OperationSerializer
             'body'             => self::TYPE_STRING,
             'json_metadata'    => self::TYPE_STRING
         ],
-        ChainOperations::OPERATION_CONTENT     => [//only for VIZ
-            'parent_author'    => self::TYPE_STRING,
-            'parent_permlink'  => self::TYPE_STRING,
-            'author'           => self::TYPE_STRING,
-            'permlink'         => self::TYPE_STRING,
-            'title'            => self::TYPE_STRING,
-            'body'             => self::TYPE_STRING,
-            'curation_percent' => self::TYPE_INT16,
-            'json_metadata'    => self::TYPE_STRING,
-            'extensions'       => self::TYPE_SET_EXTENSIONS
-        ],
         ChainOperations::OPERATION_TRANSFER    => [
             'from'   => self::TYPE_STRING,
             'to'     => self::TYPE_STRING,
