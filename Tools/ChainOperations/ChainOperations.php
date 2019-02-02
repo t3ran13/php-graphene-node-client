@@ -16,7 +16,7 @@ class ChainOperations
         self::OPERATION_COMMENT     => 1,//STEEM/GOLOS/whaleshares
         self::OPERATION_TRANSFER    => 2,
         self::OPERATION_CUSTOM_JSON => 18,
-        self::OPERATION_CUSTOM      => 18//only for VIZ
+        self::OPERATION_CUSTOM      => 10//only for VIZ
     ];
 
     /**
