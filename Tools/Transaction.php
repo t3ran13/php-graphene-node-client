@@ -97,7 +97,7 @@ class Transaction
 
         //serialize transaction
         $trxParams = $trxData->getParams();
-        $serBuffer = OperationSerializer::serializeTransaction($trxParams, new ByteBuffer());
+        $serBuffer = OperationSerializer::serializeTransaction($chainName, $trxParams, new ByteBuffer());
         $serializedTx = self::getChainId($chainName) . bin2hex($serBuffer->read(0, $serBuffer->length()));
 
         return $serializedTx;

@@ -6,13 +6,13 @@ use t3ran13\ByteBuffer\ByteBuffer;
 
 class OperationSerializer
 {
-    const TYPE_SET_EXTENSIONS   = 'set_extensions';
-    const TYPE_SET_BENEFICIARIES= 'set_beneficiaries';
-    const TYPE_BENEFICIARY      = 'set_beneficiary';
-    const TYPE_SET_STRING       = 'set_string';
-    const TYPE_STRING           = 'string';
-    const TYPE_INT16            = 'int16';
-    const TYPE_ASSET            = 'asset';
+    const TYPE_SET_EXTENSIONS    = 'set_extensions';
+    const TYPE_SET_BENEFICIARIES = 'set_beneficiaries';
+    const TYPE_BENEFICIARY       = 'set_beneficiary';
+    const TYPE_SET_STRING        = 'set_string';
+    const TYPE_STRING            = 'string';
+    const TYPE_INT16             = 'int16';
+    const TYPE_ASSET             = 'asset';
 
     const OPERATIONS_FIELDS_TYPES = [
         ChainOperations::OPERATION_VOTE        => [
@@ -22,13 +22,13 @@ class OperationSerializer
             'weight'   => self::TYPE_INT16
         ],
         ChainOperations::OPERATION_COMMENT     => [//STEEM/GOLOS
-            'parent_author'    => self::TYPE_STRING,
-            'parent_permlink'  => self::TYPE_STRING,
-            'author'           => self::TYPE_STRING,
-            'permlink'         => self::TYPE_STRING,
-            'title'            => self::TYPE_STRING,
-            'body'             => self::TYPE_STRING,
-            'json_metadata'    => self::TYPE_STRING
+            'parent_author'   => self::TYPE_STRING,
+            'parent_permlink' => self::TYPE_STRING,
+            'author'          => self::TYPE_STRING,
+            'permlink'        => self::TYPE_STRING,
+            'title'           => self::TYPE_STRING,
+            'body'            => self::TYPE_STRING,
+            'json_metadata'   => self::TYPE_STRING
         ],
         ChainOperations::OPERATION_TRANSFER    => [
             'from'   => self::TYPE_STRING,
@@ -42,7 +42,7 @@ class OperationSerializer
             'id'                     => self::TYPE_STRING,
             'json'                   => self::TYPE_STRING
         ],
-        ChainOperations::OPERATION_CUSTOM => [//only for VIZ
+        ChainOperations::OPERATION_CUSTOM      => [//only for VIZ
             'required_auths'         => self::TYPE_SET_STRING,
             'required_posting_auths' => self::TYPE_SET_STRING,
             'id'                     => self::TYPE_STRING,
@@ -51,12 +51,13 @@ class OperationSerializer
     ];
 
     /**
+     * @param string      $chainName
      * @param array       $trxParams
      * @param null|Buffer $byteBuffer
      *
      * @return null|string|Buffer
      */
-    public static function serializeTransaction($trxParams, $byteBuffer = null)
+    public static function serializeTransaction($chainName, $trxParams, $byteBuffer = null)
     {
         $buffer = $byteBuffer === null ? (new ByteBuffer()) : $byteBuffer;
 
@@ -70,7 +71,7 @@ class OperationSerializer
         //serialize only operations data
         foreach ($trxParams[0]['operations'] as $operation) {
             $opData = $operation[1];
-            self::serializeOperation($operation[0], $opData, $buffer);
+            self::serializeOperation($chainName, $operation[0], $opData, $buffer);
         }
 
 
@@ -84,16 +85,17 @@ class OperationSerializer
 
 
     /**
+     * @param string     $chainName
      * @param string     $operationName
      * @param array      $data
      * @param ByteBuffer $byteBuffer
      *
      * @return ByteBuffer
      */
-    public static function serializeOperation($operationName, $data, $byteBuffer)
+    public static function serializeOperation($chainName, $operationName, $data, $byteBuffer)
     {
         //operation id
-        $opId = ChainOperations::getOperationId($operationName);
+        $opId = ChainOperations::getOperationId($chainName, $operationName);
         $byteBuffer->writeInt8($opId);
 
         foreach (self::OPERATIONS_FIELDS_TYPES[$operationName] as $field => $type) {
@@ -119,14 +121,13 @@ class OperationSerializer
 
             if ($strLength <= 128) {
                 $byteBuffer->writeInt8($strLength);
-            }
-            elseif ($strLength <= 16511) {
+            } elseif ($strLength <= 16511) {
                 $strLength = ceil($strLength / 128) * 256
                     + ($strLength - ceil($strLength / 128) * 128);
                 $byteBuffer->writeInt16LE($strLength);
             } else {
                 $n3 = ceil($strLength / (128 * 128));
-                $n2 = ceil(($strLength - $n3*128*128) / 128);
+                $n2 = ceil(($strLength - $n3 * 128 * 128) / 128);
                 $strLength = $n3 * 256 * 256
                     + $n2 * 256
                     + ($strLength - $n3 * 128 * 128 - $n2 * 128);
