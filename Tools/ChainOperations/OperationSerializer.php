@@ -15,6 +15,7 @@ class OperationSerializer
     const TYPE_INT16             = 'int16';
     const TYPE_ASSET             = 'asset';
     const TYPE_BOOL              = 'bool';
+    const TYPE_INT8              = 'int8';
 
     /** @var array */
     protected static $opFieldsMap = [];
@@ -174,13 +175,17 @@ class OperationSerializer
                 }
             }
         } elseif ($type === self::TYPE_SET_BENEFICIARIES) {
-            $byteBuffer->writeInt8(count($value));
+            $byteBuffer->writeInt8(count($value['beneficiaries']));
             foreach ($value['beneficiaries'] as $beneficiary) {
                 self::serializeType(self::TYPE_BENEFICIARY, $beneficiary, $byteBuffer);
             }
         } elseif ($type === self::TYPE_BENEFICIARY) {
             self::serializeType(self::TYPE_STRING, $value['account'], $byteBuffer);
             self::serializeType(self::TYPE_INT16, $value['weight'], $byteBuffer);
+        } elseif ($type === self::TYPE_INT8) {
+            $byteBuffer->writeInt8($value);
+        } elseif ($type === self::TYPE_BOOL) {
+            self::serializeType(self::TYPE_INT8, $value ? 1 : 0, $byteBuffer);
         }
 
         return $byteBuffer;
