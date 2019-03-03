@@ -138,6 +138,7 @@ $golosPosts = $commands->get_discussions_by_created()
 - GetDynamicGlobalPropertiesCommand
 - GetFollowersCommand
 - GetOpsInBlock
+- GetTransactionHexCommand
 - GetTrendingCategoriesCommand //only steem/whaleshares
 - GetVersionCommand
 - GetWitnessesByVoteCommand
