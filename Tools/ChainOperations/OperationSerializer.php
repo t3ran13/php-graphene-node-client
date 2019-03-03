@@ -2,6 +2,7 @@
 
 namespace GrapheneNodeClient\Tools\ChainOperations;
 
+use GrapheneNodeClient\Connectors\ConnectorInterface;
 use t3ran13\ByteBuffer\ByteBuffer;
 
 class OperationSerializer
@@ -13,42 +14,10 @@ class OperationSerializer
     const TYPE_STRING            = 'string';
     const TYPE_INT16             = 'int16';
     const TYPE_ASSET             = 'asset';
+    const TYPE_BOOL              = 'bool';
 
-    const OPERATIONS_FIELDS_TYPES = [
-        ChainOperations::OPERATION_VOTE        => [
-            'voter'    => self::TYPE_STRING,
-            'author'   => self::TYPE_STRING,
-            'permlink' => self::TYPE_STRING,
-            'weight'   => self::TYPE_INT16
-        ],
-        ChainOperations::OPERATION_COMMENT     => [//STEEM/GOLOS
-            'parent_author'   => self::TYPE_STRING,
-            'parent_permlink' => self::TYPE_STRING,
-            'author'          => self::TYPE_STRING,
-            'permlink'        => self::TYPE_STRING,
-            'title'           => self::TYPE_STRING,
-            'body'            => self::TYPE_STRING,
-            'json_metadata'   => self::TYPE_STRING
-        ],
-        ChainOperations::OPERATION_TRANSFER    => [
-            'from'   => self::TYPE_STRING,
-            'to'     => self::TYPE_STRING,
-            'amount' => self::TYPE_ASSET,
-            'memo'   => self::TYPE_STRING
-        ],
-        ChainOperations::OPERATION_CUSTOM_JSON => [
-            'required_auths'         => self::TYPE_SET_STRING,
-            'required_posting_auths' => self::TYPE_SET_STRING,
-            'id'                     => self::TYPE_STRING,
-            'json'                   => self::TYPE_STRING
-        ],
-        ChainOperations::OPERATION_CUSTOM      => [//only for VIZ
-            'required_auths'         => self::TYPE_SET_STRING,
-            'required_posting_auths' => self::TYPE_SET_STRING,
-            'id'                     => self::TYPE_STRING,
-            'json'                   => self::TYPE_STRING
-        ]
-    ];
+    /** @var array */
+    protected static $opFieldsMap = [];
 
     /**
      * @param string      $chainName
@@ -56,6 +25,7 @@ class OperationSerializer
      * @param null|Buffer $byteBuffer
      *
      * @return null|string|Buffer
+     * @throws \Exception
      */
     public static function serializeTransaction($chainName, $trxParams, $byteBuffer = null)
     {
@@ -77,7 +47,7 @@ class OperationSerializer
 
         $buffer->writeInt8(count($trxParams[0]['extensions']));
         foreach ($trxParams[0]['extensions'] as $extansion) {
-            //will be needed for benefeciars
+            //is it used anywhere?
         }
 
         return $byteBuffer === null ? $buffer->getBuffer('H', 0, $buffer->getCurrentOffset()) : $byteBuffer;
@@ -91,6 +61,7 @@ class OperationSerializer
      * @param ByteBuffer $byteBuffer
      *
      * @return ByteBuffer
+     * @throws \Exception
      */
     public static function serializeOperation($chainName, $operationName, $data, $byteBuffer)
     {
@@ -98,11 +69,43 @@ class OperationSerializer
         $opId = ChainOperations::getOperationId($chainName, $operationName);
         $byteBuffer->writeInt8($opId);
 
-        foreach (self::OPERATIONS_FIELDS_TYPES[$operationName] as $field => $type) {
+        foreach (self::getOpFieldsTypes($chainName, $operationName) as $field => $type) {
             self::serializeType($type, $data[$field], $byteBuffer);
         }
 
         return $byteBuffer;
+    }
+
+
+    /**
+     * @param string $chainName
+     * @param string $operationName
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function getOpFieldsTypes($chainName, $operationName)
+    {
+        if (!isset(self::$opFieldsMap[$chainName])) {
+            if ($chainName === ConnectorInterface::PLATFORM_GOLOS) {
+                $op = ChainOperationsGolos::FIELDS_TYPES;
+            } elseif ($chainName === ConnectorInterface::PLATFORM_STEEMIT) {
+                $op = ChainOperationsSteem::FIELDS_TYPES;
+            } elseif ($chainName === ConnectorInterface::PLATFORM_VIZ) {
+                $op = ChainOperationsViz::FIELDS_TYPES;
+            } elseif ($chainName === ConnectorInterface::PLATFORM_WHALESHARES) {
+                $op = ChainOperationsWhaleshares::FIELDS_TYPES;
+            } else {
+                throw new \Exception("There is no operations fields for '{$chainName}'");
+            }
+            self::$opFieldsMap[$chainName] = $op;
+        }
+
+        if (!isset(self::$opFieldsMap[$chainName][$operationName])) {
+            throw new \Exception("There is no information about fields of operation:'{$operationName}'. Please add fields for this operation");
+        }
+
+        return self::$opFieldsMap[$chainName][$operationName];
     }
 
 
@@ -112,6 +115,7 @@ class OperationSerializer
      * @param ByteBuffer $byteBuffer
      *
      * @return mixed
+     * @throws \Exception
      */
     public static function serializeType($type, $value, $byteBuffer)
     {
@@ -165,6 +169,8 @@ class OperationSerializer
                 $byteBuffer->writeInt8($extension[0]);
                 if ($extension[0] === 0) {
                     self::serializeType(self::TYPE_SET_BENEFICIARIES, $extension[1], $byteBuffer);
+                } else {
+                    throw new \Exception("There is no serializer logic for '{$extension[0]}' extension");
                 }
             }
         } elseif ($type === self::TYPE_SET_BENEFICIARIES) {

@@ -28,13 +28,13 @@ class ChainOperations
     {
         if (!isset(self::$opMap[$chainName])) {
             if ($chainName === ConnectorInterface::PLATFORM_GOLOS) {
-                $op = ChainOperationsGolos::OP_IDS;
+                $op = ChainOperationsGolos::IDS;
             } elseif ($chainName === ConnectorInterface::PLATFORM_STEEMIT) {
-                $op = ChainOperationsSteem::OP_IDS;
+                $op = ChainOperationsSteem::IDS;
             } elseif ($chainName === ConnectorInterface::PLATFORM_VIZ) {
-                $op = ChainOperationsViz::OP_IDS;
+                $op = ChainOperationsViz::IDS;
             } elseif ($chainName === ConnectorInterface::PLATFORM_WHALESHARES) {
-                $op = ChainOperationsWhaleshares::OP_IDS;
+                $op = ChainOperationsWhaleshares::IDS;
             } else {
                 throw new \Exception("There is no operations id's for '{$chainName}'");
             }
