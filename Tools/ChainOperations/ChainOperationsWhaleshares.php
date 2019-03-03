@@ -8,7 +8,10 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
 class ChainOperationsWhaleshares
 {
     const OP_IDS = [
-        self::OPERATION_TRANSFER    => 2,
-        self::OPERATION_CUSTOM      => 10
+        ChainOperations::OPERATION_VOTE            => 0,
+        ChainOperations::OPERATION_COMMENT         => 1,
+        ChainOperations::OPERATION_COMMENT_OPTIONS => 19,
+        ChainOperations::OPERATION_TRANSFER        => 2,
+        ChainOperations::OPERATION_CUSTOM_JSON     => 18,
     ];
 }
