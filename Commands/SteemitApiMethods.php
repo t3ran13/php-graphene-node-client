@@ -102,6 +102,14 @@ class SteemitApiMethods
                 '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
             ]
         ],
+        'get_discussions_by_comments'               => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '*:limit'          => ['integer'], //'limit'
+                '*:start_author'   => ['nullOrString'], //'start_author' for pagination,
+                '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
+            ]
+        ],
         'get_discussions_by_created'            => [
             'apiName' => 'database_api',
             'fields'  => [
@@ -134,11 +142,28 @@ class SteemitApiMethods
             'fields'  => [
             ]
         ],
+        'get_feed_history'         => [
+            'apiName' => 'witness_api',
+            'fields'  => [
+            ]
+        ],
+        'get_follow_count'                         => [
+            'apiName' => 'follow_api',
+            'fields'  => [
+                '0' => ['string'], //author
+            ]
+        ],
         'get_ops_in_block'                      => [
             'apiName' => 'database_api',
             'fields'  => [
                 '0' => ['integer'], //blockNum
                 '1' => ['bool'], //onlyVirtual
+            ]
+        ],
+        'get_reward_fund'                          => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '0' => ['string'], //post or comments
             ]
         ],
         'get_trending_categories'               => [
