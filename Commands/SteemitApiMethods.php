@@ -214,6 +214,11 @@ class SteemitApiMethods
                 '0' => ['string'], //'api_name',for example follow_api, database_api, login_api and ect.
             ]
         ],
+        'get_ticker'                           => [
+            'apiName' => 'market_history',
+            'fields'  => [
+            ]
+        ],
         'broadcast_transaction'                 => [
             'apiName' => 'network_broadcast_api',
             'fields'  => [

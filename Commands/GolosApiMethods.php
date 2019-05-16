@@ -211,6 +211,11 @@ class GolosApiMethods
             'fields'  => [
             ]
         ],
+        'get_ticker'                           => [
+            'apiName' => 'market_history',
+            'fields'  => [
+            ]
+        ],
         'broadcast_transaction'                 => [
             'apiName' => 'network_broadcast_api',
             'fields'  => [
