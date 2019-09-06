@@ -1,5 +1,5 @@
 # php-graphene-node-client
-PHP client for connection to [VIZ](https://github.com/viz-world)/[STEEM](https://github.com/steemit)/[GOLOS](https://github.com/goloschain)/[WHALESHARES](https://gitlab.com/beyondbitcoin) node
+PHP client for connection to [VIZ](https://github.com/viz-blockchain)/[STEEM](https://github.com/steemit)/[GOLOS](https://github.com/goloschain)/[WHALESHARES](https://gitlab.com/beyondbitcoin) node
 
 
 ## Install Via Composer
