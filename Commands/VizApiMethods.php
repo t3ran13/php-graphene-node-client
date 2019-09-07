@@ -180,6 +180,12 @@ class VizApiMethods
                 '3' => ['integer'], //limit
             ]
         ],
+        'get_follow_count'                         => [
+            'apiName' => 'follow',
+            'fields'  => [
+                '0' => ['string'], //author
+            ]
+        ],
         'broadcast_transaction'                 => [
             'apiName' => 'network_broadcast_api',
             'fields'  => [

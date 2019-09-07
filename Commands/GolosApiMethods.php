@@ -111,6 +111,16 @@ class GolosApiMethods
                 '*:parent_permlink'  => ['nullOrString'] //the permlink of parent discussion
             ]
         ],
+        'get_discussions_by_comments'               => [
+            'apiName' => 'tags',
+            'fields'  => [
+                '*:limit'            => ['integer'], //the discussions return amount top limit
+                '*:truncate_body'    => ['nullOrInteger'], //the amount of bytes of the post body to return, 0 for all
+                '*:start_author'     => ['nullOrString'], //the author of discussion to start searching from
+                '*:start_permlink'   => ['nullOrString'], //the permlink of discussion to start searching from
+                '*:voteLimit' => ['nullOrInteger'] //voteLimit by default 10 000
+            ]
+        ],
         'get_discussions_by_created'            => [
             'apiName' => 'tags',
             'fields'  => [
@@ -155,6 +165,11 @@ class GolosApiMethods
             'fields'  => [
             ]
         ],
+        'get_feed_history'         => [
+            'apiName' => 'witness_api',
+            'fields'  => [
+            ]
+        ],
         'get_ops_in_block'                      => [
             'apiName' => 'operation_history',
             'fields'  => [
@@ -185,8 +200,19 @@ class GolosApiMethods
                 '3' => ['integer'], //limit
             ]
         ],
+        'get_follow_count'                         => [
+            'apiName' => 'follow',
+            'fields'  => [
+                '0' => ['string'], //author
+            ]
+        ],
         'get_version'                           => [
             'apiName' => 'login_api',
+            'fields'  => [
+            ]
+        ],
+        'get_ticker'                           => [
+            'apiName' => 'market_history',
             'fields'  => [
             ]
         ],
