@@ -53,6 +53,10 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      */
     protected $maxNumberOfTriesToCallApi = 3;
 
+    /**
+     * list of connectors by connector name
+     * @var Client[]
+     */
     protected static $connection;
     protected static $currentId;
 
@@ -150,11 +154,14 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      */
     public function getConnection()
     {
-        if (self::$connection === null) {
+        if (
+            !isset(self::$connection[static::class])
+            || self::$connection[static::class] === null
+        ) {
             $this->newConnection($this->getCurrentUrl());
         }
 
-        return self::$connection;
+        return self::$connection[static::class];
     }
 
     /**
@@ -164,17 +171,17 @@ abstract class WSConnectorAbstract implements ConnectorInterface
      */
     public function newConnection($nodeUrl)
     {
-        self::$connection = new Client($nodeUrl, ['timeout' => $this->wsTimeoutSeconds]);
+        self::$connection[static::class] = new Client($nodeUrl, ['timeout' => $this->wsTimeoutSeconds]);
 
-        return self::$connection;
+        return self::$connection[static::class];
     }
 
     public function getCurrentUrl()
     {
         if (
-            !isset(static::$currentNodeURL[$this->getPlatform()])
-            || static::$currentNodeURL[$this->getPlatform()] === null
-            || !in_array(static::$currentNodeURL[$this->getPlatform()], static::$nodeURL)
+            !isset(static::$currentNodeURL[static::class])
+            || static::$currentNodeURL[static::class] === null
+            || !in_array(static::$currentNodeURL[static::class], static::$nodeURL)
         ) {
             if (is_array(static::$nodeURL)) {
                 $this->reserveNodeUrlList = static::$nodeURL;
@@ -183,10 +190,10 @@ abstract class WSConnectorAbstract implements ConnectorInterface
                 $url = static::$nodeURL;
             }
 
-            static::$currentNodeURL[$this->getPlatform()] = $url;
+            static::$currentNodeURL[static::class] = $url;
         }
 
-        return static::$currentNodeURL[$this->getPlatform()];
+        return static::$currentNodeURL[static::class];
     }
 
     public function isExistReserveNodeUrl()
@@ -196,7 +203,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
 
     protected function setReserveNodeUrlToCurrentUrl()
     {
-        static::$currentNodeURL[$this->getPlatform()] = array_shift($this->reserveNodeUrlList);
+        static::$currentNodeURL[static::class] = array_shift($this->reserveNodeUrlList);
     }
 
     public function connectToReserveNode()
@@ -211,11 +218,14 @@ abstract class WSConnectorAbstract implements ConnectorInterface
 
     public function getCurrentId()
     {
-        if (self::$currentId === null) {
-            self::$currentId = 1;
+        if (
+            !isset(self::$currentId[static::class])
+            || self::$currentId[static::class] === null
+        ) {
+            self::$currentId[static::class] = 1;
         }
 
-        return self::$currentId;
+        return self::$currentId[static::class];
     }
 
     public function getPlatform()
@@ -225,7 +235,7 @@ abstract class WSConnectorAbstract implements ConnectorInterface
 
     public function setCurrentId($id)
     {
-        self::$currentId = $id;
+        self::$currentId[static::class] = $id;
     }
 
     public function getNextId()

@@ -141,9 +141,9 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
     public function getCurrentUrl()
     {
         if (
-            !isset(static::$currentNodeURL[$this->getPlatform()])
-            || static::$currentNodeURL[$this->getPlatform()] === null
-            || !in_array(static::$currentNodeURL[$this->getPlatform()], static::$nodeURL)
+            !isset(static::$currentNodeURL[static::class])
+            || static::$currentNodeURL[static::class] === null
+            || !in_array(static::$currentNodeURL[static::class], static::$nodeURL)
         ) {
             if (is_array(static::$nodeURL)) {
                 $url = array_values(static::$nodeURL)[0];
@@ -151,10 +151,10 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
                 $url = static::$nodeURL;
             }
 
-            static::$currentNodeURL[$this->getPlatform()] = $url;
+            static::$currentNodeURL[static::class] = $url;
         }
 
-        return static::$currentNodeURL[$this->getPlatform()];
+        return static::$currentNodeURL[static::class];
     }
 
     protected function setReserveNodeUrlToCurrentUrl()
@@ -163,9 +163,9 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
         foreach (static::$nodeURL as $key => $node) {
             if ($node === $this->getCurrentUrl()) {
                 if ($key + 1 < $totalNodes) {
-                    static::$currentNodeURL[$this->getPlatform()] = static::$nodeURL[$key + 1];
+                    static::$currentNodeURL[static::class] = static::$nodeURL[$key + 1];
                 } else {
-                    static::$currentNodeURL[$this->getPlatform()] = static::$nodeURL[0];
+                    static::$currentNodeURL[static::class] = static::$nodeURL[0];
                 }
                 break;
             }
@@ -174,11 +174,14 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
 
     public function getCurrentId()
     {
-        if (self::$currentId === null) {
-            self::$currentId = 1;
+        if (
+            !isset(self::$currentId[static::class])
+            || self::$currentId[static::class] === null
+        ) {
+            self::$currentId[static::class] = 1;
         }
 
-        return self::$currentId;
+        return self::$currentId[static::class];
     }
 
     public function getPlatform()
@@ -188,7 +191,7 @@ abstract class HttpJsonRpcConnectorAbstract implements ConnectorInterface
 
     public function setCurrentId($id)
     {
-        self::$currentId = $id;
+        self::$currentId[static::class] = $id;
     }
 
     public function getNextId()
