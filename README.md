@@ -8,7 +8,7 @@ PHP client for connection to [VIZ](https://github.com/viz-blockchain)/[STEEM](ht
 composer require t3ran13/php-graphene-node-client
 ```
 #### with broadcast (sending transactions to blockchain)
-actual dockerfile and requests examples see in branch ["debug"]()https://github.com/t3ran13/php-graphene-node-client/tree/debug)
+actual dockerfile and requests examples see in branch ["debug"](https://github.com/t3ran13/php-graphene-node-client/tree/debug)
 
 install components
 - libgmp-dev
