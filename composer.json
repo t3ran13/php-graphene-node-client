@@ -13,9 +13,9 @@
     "require": {
         "php": "^7.0",
         "textalk/websocket": "^1.2",
-        "bitwasp/secp256k1-php": "^0.1.2",
         "stephenhill/base58": "^1.1",
-        "t3ran13/bytebuffer": "^1.0"
+        "t3ran13/bytebuffer": "^1.0",
+        "simplito/elliptic-php": "^1.0"
     },
     "autoload": {
         "psr-4": { "GrapheneNodeClient\\": "" }

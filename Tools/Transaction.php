@@ -4,11 +4,12 @@
 namespace GrapheneNodeClient\Tools;
 
 
+use Elliptic\EC;
+use Elliptic\EC\Signature;
 use GrapheneNodeClient\Commands\CommandQueryData;
 use GrapheneNodeClient\Commands\CommandQueryDataInterface;
 use GrapheneNodeClient\Commands\Single\GetBlockCommand;
 use GrapheneNodeClient\Commands\Single\GetDynamicGlobalPropertiesCommand;
-use GrapheneNodeClient\Commands\Single\LoginCommand;
 use GrapheneNodeClient\Connectors\ConnectorInterface;
 use GrapheneNodeClient\Tools\ChainOperations\OperationSerializer;
 use t3ran13\ByteBuffer\ByteBuffer;
@@ -152,6 +153,64 @@ class Transaction
     }
 
 
+//    /**
+//     * @param string $msg serialized Tx with prefix chain id
+//     * @param string $privateWif
+//     *
+//     * @return string hex
+//     * @throws \Exception
+//     */
+//    protected static function signOperation($msg, $privateWif)
+//    {
+//        $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+//
+//        $msg32 = hash('sha256', hex2bin($msg), true);
+//        $privateKey = Auth::PrivateKeyFromWif($privateWif);
+//
+//        /** @var resource $signature */
+//        $signatureRec = null;
+//        $i = 0;
+//        while (true) {
+//            if ($i === 1) {
+//                //sing always the same
+//                throw new TransactionSignException("Can't to find canonical signature, {$i} ties");
+//            }
+//            $i++;
+////            echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
+//            if (secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) !== 1) {
+//                throw new TransactionSignException("Failed to create recoverable signature");
+//            }
+//
+//            $signature = null;
+//            if (secp256k1_ecdsa_recoverable_signature_convert($context, $signature, $signatureRec) !== 1) {
+//                throw new TransactionSignException("Failed to create signature");
+//            }
+//            $der = null;
+//            if (secp256k1_ecdsa_signature_serialize_der($context, $der, $signature) !== 1) {
+//                throw new TransactionSignException("Failed to create DER");
+//            }
+////            echo "\n" . print_r(bin2hex($der), true) . '<pre>'; //FIXME delete it
+//
+//            echo PHP_EOL . 'der 1: ' . print_r(bin2hex($der), true) . ''; //FIXME delete it
+//            if (self::isSignatureCanonical($der)) {
+//                break;
+//            }
+//        }
+//
+//        $serializedSig = null;
+//        $recid = 0;
+//        secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $serializedSig, $recid, $signatureRec);
+//        echo PHP_EOL . 'serializedSig 1: ' . print_r(bin2hex($serializedSig), true) . ''; //FIXME delete it
+//        $serializedSig = hex2bin(base_convert($recid + 4 + 27, 10, 16)) . $serializedSig;
+//        $length = strlen($serializedSig);
+//        if ($length !== 65) {
+//            throw new \Exception('Expecting 65 bytes for Tx signature, instead got ' . $length);
+//        }
+//
+//        return bin2hex($serializedSig);
+//    }
+
+
     /**
      * @param string $msg serialized Tx with prefix chain id
      * @param string $privateWif
@@ -161,13 +220,12 @@ class Transaction
      */
     protected static function signOperation($msg, $privateWif)
     {
-        $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+        $ec = new EC('secp256k1');
 
-        $msg32 = hash('sha256', hex2bin($msg), true);
-        $privateKey = Auth::PrivateKeyFromWif($privateWif);
+        $msg32Hex = hash('sha256', hex2bin($msg), false);
+        $privateKeyHex = bin2hex(Auth::PrivateKeyFromWif($privateWif));
+        $key = $ec->keyFromPrivate($privateKeyHex, 'hex');
 
-        /** @var resource $signature */
-        $signatureRec = null;
         $i = 0;
         while (true) {
             if ($i === 1) {
@@ -175,36 +233,28 @@ class Transaction
                 throw new TransactionSignException("Can't to find canonical signature, {$i} ties");
             }
             $i++;
-//            echo "\n i=" . print_r($i, true) . '<pre>'; //FIXME delete it
-            if (secp256k1_ecdsa_sign_recoverable($context, $signatureRec, $msg32, $privateKey) !== 1) {
-                throw new TransactionSignException("Failed to create recoverable signature");
-            }
 
-            $signature = null;
-            if (secp256k1_ecdsa_recoverable_signature_convert($context, $signature, $signatureRec) !== 1) {
-                throw new TransactionSignException("Failed to create signature");
-            }
-            $der = null;
-            if (secp256k1_ecdsa_signature_serialize_der($context, $der, $signature) !== 1) {
-                throw new TransactionSignException("Failed to create DER");
-            }
-//            echo "\n" . print_r(bin2hex($der), true) . '<pre>'; //FIXME delete it
-            if (self::isSignatureCanonical($der)) {
+            $signature = $key->sign($msg32Hex, 'hex', ['canonical' => true]);
+            /** @var Signature $signature*/
+
+
+            $der = $signature->toDER('hex');
+            if (self::isSignatureCanonical(hex2bin($der))) {
                 break;
             }
         }
 
-        $serializedSig = null;
-        $recid = 0;
-        secp256k1_ecdsa_recoverable_signature_serialize_compact($context, $serializedSig, $recid, $signatureRec);
+        $recid = $ec->getKeyRecoveryParam($msg32Hex, $signature, $key->getPublic());
 
-        $serializedSig = hex2bin(base_convert($recid + 4 + 27, 10, 16)) . $serializedSig;
+        $compactSign = $signature->r->toString(16) . $signature->s->toString(16);
+        $serializedSig = base_convert($recid + 4 + 27, 10, 16) . $compactSign;
+
         $length = strlen($serializedSig);
-        if ($length !== 65) {
+        if ($length !== 130) { //65 symbols
             throw new \Exception('Expecting 65 bytes for Tx signature, instead got ' . $length);
         }
 
-        return bin2hex($serializedSig);
+        return $serializedSig;
     }
 
 
@@ -217,12 +267,8 @@ class Transaction
     {
         $buffer = new ByteBuffer();
         $buffer->write($der);
-//        lenR = der[3];
-//        lenS = der[5 + lenR];
-//        if (lenR === 32 && lenS === 32) {
         $lenR = $buffer->readInt8(3);
         $lenS = $buffer->readInt8(5 + $lenR);
-//        echo "\n" . var_dump($lenR, $lenS) . '<pre>'; //FIXME delete it
 
         return $lenR === 32 && $lenS === 32;
     }
