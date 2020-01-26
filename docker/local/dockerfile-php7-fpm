@@ -1,38 +1,17 @@
 # our base image
-FROM php:7.1-fpm
+FROM php:7.0-fpm
 
 
 #install zip extension for composer
 RUN apt-get update && apt-get install -y \
     zip \
-    automake \
-    libtool \
     libgmp-dev \
+    && pecl install xdebug-2.6.0 \
+    && docker-php-ext-enable xdebug \
     && docker-php-ext-install gmp
 
 #install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-#install secp256k1-php
-RUN  cd ~  && \
-    curl -#L https://github.com/bitcoin-core/secp256k1/archive/master.zip > file.zip && \
-    unzip file.zip && \
-    rm file.zip && \
-    cd secp256k1-master && \
-    ./autogen.sh && \
-    ./configure --enable-experimental --enable-module-ecdh --enable-module-recovery && \
-    make && \
-    make install
-RUN  cd ~  && \
-    curl -#L https://github.com/Bit-Wasp/secp256k1-php/archive/v0.2.1.zip > file.zip && \
-    unzip file.zip && \
-    rm file.zip && \
-    cd secp256k1-php-0.2.1/secp256k1 && \
-    phpize && \
-    ./configure --with-secp256k1 && \
-    make && \
-    make install
-RUN echo "extension=secp256k1.so" > /usr/local/etc/php/conf.d/secp256k1.ini
 
 RUN chown -R www-data:www-data /var/www
 
