@@ -60,6 +60,11 @@ class WhalesharesApiMethods
                 '0' => ['integer'], //block_id
             ]
         ],
+        'get_chain_properties'         => [
+            'apiName' => 'database_api',
+            'fields'  => [
+            ]
+        ],
         'get_config'                   => [
             'apiName' => 'database_api',
             'fields'  => [
