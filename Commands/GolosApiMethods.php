@@ -257,5 +257,14 @@ class GolosApiMethods
                 '0:signatures'       => ['array']
             ]
         ],
+        'get_vesting_delegations'                 => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '0' => ['string'], //account
+                '1' => ['integer'], //from
+                '2' => ['integer'], //limit <= 100
+                '3' => ['string'], //type //receive, delegated
+            ]
+        ],
     ];
 }
