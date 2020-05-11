@@ -196,6 +196,12 @@ class GolosApiMethods
                 '1' => ['integer'] //limit
             ]
         ],
+        'get_witness_by_account'                 => [
+            'apiName' => 'witness_api',
+            'fields'  => [
+                '0' => ['string'] //account
+            ]
+        ],
         'get_followers'                         => [
             'apiName' => 'follow',
             'fields'  => [
@@ -261,7 +267,7 @@ class GolosApiMethods
             'apiName' => 'database_api',
             'fields'  => [
                 '0' => ['string'], //account
-                '1' => ['integer'], //from
+                '1' => ['string'], //from
                 '2' => ['integer'], //limit <= 100
                 '3' => ['string'], //type //receive, delegated
             ]

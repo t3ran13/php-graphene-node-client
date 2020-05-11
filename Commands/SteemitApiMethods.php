@@ -192,6 +192,12 @@ class SteemitApiMethods
                 '1' => ['integer'] //limit
             ]
         ],
+        'get_witness_by_account'                 => [
+            'apiName' => 'witness_api',
+            'fields'  => [
+                '0' => ['string'] //account
+            ]
+        ],
         'get_followers'                         => [
             'apiName' => 'follow_api',
             'fields'  => [
