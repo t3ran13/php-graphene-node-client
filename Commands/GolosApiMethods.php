@@ -211,6 +211,15 @@ class GolosApiMethods
                 '3' => ['integer'], //limit
             ]
         ],
+        'get_following'                         => [
+            'apiName' => 'follow',
+            'fields'  => [
+                '0' => ['string'], //author
+                '1' => ['nullOrString'], //startFollower
+                '2' => ['string'], //followType //blog, ignore
+                '3' => ['integer'], //limit
+            ]
+        ],
         'get_follow_count'                         => [
             'apiName' => 'follow',
             'fields'  => [
