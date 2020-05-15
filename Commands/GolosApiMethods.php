@@ -182,6 +182,12 @@ class GolosApiMethods
                 '1' => ['bool'], //onlyVirtual
             ]
         ],
+        'get_transaction'                      => [
+            'apiName' => 'operation_history',
+            'fields'  => [
+                '0' => ['string'], //trxId
+            ]
+        ],
         'get_trending_tags'               => [
             'apiName' => 'tags',
             'fields'  => [

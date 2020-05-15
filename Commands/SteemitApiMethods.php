@@ -165,6 +165,12 @@ class SteemitApiMethods
                 '1' => ['bool'], //onlyVirtual
             ]
         ],
+        'get_transaction'                      => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '0' => ['string'], //trxId
+            ]
+        ],
         'get_reward_fund'                          => [
             'apiName' => 'database_api',
             'fields'  => [
