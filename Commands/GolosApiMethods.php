@@ -33,8 +33,9 @@ class GolosApiMethods
             'fields'  => [
                 '0' => ['string'], //authors
                 '1' => ['integer'], //from
-                '2' => ['integer'], //limit max 2000
-            ]
+                '2' => ['integer'], //limit max 10000
+                '3' => ['array'], //query
+                ]
         ],
         'get_account_votes'                     => [
             'apiName' => 'social_network',
