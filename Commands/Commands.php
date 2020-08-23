@@ -154,6 +154,8 @@ class Commands implements CommandInterface
                 $api = GolosApiMethods::$map;
             } elseif ($platform === ConnectorInterface::PLATFORM_STEEMIT) {
                 $api = SteemitApiMethods::$map;
+            } elseif ($platform === ConnectorInterface::PLATFORM_HIVE) {
+                $api = HiveApiMethods::$map;
             } elseif ($platform === ConnectorInterface::PLATFORM_VIZ) {
                 $api = VizApiMethods::$map;
             } elseif ($platform === ConnectorInterface::PLATFORM_WHALESHARES) {

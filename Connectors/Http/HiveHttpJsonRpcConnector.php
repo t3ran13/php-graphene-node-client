@@ -3,12 +3,12 @@
 namespace GrapheneNodeClient\Connectors\Http;
 
 
-class SteemitHttpJsonRpcConnector extends HttpJsonRpcConnectorAbstract
+class HiveHttpJsonRpcConnector extends HttpJsonRpcConnectorAbstract
 {
     /**
      * @var string
      */
-    protected $platform = self::PLATFORM_STEEMIT;
+    protected $platform = self::PLATFORM_HIVE;
 
     /**
      * https or http server
@@ -19,7 +19,10 @@ class SteemitHttpJsonRpcConnector extends HttpJsonRpcConnectorAbstract
      * @var string
      */
     protected static $nodeURL = [
-'https://api.steemit.com'
+        'https://steemd.privex.io',
+        'https://api.steemit.com',
+        'https://anyx.io',
+        'https://rpc.usesteem.com'
 //        'https://steemd.pevo.science' //too often 503
 //        'https://steemd.minnowsupportproject.org' //not full answers, some fields are empty
     ];
