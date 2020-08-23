@@ -33,8 +33,9 @@ class GolosApiMethods
             'fields'  => [
                 '0' => ['string'], //authors
                 '1' => ['integer'], //from
-                '2' => ['integer'], //limit max 2000
-            ]
+                '2' => ['integer'], //limit max 10000
+                '3' => ['array'], //query
+                ]
         ],
         'get_account_votes'                     => [
             'apiName' => 'social_network',
@@ -60,6 +61,11 @@ class GolosApiMethods
             'apiName' => 'database_api',
             'fields'  => [
                 '0' => ['integer'], //block_id
+            ]
+        ],
+        'get_chain_properties'         => [
+            'apiName' => 'database_api',
+            'fields'  => [
             ]
         ],
         'get_config'                   => [
@@ -177,6 +183,12 @@ class GolosApiMethods
                 '1' => ['bool'], //onlyVirtual
             ]
         ],
+        'get_transaction'                      => [
+            'apiName' => 'operation_history',
+            'fields'  => [
+                '0' => ['string'], //trxId
+            ]
+        ],
         'get_trending_tags'               => [
             'apiName' => 'tags',
             'fields'  => [
@@ -191,7 +203,22 @@ class GolosApiMethods
                 '1' => ['integer'] //limit
             ]
         ],
+        'get_witness_by_account'                 => [
+            'apiName' => 'witness_api',
+            'fields'  => [
+                '0' => ['string'] //account
+            ]
+        ],
         'get_followers'                         => [
+            'apiName' => 'follow',
+            'fields'  => [
+                '0' => ['string'], //author
+                '1' => ['nullOrString'], //startFollower
+                '2' => ['string'], //followType //blog, ignore
+                '3' => ['integer'], //limit
+            ]
+        ],
+        'get_following'                         => [
             'apiName' => 'follow',
             'fields'  => [
                 '0' => ['string'], //author
@@ -250,6 +277,15 @@ class GolosApiMethods
                 '0:operations:*:1'   => ['array'],
                 '0:extensions'       => ['array'],
                 '0:signatures'       => ['array']
+            ]
+        ],
+        'get_vesting_delegations'                 => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '0' => ['string'], //account
+                '1' => ['string'], //from
+                '2' => ['integer'], //limit <= 100
+                '3' => ['string'], //type //receive, delegated
             ]
         ],
     ];

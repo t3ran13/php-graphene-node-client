@@ -19,5 +19,5 @@ class WhalesharesHttpJsonRpcConnector extends HttpJsonRpcConnectorAbstract
      *
      * @var string
      */
-    protected static $nodeURL = ['https://rpc.wls.services'];
+    protected static $nodeURL = ['https://rpc.whaleshares.io'];
 }

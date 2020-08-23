@@ -4,7 +4,7 @@
 namespace GrapheneNodeClient\Commands;
 
 
-class WhalesharesApiMethods
+class HiveApiMethods
 {
     /**
      *  [ 'method_name' => [ 'apiName' => 'api_name', 'fields'=>['массив с полями из команды']]];
@@ -31,7 +31,7 @@ class WhalesharesApiMethods
         'get_account_history'                   => [
             'apiName' => 'database_api',
             'fields'  => [
-                '0' => ['string'], //author
+                '0' => ['string'], //authors
                 '1' => ['integer'], //from
                 '2' => ['integer'], //limit max 2000
             ]
@@ -39,19 +39,26 @@ class WhalesharesApiMethods
         'get_account_votes'                     => [
             'apiName' => 'database_api',
             'fields'  => [
-                '0' => ['string'] //account name
+                '0' => ['string'], //account name
             ]
         ],
         'get_active_votes'                      => [
             'apiName' => 'database_api',
             'fields'  => [
                 '0' => ['string'], //author
-                '1' => ['string'] //permlink
+                '1' => ['string'], //permlink
             ]
         ],
         'get_active_witnesses'                  => [
             'apiName' => 'database_api',
             'fields'  => [
+            ]
+        ],
+        'get_content'                           => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '0' => ['string'], //author
+                '1' => ['string'], //permlink
             ]
         ],
         'get_block_header'                      => [
@@ -70,18 +77,16 @@ class WhalesharesApiMethods
             'fields'  => [
             ]
         ],
-        'get_content'                           => [
-            'apiName' => 'database_api',
-            'fields'  => [
-                '0' => ['string'], //author
-                '1' => ['string'] //permlink
-            ]
-        ],
         'get_content_replies'                   => [
             'apiName' => 'database_api',
             'fields'  => [
                 '0' => ['string'], //author
-                '1' => ['string'] //permlink
+                '1' => ['string'], //permlink
+            ]
+        ],
+        'get_current_median_history_price'      => [
+            'apiName' => 'database_api',
+            'fields'  => [
             ]
         ],
         'get_discussions_by_author_before_date' => [
@@ -90,7 +95,7 @@ class WhalesharesApiMethods
                 '0' => ['string'], //'author',
                 '1' => ['string'], //'start_permlink' for pagination,
                 '2' => ['string'], //'before_date'
-                '3' => ['integer'] //'limit'
+                '3' => ['integer'], //'limit'
             ]
         ],
         'get_discussions_by_blog'               => [
@@ -117,7 +122,7 @@ class WhalesharesApiMethods
                 '*:limit'          => ['integer'], //'limit'
                 '*:start_author'   => ['nullOrString'], //'start_author' for pagination,
                 '*:start_permlink' => ['nullOrString'] //'start_permlink' for pagination,
-            ],
+            ]
         ],
         'get_discussions_by_feed'               => [
             'apiName' => 'database_api',
@@ -139,6 +144,11 @@ class WhalesharesApiMethods
         ],
         'get_dynamic_global_properties'         => [
             'apiName' => 'database_api',
+            'fields'  => [
+            ]
+        ],
+        'get_feed_history'         => [
+            'apiName' => 'witness_api',
             'fields'  => [
             ]
         ],
@@ -219,6 +229,11 @@ class WhalesharesApiMethods
             'apiName' => 'login_api',
             'fields'  => [
                 '0' => ['string'], //'api_name',for example follow_api, database_api, login_api and ect.
+            ]
+        ],
+        'get_ticker'                           => [
+            'apiName' => 'market_history',
+            'fields'  => [
             ]
         ],
         'broadcast_transaction'                 => [

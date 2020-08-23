@@ -67,6 +67,11 @@ class SteemitApiMethods
                 '0' => ['integer'], //block_id
             ]
         ],
+        'get_chain_properties'         => [
+            'apiName' => 'database_api',
+            'fields'  => [
+            ]
+        ],
         'get_config'                   => [
             'apiName' => 'database_api',
             'fields'  => [
@@ -160,6 +165,12 @@ class SteemitApiMethods
                 '1' => ['bool'], //onlyVirtual
             ]
         ],
+        'get_transaction'                      => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '0' => ['string'], //trxId
+            ]
+        ],
         'get_reward_fund'                          => [
             'apiName' => 'database_api',
             'fields'  => [
@@ -185,6 +196,12 @@ class SteemitApiMethods
             'fields'  => [
                 '0' => ['string'], //from accountName, can be empty string ''
                 '1' => ['integer'] //limit
+            ]
+        ],
+        'get_witness_by_account'                 => [
+            'apiName' => 'witness_api',
+            'fields'  => [
+                '0' => ['string'] //account
             ]
         ],
         'get_followers'                         => [

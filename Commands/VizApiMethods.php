@@ -63,6 +63,11 @@ class VizApiMethods
                 '0' => ['integer'], //block_id
             ]
         ],
+        'get_chain_properties'         => [
+            'apiName' => 'database_api',
+            'fields'  => [
+            ]
+        ],
         'get_config'                   => [
             'apiName' => 'database_api',
             'fields'  => [
@@ -157,6 +162,12 @@ class VizApiMethods
                 '1' => ['bool'], //onlyVirtual
             ]
         ],
+        'get_transaction'                      => [
+            'apiName' => 'operation_history',
+            'fields'  => [
+                '0' => ['string'], //trxId
+            ]
+        ],
         'get_trending_tags'               => [
             'apiName' => 'tags',
             'fields'  => [
@@ -169,6 +180,12 @@ class VizApiMethods
             'fields'  => [
                 '0' => ['string'], //from accountName, can be empty string ''
                 '1' => ['integer'] //limit
+            ]
+        ],
+        'get_witness_by_account'                 => [
+            'apiName' => 'witness_api',
+            'fields'  => [
+                '0' => ['string'] //account
             ]
         ],
         'get_followers'                         => [
@@ -220,6 +237,15 @@ class VizApiMethods
                 '0:operations:*:1'   => ['array'],
                 '0:extensions'       => ['array'],
                 '0:signatures'       => ['array']
+            ]
+        ],
+        'get_vesting_delegations'                 => [
+            'apiName' => 'database_api',
+            'fields'  => [
+                '0' => ['string'], //account
+                '1' => ['string'], //from
+                '2' => ['integer'], //limit <= 100
+                '3' => ['string'], //type //receive, delegated
             ]
         ],
     ];
