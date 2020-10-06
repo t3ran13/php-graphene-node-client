@@ -8,8 +8,8 @@ use GrapheneNodeClient\Connectors\ConnectorInterface;
 class ChainOperationsViz
 {
     const IDS = [
-        self::OPERATION_TRANSFER    => 2,
-        self::OPERATION_CUSTOM      => 10
+        ChainOperations::OPERATION_TRANSFER    => 2,
+        ChainOperations::OPERATION_CUSTOM      => 10
     ];
 
     const FIELDS_TYPES = [
