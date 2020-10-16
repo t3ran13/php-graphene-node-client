@@ -13,6 +13,7 @@ class ChainOperations
     const OPERATION_TRANSFER        = 'transfer';
     const OPERATION_CUSTOM_JSON     = 'custom_json';
     const OPERATION_CUSTOM          = 'custom';//only for VIZ
+    const OPERATION_WITNESS_UPDATE  = 'witness_update';
 
     /** @var array */
     protected static $opMap = [];
@@ -27,17 +28,26 @@ class ChainOperations
     public static function getOperationId($chainName, $operationName)
     {
         if (!isset(self::$opMap[$chainName])) {
-            if ($chainName === ConnectorInterface::PLATFORM_GOLOS) {
-                $op = ChainOperationsGolos::IDS;
-            } elseif ($chainName === ConnectorInterface::PLATFORM_STEEMIT) {
-                $op = ChainOperationsSteem::IDS;
-            } elseif ($chainName === ConnectorInterface::PLATFORM_VIZ) {
-                $op = ChainOperationsViz::IDS;
-            } elseif ($chainName === ConnectorInterface::PLATFORM_WHALESHARES) {
-                $op = ChainOperationsWhaleshares::IDS;
-            } else {
-                throw new \Exception("There is no operations id's for '{$chainName}'");
+            switch ($chainName) {
+                case ConnectorInterface::PLATFORM_GOLOS:
+                    $op = ChainOperationsGolos::IDS;
+                    break;
+                case ConnectorInterface::PLATFORM_HIVE:
+                    $op = ChainOperationsHive::IDS;
+                    break;
+                case ConnectorInterface::PLATFORM_STEEMIT:
+                    $op = ChainOperationsSteem::IDS;
+                    break;
+                case ConnectorInterface::PLATFORM_VIZ:
+                    $op = ChainOperationsViz::IDS;
+                    break;
+                case ConnectorInterface::PLATFORM_WHALESHARES:
+                    $op = ChainOperationsWhaleshares::IDS;
+                    break;
+                default:
+                    throw new \Exception("There is no operations id's for '{$chainName}'");
             }
+
             self::$opMap[$chainName] = $op;
         }
 

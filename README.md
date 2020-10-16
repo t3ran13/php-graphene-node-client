@@ -152,6 +152,7 @@ namespace GrapheneNodeClient\Tools\ChainOperations
 - transfer
 - comment // steem or golos
 - content // only viz
+- witness_update
 
 ```php
 <?php
