@@ -3,16 +3,21 @@
 namespace GrapheneNodeClient\Tools\ChainOperations;
 
 use GrapheneNodeClient\Connectors\ConnectorInterface;
+use StephenHill\Base58;
+use StephenHill\GMPService;
 use t3ran13\ByteBuffer\ByteBuffer;
 
 class OperationSerializer
 {
+    const TYPE_CHAIN_PROPERTIES  = 'chain_properties';
     const TYPE_SET_EXTENSIONS    = 'set_extensions';
     const TYPE_SET_BENEFICIARIES = 'set_beneficiaries';
     const TYPE_BENEFICIARY       = 'set_beneficiary';
     const TYPE_SET_STRING        = 'set_string';
+    const TYPE_PUBLIC_KEY        = 'public_key';
     const TYPE_STRING            = 'string';
     const TYPE_INT16             = 'int16';
+    const TYPE_INT32             = 'int32';
     const TYPE_ASSET             = 'asset';
     const TYPE_BOOL              = 'bool';
     const TYPE_INT8              = 'int8';
@@ -71,7 +76,7 @@ class OperationSerializer
         $byteBuffer->writeInt8($opId);
 
         foreach (self::getOpFieldsTypes($chainName, $operationName) as $field => $type) {
-            self::serializeType($type, $data[$field], $byteBuffer);
+            self::serializeType($type, $data[$field], $byteBuffer, $chainName);
         }
 
         return $byteBuffer;
@@ -88,17 +93,26 @@ class OperationSerializer
     public static function getOpFieldsTypes($chainName, $operationName)
     {
         if (!isset(self::$opFieldsMap[$chainName])) {
-            if ($chainName === ConnectorInterface::PLATFORM_GOLOS) {
-                $op = ChainOperationsGolos::FIELDS_TYPES;
-            } elseif ($chainName === ConnectorInterface::PLATFORM_STEEMIT) {
-                $op = ChainOperationsSteem::FIELDS_TYPES;
-            } elseif ($chainName === ConnectorInterface::PLATFORM_VIZ) {
-                $op = ChainOperationsViz::FIELDS_TYPES;
-            } elseif ($chainName === ConnectorInterface::PLATFORM_WHALESHARES) {
-                $op = ChainOperationsWhaleshares::FIELDS_TYPES;
-            } else {
-                throw new \Exception("There is no operations fields for '{$chainName}'");
+            switch ($chainName) {
+                case ConnectorInterface::PLATFORM_GOLOS:
+                    $op = ChainOperationsGolos::FIELDS_TYPES;
+                    break;
+                case ConnectorInterface::PLATFORM_HIVE:
+                    $op = ChainOperationsHive::FIELDS_TYPES;
+                    break;
+                case ConnectorInterface::PLATFORM_STEEMIT:
+                    $op = ChainOperationsSteem::FIELDS_TYPES;
+                    break;
+                case ConnectorInterface::PLATFORM_VIZ:
+                    $op = ChainOperationsViz::FIELDS_TYPES;
+                    break;
+                case ConnectorInterface::PLATFORM_WHALESHARES:
+                    $op = ChainOperationsWhaleshares::FIELDS_TYPES;
+                    break;
+                default:
+                    throw new \Exception("There is no operations fields for '{$chainName}'");
             }
+
             self::$opFieldsMap[$chainName] = $op;
         }
 
@@ -114,11 +128,12 @@ class OperationSerializer
      * @param string     $type
      * @param mixed      $value
      * @param ByteBuffer $byteBuffer
+     * @param string     $chainName
      *
      * @return mixed
      * @throws \Exception
      */
-    public static function serializeType($type, $value, $byteBuffer)
+    public static function serializeType($type, $value, $byteBuffer, $chainName)
     {
         if ($type === self::TYPE_STRING) {
             //Writes a UTF8 encoded string prefixed 32bit base 128 variable-length integer.
@@ -149,6 +164,8 @@ class OperationSerializer
             }
         } elseif ($type === self::TYPE_INT16) {
             $byteBuffer->writeInt16LE($value);
+        } elseif ($type === self::TYPE_INT32) {
+            $byteBuffer->writeInt32LE($value);
         } elseif ($type === self::TYPE_ASSET) {
             list($amount, $symbol) = explode(' ', $value);
 
@@ -186,6 +203,17 @@ class OperationSerializer
             $byteBuffer->writeInt8($value);
         } elseif ($type === self::TYPE_BOOL) {
             self::serializeType(self::TYPE_INT8, $value ? 1 : 0, $byteBuffer);
+        } elseif ($type === self::TYPE_PUBLIC_KEY) {
+            $clearPubKey = substr($value, 3);
+            $base58 = new Base58(null, new GMPService()); //decode base 58 to str
+            $stringPubKey = substr($base58->decode($clearPubKey), 0, 33);
+            $byteBuffer->writeVStringLE($stringPubKey);
+        } elseif ($type === self::TYPE_CHAIN_PROPERTIES) {
+            if (count($value) > 0) {
+                foreach (self::getOpFieldsTypes($chainName, self::TYPE_CHAIN_PROPERTIES) as $field => $type) {
+                    self::serializeType($type, $value[$field], $byteBuffer, $chainName);
+                }
+            }
         }
 
         return $byteBuffer;
