@@ -169,9 +169,7 @@ class OperationSerializer
         } elseif ($type === self::TYPE_ASSET) {
             list($amount, $symbol) = explode(' ', $value);
 
-            //TODO FIXME have to be writeInt64
-            $byteBuffer->writeInt32LE(str_replace('.', '', $amount));
-            $byteBuffer->writeInt32LE(0);
+            $byteBuffer->writeInt64LE(str_replace('.', '', $amount));
 
             $dot = strpos($amount, '.');
             $precision = $dot === false ? 0 : strlen($amount) - $dot - 1;
