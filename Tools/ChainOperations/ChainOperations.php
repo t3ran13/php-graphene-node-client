@@ -14,6 +14,7 @@ class ChainOperations
     const OPERATION_CUSTOM_JSON     = 'custom_json';
     const OPERATION_CUSTOM          = 'custom';//only for VIZ
     const OPERATION_WITNESS_UPDATE  = 'witness_update';
+    const OPERATION_DONATE          = 'donate';
 
     /** @var array */
     protected static $opMap = [];

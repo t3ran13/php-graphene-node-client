@@ -14,6 +14,7 @@ class ChainOperationsGolos
         ChainOperations::OPERATION_TRANSFER        => 2,
         ChainOperations::OPERATION_CUSTOM_JSON     => 18,
         ChainOperations::OPERATION_WITNESS_UPDATE  => 11,
+        ChainOperations::OPERATION_DONATE          => 54,
     ];
 
     const FIELDS_TYPES = [
@@ -53,7 +54,7 @@ class ChainOperationsGolos
             'id'                     => OperationSerializer::TYPE_STRING,
             'json'                   => OperationSerializer::TYPE_STRING
         ],
-        ChainOperations::OPERATION_WITNESS_UPDATE     => [
+        ChainOperations::OPERATION_WITNESS_UPDATE  => [
             'owner'             => OperationSerializer::TYPE_STRING,
             'url'               => OperationSerializer::TYPE_STRING,
             'block_signing_key' => OperationSerializer::TYPE_PUBLIC_KEY,
@@ -64,6 +65,21 @@ class ChainOperationsGolos
             'account_creation_fee' => OperationSerializer::TYPE_ASSET,
             'maximum_block_size'   => OperationSerializer::TYPE_INT32,
             'sbd_interest_rate'    => OperationSerializer::TYPE_INT16
+        ],
+        ChainOperations::OPERATION_DONATE  => [
+            'from'             => OperationSerializer::TYPE_STRING,
+            'to'               => OperationSerializer::TYPE_STRING,
+            'amount'           => OperationSerializer::TYPE_ASSET,
+            'memo'             => OperationSerializer::TYPE_DONATE_MEMO,
+            'extensions'       => OperationSerializer::TYPE_SET_FUTURE_EXTENSIONS
+        ],
+        OperationSerializer::TYPE_DONATE_MEMO => [
+            'app'     => OperationSerializer::TYPE_STRING,
+            'version' => OperationSerializer::TYPE_INT16,
+            'target'  => OperationSerializer::TYPE_VARIANT_OBJECT,
+            'comment' => OperationSerializer::TYPE_OPTIONAL_STRING
+        ],
+        OperationSerializer::TYPE_FUTURE_EXTENSIONS => [
         ]
     ];
 }
